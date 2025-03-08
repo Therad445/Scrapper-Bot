@@ -1,15 +1,19 @@
 package backend.academy.bot.dto;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import java.util.List;
-
 
 public class AddLinkRequest {
     private String link;
     private List<String> tags;
     private List<String> filters;
+
+    public AddLinkRequest() {}
+
+    public AddLinkRequest(String link, List<String> tags, List<String> filters) {
+        this.link = link;
+        this.tags = tags;
+        this.filters = filters;
+    }
 
     public String getLink() {
         return link;

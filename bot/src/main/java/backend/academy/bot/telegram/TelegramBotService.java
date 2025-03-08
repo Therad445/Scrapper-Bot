@@ -17,7 +17,11 @@ import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -43,9 +47,9 @@ public class TelegramBotService {
         BotCommand[] commands = {
             new BotCommand("/start", "Регистрация пользователя"),
             new BotCommand("/help", "Список команд"),
-            new BotCommand("/track", "Начать отслеживание ссылки"),
+            new BotCommand("/track", "Отслеживать ссылку"),
             new BotCommand("/untrack", "Прекратить отслеживание ссылки"),
-            new BotCommand("/list", "Список отслеживаемых ссылок")
+            new BotCommand("/list", "Список ссылок")
         };
         telegramBot.execute(new SetMyCommands(commands));
     }
@@ -99,24 +103,19 @@ public class TelegramBotService {
 
     private void handleTrack(Long chatId, String text, UserSession session) {
         String[] parts = text.split(" ", 2);
-        if (parts.length < 2) {
+        if (parts.length < 2 || parts[1].isBlank()) {
             sendMessage(chatId, "Введите URL для отслеживания после команды /track");
             return;
         }
-        String link = parts[1];
-
-        log.info("Отправляем в Scrapper: chatId={}, url={}", chatId, link); // Логируем
-
-        LinkResponse response = scrapperClient.trackLink(chatId, link);
-
-        log.info("Scrapper вернул: {}", response.getLink()); // Логируем, что вернул Scrapper
-
-        sendMessage(chatId, "Ссылка добавлена в отслеживание: " + response.getLink());
+        String url = parts[1];
+        session.setPendingUrl(url);
+        session.setState(BotState.WAITING_FOR_TAGS);
+        sendMessage(chatId, "Введите тэги (опционально):");
     }
 
     private void handleUntrack(Long chatId, String text) {
         String[] parts = text.split(" ", 2);
-        if (parts.length < 2) {
+        if (parts.length < 2 || parts[1].isBlank()) {
             sendMessage(chatId, "Введите URL для удаления после команды /untrack");
             return;
         }
@@ -140,19 +139,18 @@ public class TelegramBotService {
         if (session.getState() == BotState.WAITING_FOR_TAGS) {
             session.setPendingTags(text);
             session.setState(BotState.WAITING_FOR_FILTERS);
-            sendMessage(chatId, "Введите фильтры (опционально):");
+            sendMessage(chatId, "Настройте фильтры (опционально):");
         } else if (session.getState() == BotState.WAITING_FOR_FILTERS) {
             session.setPendingFilters(text);
-            String responseMsg = String.format("Ссылка %s добавлена с тегами: %s и фильтрами: %s",
-                session.getPendingUrl(),
-                session.getPendingTags(),
-                session.getPendingFilters());
-            sendMessage(chatId, responseMsg);
-            // Сброс состояния
-            session.setState(BotState.NONE);
-            session.setPendingUrl(null);
-            session.setPendingTags(null);
-            session.setPendingFilters(null);
+            List<String> tags = session.getPendingTags() != null && !session.getPendingTags().isBlank() ?
+                Arrays.asList(session.getPendingTags().split("\\s+")) :
+                Collections.emptyList();
+            List<String> filters = session.getPendingFilters() != null && !session.getPendingFilters().isBlank() ?
+                Arrays.asList(session.getPendingFilters().split("\\s+")) :
+                Collections.emptyList();
+            LinkResponse response = scrapperClient.trackLink(chatId, session.getPendingUrl(), tags, filters);
+            sendMessage(chatId, "Ссылка добавлена в отслеживание: " + response.getLink());
+            session.reset();
         }
     }
 

@@ -4,15 +4,14 @@ import backend.academy.bot.dto.AddLinkRequest;
 import backend.academy.bot.dto.LinkResponse;
 import backend.academy.bot.dto.ListLinksResponse;
 import backend.academy.bot.dto.RemoveLinkRequest;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-
 import java.net.URI;
 import java.util.Collections;
+import java.util.List;
 
 @Component
 @Slf4j
@@ -44,11 +43,11 @@ public class ScrapperClient {
         return response.getBody();
     }
 
-    public LinkResponse trackLink(Long chatId, String url) {
+    public LinkResponse trackLink(Long chatId, String url, List<String> tags, List<String> filters) {
         AddLinkRequest requestBody = new AddLinkRequest();
         requestBody.setLink(url);
-        requestBody.setTags(Collections.emptyList());
-        requestBody.setFilters(Collections.emptyList());
+        requestBody.setTags(tags);
+        requestBody.setFilters(filters);
 
         URI uri = UriComponentsBuilder.fromHttpUrl(scrapperBaseUrl)
             .path("/links")
@@ -56,13 +55,16 @@ public class ScrapperClient {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Tg-chat-id", chatId.toString());
+
         HttpEntity<AddLinkRequest> entity = new HttpEntity<>(requestBody, headers);
         ResponseEntity<LinkResponse> response = restTemplate.postForEntity(uri, entity, LinkResponse.class);
-
-        log.info("ScrapperClient: отправили запрос на Scrapper с URL {}, Scrapper ответил {}",
-            url, response.getBody().getLink()); // Логируем
-
+        log.info("ScrapperClient: отправили запрос на Scrapper с URL {}, тэгами {} и фильтрами {}. Scrapper ответил: {}",
+            url, tags, filters, response.getBody().getLink());
         return response.getBody();
+    }
+
+    public LinkResponse trackLink(Long chatId, String url) {
+        return trackLink(chatId, url, Collections.emptyList(), Collections.emptyList());
     }
 
     public void untrackLink(Long chatId, String url) {

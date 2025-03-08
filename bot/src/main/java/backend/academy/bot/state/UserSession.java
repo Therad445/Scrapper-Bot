@@ -1,9 +1,5 @@
 package backend.academy.bot.state;
 
-import lombok.Getter;
-import lombok.Setter;
-
-
 public class UserSession {
     private BotState state = BotState.NONE;
     private String pendingUrl;
@@ -40,5 +36,12 @@ public class UserSession {
 
     public void setPendingFilters(String pendingFilters) {
         this.pendingFilters = pendingFilters;
+    }
+
+    public void reset() {
+        this.state = BotState.NONE;
+        this.pendingUrl = null;
+        this.pendingTags = null;
+        this.pendingFilters = null;
     }
 }
