@@ -14,16 +14,15 @@ import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.request.SetMyCommands;
 import com.pengrad.telegrambot.model.BotCommand;
 import jakarta.annotation.PostConstruct;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
+@Slf4j
 public class TelegramBotService {
 
-    private static final Logger logger = LoggerFactory.getLogger(TelegramBotService.class);
     private final TelegramBot telegramBot;
     private final ScrapperClient scrapperClient;
     private final Map<Long, UserSession> userSessions = new HashMap<>();
@@ -37,7 +36,7 @@ public class TelegramBotService {
     public void init() {
         setMyCommands();
         startListener();
-        logger.info("Telegram Bot запущен");
+        log.info("Telegram Bot запущен");
     }
 
     private void setMyCommands() {
@@ -66,7 +65,7 @@ public class TelegramBotService {
 
         Long chatId = message.chat().id();
         String text = message.text().trim();
-        logger.info("Получено сообщение от чата {}: {}", chatId, text);
+        log.info("Получено сообщение от чата {}: {}", chatId, text);
 
         UserSession session = userSessions.computeIfAbsent(chatId, k -> new UserSession());
         if (session.getState() != BotState.NONE) {
@@ -126,7 +125,7 @@ public class TelegramBotService {
             sendMessage(chatId, "Список отслеживаемых ссылок пуст.");
         } else {
             StringBuilder sb = new StringBuilder("Ваши подписки:\n");
-            response.getLinks().forEach(link -> sb.append(link.getUrl()).append("\n"));
+            response.getLinks().forEach(link -> sb.append(link.getLink()).append("\n"));
             sendMessage(chatId, sb.toString());
         }
     }

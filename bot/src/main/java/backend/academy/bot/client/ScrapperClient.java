@@ -4,6 +4,8 @@ import backend.academy.bot.dto.AddLinkRequest;
 import backend.academy.bot.dto.LinkResponse;
 import backend.academy.bot.dto.ListLinksResponse;
 import backend.academy.bot.dto.RemoveLinkRequest;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -13,6 +15,7 @@ import java.net.URI;
 import java.util.Collections;
 
 @Component
+@Slf4j
 public class ScrapperClient {
 
     private final RestTemplate restTemplate;
