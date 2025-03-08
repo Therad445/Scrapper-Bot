@@ -6,11 +6,13 @@ import backend.academy.scrapper.model.LinkResponse;
 import backend.academy.scrapper.model.ListLinksResponse;
 import backend.academy.scrapper.model.RemoveLinkRequest;
 import backend.academy.scrapper.repository.LinkRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Slf4j
 public class LinkService {
     private final LinkRepository linkRepository;
 
@@ -29,6 +31,7 @@ public class LinkService {
     public LinkResponse add(Long chatId, AddLinkRequest addLinkRequest) {
         LinkInfo linkInfo = new LinkInfo(addLinkRequest.getLink(), addLinkRequest.getTags(), addLinkRequest.getFilters());
         linkRepository.add(chatId, linkInfo);
+        log.info("Scrapper сохранил: chatId={}, url={}", chatId, linkInfo.getLink());
         return new LinkResponse(chatId, addLinkRequest.getLink(), addLinkRequest.getTags(), addLinkRequest.getFilters());
     }
 
