@@ -135,24 +135,26 @@ public class TelegramBotService {
         }
     }
 
+
     private void handleStatefulInput(Long chatId, String text, UserSession session) {
         if (session.getState() == BotState.WAITING_FOR_TAGS) {
-            session.setPendingTags(text);
+            String tagsInput = text.trim().isEmpty() ? "Нет" : text;
+            session.setPendingTags(tagsInput);
             session.setState(BotState.WAITING_FOR_FILTERS);
             sendMessage(chatId, "Настройте фильтры (опционально):");
         } else if (session.getState() == BotState.WAITING_FOR_FILTERS) {
-            session.setPendingFilters(text);
-            List<String> tags = session.getPendingTags() != null && !session.getPendingTags().isBlank() ?
-                Arrays.asList(session.getPendingTags().split("\\s+")) :
-                Collections.emptyList();
-            List<String> filters = session.getPendingFilters() != null && !session.getPendingFilters().isBlank() ?
-                Arrays.asList(session.getPendingFilters().split("\\s+")) :
-                Collections.emptyList();
+            String filtersInput = text.trim().isEmpty() ? "Нет" : text;
+            session.setPendingFilters(filtersInput);
+            List<String> tags = !session.getPendingTags().equals("Нет") ?
+                Arrays.asList(session.getPendingTags().split("\\s+")) : Collections.emptyList();
+            List<String> filters = !filtersInput.equals("Нет") ?
+                Arrays.asList(filtersInput.split("\\s+")) : Collections.emptyList();
             LinkResponse response = scrapperClient.trackLink(chatId, session.getPendingUrl(), tags, filters);
             sendMessage(chatId, "Ссылка добавлена в отслеживание: " + response.getLink());
             session.reset();
         }
     }
+
 
     public void sendMessage(Long chatId, String text) {
         telegramBot.execute(new SendMessage(chatId, text));
