@@ -103,9 +103,15 @@ public class TelegramBotService {
             sendMessage(chatId, "Введите URL для отслеживания после команды /track");
             return;
         }
-        String url = parts[1];
-        LinkResponse response = scrapperClient.trackLink(chatId, url);
-        sendMessage(chatId, "Ссылка добавлена в отслеживание: " + response.getUrl());
+        String link = parts[1];
+
+        log.info("Отправляем в Scrapper: chatId={}, url={}", chatId, link); // Логируем
+
+        LinkResponse response = scrapperClient.trackLink(chatId, link);
+
+        log.info("Scrapper вернул: {}", response.getLink()); // Логируем, что вернул Scrapper
+
+        sendMessage(chatId, "Ссылка добавлена в отслеживание: " + response.getLink());
     }
 
     private void handleUntrack(Long chatId, String text) {

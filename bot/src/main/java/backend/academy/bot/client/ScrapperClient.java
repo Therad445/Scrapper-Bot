@@ -58,6 +58,10 @@ public class ScrapperClient {
         headers.set("Tg-chat-id", chatId.toString());
         HttpEntity<AddLinkRequest> entity = new HttpEntity<>(requestBody, headers);
         ResponseEntity<LinkResponse> response = restTemplate.postForEntity(uri, entity, LinkResponse.class);
+
+        log.info("ScrapperClient: отправили запрос на Scrapper с URL {}, Scrapper ответил {}",
+            url, response.getBody().getLink()); // Логируем
+
         return response.getBody();
     }
 
