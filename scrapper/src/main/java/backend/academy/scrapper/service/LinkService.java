@@ -20,7 +20,7 @@ public class LinkService {
         this.linkRepository = linkRepository;
     }
 
-    public ListLinksResponse get(Long chatId) {
+    public ListLinksResponse getLinks(Long chatId) {
         List<LinkInfo> links = linkRepository.get(chatId);
         List<LinkResponse> linkResponses = links.stream()
             .map(linkInfo -> new LinkResponse(chatId, linkInfo.getLink(), linkInfo.getTags(), linkInfo.getFilters()))
@@ -28,14 +28,14 @@ public class LinkService {
         return new ListLinksResponse(linkResponses, linkResponses.size());
     }
 
-    public LinkResponse add(Long chatId, AddLinkRequest addLinkRequest) {
+    public LinkResponse addLink(Long chatId, AddLinkRequest addLinkRequest) {
         LinkInfo linkInfo = new LinkInfo(addLinkRequest.getLink(), addLinkRequest.getTags(), addLinkRequest.getFilters());
         linkRepository.add(chatId, linkInfo);
         log.info("Scrapper сохранил: chatId={}, url={}", chatId, linkInfo.getLink());
         return new LinkResponse(chatId, addLinkRequest.getLink(), addLinkRequest.getTags(), addLinkRequest.getFilters());
     }
 
-    public LinkResponse remove(Long chatId, RemoveLinkRequest removeLinkRequest) {
+    public LinkResponse removeLinks(Long chatId, RemoveLinkRequest removeLinkRequest) {
         Optional<LinkInfo> removedLinkInfo = linkRepository.remove(chatId, removeLinkRequest.getLink());
         if (removedLinkInfo.isEmpty()) {
             throw new IllegalArgumentException("Ссылка не найдена!");

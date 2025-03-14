@@ -1,9 +1,7 @@
 package backend.academy.scrapper.controller;
 
-import backend.academy.scrapper.model.AddLinkRequest;
 import backend.academy.scrapper.model.LinkResponse;
 import backend.academy.scrapper.model.ListLinksResponse;
-import backend.academy.scrapper.model.RemoveLinkRequest;
 import backend.academy.scrapper.service.LinkService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -52,7 +49,7 @@ public class LinksControllerTest {
 
         LinkResponse linkResponse = new LinkResponse(chatId, "http://example.com", tags, filters);
         ListLinksResponse listLinksResponse = new ListLinksResponse(List.of(linkResponse), 1);  // Здесь size = 1
-        when(linkService.get(chatId)).thenReturn(listLinksResponse);
+        when(linkService.getLinks(chatId)).thenReturn(listLinksResponse);
 
         // Act & Assert
         mockMvc.perform(get("/links")
@@ -63,7 +60,7 @@ public class LinksControllerTest {
             .andExpect(jsonPath("$.links[0].tags[0]").value("tag1"))
             .andExpect(jsonPath("$.links[0].filters[0]").value("filter1"));
 
-        verify(linkService, times(1)).get(chatId);
+        verify(linkService, times(1)).getLinks(chatId);
     }
 
 }

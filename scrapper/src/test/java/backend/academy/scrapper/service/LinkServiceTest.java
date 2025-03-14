@@ -33,7 +33,7 @@ public class LinkServiceTest {
     }
 
     @Test
-    void shouldReturnListLinksResponseWhenGetMethodIsCalled() {
+    void shouldReturnListLinksResponseWhenGetLinksMethodIsCalled() {
         // Arrange
         Long chatId = 123L;
         Set<String> tags = new HashSet<>();
@@ -45,7 +45,7 @@ public class LinkServiceTest {
         when(linkRepository.get(chatId)).thenReturn(List.of(linkInfo));
 
         // Act
-        ListLinksResponse response = linkService.get(chatId);
+        ListLinksResponse response = linkService.getLinks(chatId);
 
         // Assert
         assertNotNull(response);
@@ -58,7 +58,7 @@ public class LinkServiceTest {
 
 
     @Test
-    void shouldRemoveLinkAndReturnLinkResponseWhenRemoveMethodIsCalled() {
+    void shouldRemoveLinkAndReturnLinkResponseWhenRemoveLinksMethodIsCalled() {
         // Arrange
         Long chatId = 123L;
         Set<String> tags = new HashSet<>();
@@ -72,7 +72,7 @@ public class LinkServiceTest {
         when(linkRepository.remove(chatId, "http://example.com")).thenReturn(Optional.of(linkInfo));
 
         // Act
-        LinkResponse response = linkService.remove(chatId, removeLinkRequest);
+        LinkResponse response = linkService.removeLinks(chatId, removeLinkRequest);
 
         // Assert
         assertNotNull(response);
@@ -86,7 +86,7 @@ public class LinkServiceTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenRemoveLinkNotFound() {
+    void shouldThrowExceptionWhenRemoveLinksLinkNotFound() {
         // Arrange
         Long chatId = 123L;
         RemoveLinkRequest removeLinkRequest = new RemoveLinkRequest("http://nonexistent.com");
@@ -95,7 +95,7 @@ public class LinkServiceTest {
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-            linkService.remove(chatId, removeLinkRequest)
+            linkService.removeLinks(chatId, removeLinkRequest)
         );
         assertEquals("Ссылка не найдена!", exception.getMessage());
 
