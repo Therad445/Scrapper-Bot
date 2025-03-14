@@ -1,6 +1,7 @@
 package backend.academy.scrapper.dto;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 public class LinkInfo {
@@ -12,6 +13,7 @@ public class LinkInfo {
         this.link = link;
         this.tags = tags == null ? new HashSet<>() : tags;
         this.filters = filters == null ? new HashSet<>() : filters;
+
     }
 
     public String getLink() {
@@ -24,5 +26,18 @@ public class LinkInfo {
 
     public Set<String> getFilters() {
         return filters;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        LinkInfo linkInfo = (LinkInfo) o;
+        return Objects.equals(link, linkInfo.link) && Objects.equals(tags, linkInfo.tags) && Objects.equals(filters, linkInfo.filters);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(link, tags, filters);
     }
 }
