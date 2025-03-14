@@ -15,15 +15,15 @@ import java.util.concurrent.ConcurrentHashMap;
 public class LinkRepository {
     private final Map<Long, Set<LinkInfo>> dataBase = new ConcurrentHashMap<>();
 
-    public List<LinkInfo> get(Long chatId) {
+    public List<LinkInfo> getLinks(Long chatId) {
         return new ArrayList<>(dataBase.getOrDefault(chatId, Collections.emptySet()));
     }
 
-    public void add(Long chatId, LinkInfo linkInfo) {
+    public void addLink(Long chatId, LinkInfo linkInfo) {
         dataBase.computeIfAbsent(chatId, k -> new HashSet<>()).add(linkInfo);
     }
 
-    public Optional<LinkInfo> remove(Long chatId, String link) {
+    public Optional<LinkInfo> removeLink(Long chatId, String link) {
         Set<LinkInfo> links = dataBase.get(chatId);
         if (links == null) {
             return Optional.empty();

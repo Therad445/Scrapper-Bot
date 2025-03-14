@@ -42,7 +42,7 @@ public class LinkServiceTest {
         filters.add("filter1");
 
         LinkInfo linkInfo = new LinkInfo("http://example.com", tags, filters);
-        when(linkRepository.get(chatId)).thenReturn(List.of(linkInfo));
+        when(linkRepository.getLinks(chatId)).thenReturn(List.of(linkInfo));
 
         // Act
         ListLinksResponse response = linkService.getLinks(chatId);
@@ -69,7 +69,7 @@ public class LinkServiceTest {
         LinkInfo linkInfo = new LinkInfo("http://example.com", tags, filters);
         RemoveLinkRequest removeLinkRequest = new RemoveLinkRequest("http://example.com");
 
-        when(linkRepository.remove(chatId, "http://example.com")).thenReturn(Optional.of(linkInfo));
+        when(linkRepository.removeLink(chatId, "http://example.com")).thenReturn(Optional.of(linkInfo));
 
         // Act
         LinkResponse response = linkService.removeLinks(chatId, removeLinkRequest);
@@ -82,7 +82,7 @@ public class LinkServiceTest {
         assertEquals(filters, response.getFilters());
 
         // Verify that linkRepository.remove() was called once
-        verify(linkRepository, times(1)).remove(chatId, "http://example.com");
+        verify(linkRepository, times(1)).removeLink(chatId, "http://example.com");
     }
 
     @Test
@@ -91,7 +91,7 @@ public class LinkServiceTest {
         Long chatId = 123L;
         RemoveLinkRequest removeLinkRequest = new RemoveLinkRequest("http://nonexistent.com");
 
-        when(linkRepository.remove(chatId, "http://nonexistent.com")).thenReturn(Optional.empty());
+        when(linkRepository.removeLink(chatId, "http://nonexistent.com")).thenReturn(Optional.empty());
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
@@ -100,6 +100,6 @@ public class LinkServiceTest {
         assertEquals("Ссылка не найдена!", exception.getMessage());
 
         // Verify that linkRepository.remove() was called once
-        verify(linkRepository, times(1)).remove(chatId, "http://nonexistent.com");
+        verify(linkRepository, times(1)).removeLink(chatId, "http://nonexistent.com");
     }
 }

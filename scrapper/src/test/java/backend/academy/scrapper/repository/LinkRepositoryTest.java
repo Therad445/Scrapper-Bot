@@ -21,7 +21,7 @@ public class LinkRepositoryTest {
     }
 
     @Test
-    void shouldAddLinkInfoWhenAddMethodIsCalled() {
+    void shouldAddLinkInfoWhenAddLinkMethodIsCalled() {
         // Arrange
         Long chatId = 123L;
         Set<String> tags = new HashSet<>();
@@ -32,8 +32,8 @@ public class LinkRepositoryTest {
         LinkInfo linkInfo = new LinkInfo("http://example.com", tags, filters);
 
         // Act
-        linkRepository.add(chatId, linkInfo);
-        List<LinkInfo> links = linkRepository.get(chatId);
+        linkRepository.addLink(chatId, linkInfo);
+        List<LinkInfo> links = linkRepository.getLinks(chatId);
 
         // Assert
         assertEquals(1, links.size());
@@ -49,14 +49,14 @@ public class LinkRepositoryTest {
         Long chatId = 123L;
 
         // Act
-        List<LinkInfo> links = linkRepository.get(chatId);
+        List<LinkInfo> links = linkRepository.getLinks(chatId);
 
         // Assert
         assertTrue(links.isEmpty());
     }
 
     @Test
-    void shouldRemoveLinkWhenRemoveMethodIsCalled() {
+    void shouldRemoveLinkWhenRemoveLinkMethodIsCalled() {
         // Arrange
         Long chatId = 123L;
         Set<String> tags = new HashSet<>();
@@ -65,10 +65,10 @@ public class LinkRepositoryTest {
         filters.add("filter1");
 
         LinkInfo linkInfo = new LinkInfo("http://example.com", tags, filters);
-        linkRepository.add(chatId, linkInfo);
+        linkRepository.addLink(chatId, linkInfo);
 
         // Act
-        Optional<LinkInfo> removedLink = linkRepository.remove(chatId, "http://example.com");
+        Optional<LinkInfo> removedLink = linkRepository.removeLink(chatId, "http://example.com");
 
         // Assert
         assertTrue(removedLink.isPresent());
@@ -77,7 +77,7 @@ public class LinkRepositoryTest {
         assertEquals(linkInfo.getFilters(), removedLink.get().getFilters());
 
         // Ensure link is removed from the repository
-        List<LinkInfo> links = linkRepository.get(chatId);
+        List<LinkInfo> links = linkRepository.getLinks(chatId);
         assertTrue(links.isEmpty());
     }
 
@@ -91,17 +91,17 @@ public class LinkRepositoryTest {
         filters.add("filter1");
 
         LinkInfo linkInfo = new LinkInfo("http://example.com", tags, filters);
-        linkRepository.add(chatId, linkInfo);
+        linkRepository.addLink(chatId, linkInfo);
 
         // Act
-        Optional<LinkInfo> removedLink = linkRepository.remove(chatId, "http://nonexistent.com");
+        Optional<LinkInfo> removedLink = linkRepository.removeLink(chatId, "http://nonexistent.com");
 
         // Assert
         assertFalse(removedLink.isPresent());
     }
 
     @Test
-    void shouldRemoveChatEntryWhenAllLinksAreRemoved() {
+    void shouldRemoveLinkChatEntryWhenAllLinksAreRemoved() {
         // Arrange
         Long chatId = 123L;
         Set<String> tags1 = new HashSet<>();
@@ -117,15 +117,15 @@ public class LinkRepositoryTest {
         LinkInfo linkInfo1 = new LinkInfo("http://example1.com", tags1, filters1);
         LinkInfo linkInfo2 = new LinkInfo("http://example2.com", tags2, filters2);
 
-        linkRepository.add(chatId, linkInfo1);
-        linkRepository.add(chatId, linkInfo2);
+        linkRepository.addLink(chatId, linkInfo1);
+        linkRepository.addLink(chatId, linkInfo2);
 
         // Act
-        linkRepository.remove(chatId, "http://example1.com");
-        linkRepository.remove(chatId, "http://example2.com");
+        linkRepository.removeLink(chatId, "http://example1.com");
+        linkRepository.removeLink(chatId, "http://example2.com");
 
         // Assert
-        List<LinkInfo> links = linkRepository.get(chatId);
+        List<LinkInfo> links = linkRepository.getLinks(chatId);
         assertTrue(links.isEmpty());
     }
 }
