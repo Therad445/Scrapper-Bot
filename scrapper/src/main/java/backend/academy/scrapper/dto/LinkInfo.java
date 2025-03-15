@@ -8,12 +8,13 @@ public class LinkInfo {
     private final String link;
     private final Set<String> tags;
     private final Set<String> filters;
+    private UpdateInfo updateInfo;
 
     public LinkInfo(String link, Set<String> tags, Set<String> filters) {
         this.link = link;
         this.tags = tags == null ? new HashSet<>() : tags;
         this.filters = filters == null ? new HashSet<>() : filters;
-
+        this.updateInfo = new UpdateInfo();
     }
 
     public String getLink() {
@@ -26,6 +27,10 @@ public class LinkInfo {
 
     public Set<String> getFilters() {
         return filters;
+    }
+
+    public UpdateInfo getUpdateInfo() {
+        return updateInfo;
     }
 
 
