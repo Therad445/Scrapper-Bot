@@ -28,7 +28,19 @@ public class BotClient {
         LinkUpdate linkUpdate = new LinkUpdate(id, url, description, tgChatIds);
         URI uri = URI.create(botBaseUrl + "/updates");
         HttpEntity<LinkUpdate> entity = new HttpEntity<>(linkUpdate);
-        ResponseEntity<?> response = restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
-        return response.getBody();
+
+        try {
+            ResponseEntity<?> response = restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
+            if (response == null || response.getBody() == null) {
+                log.error("Error: Response is null");
+                throw new IllegalArgumentException("Received empty response");
+            }
+            return response.getBody();
+        } catch (Exception e) {
+            log.error("Error occurred while notifying update", e);
+            throw new IllegalArgumentException("Failed to notify update", e);
+        }
     }
+
+
 }
