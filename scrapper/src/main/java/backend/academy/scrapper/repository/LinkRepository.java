@@ -4,6 +4,7 @@ import backend.academy.scrapper.dto.LinkInfo;
 import org.springframework.stereotype.Repository;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -38,5 +39,11 @@ public class LinkRepository {
             }
         });
         return removedLink;
+    }
+
+    public Map<Long, List<LinkInfo>> getAllLinks() {
+        Map<Long, List<LinkInfo>> copy = new HashMap<>();
+        dataBase.forEach((chatId, links) -> copy.put(chatId, new ArrayList<>(links)));
+        return Collections.unmodifiableMap(copy);
     }
 }
