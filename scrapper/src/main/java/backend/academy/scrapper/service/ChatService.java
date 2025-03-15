@@ -14,10 +14,9 @@ public class ChatService {
     }
 
     public void register(Long chatId) {
-        if (chatRepository.exists(chatId)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Чат уже зарегистрирован");
+        if (!chatRepository.exists(chatId)) {
+            chatRepository.register(chatId);
         }
-        chatRepository.register(chatId);
     }
 
     public void delete(Long chatId) {
