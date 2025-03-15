@@ -1,6 +1,7 @@
 package backend.academy.scrapper.service;
 
 import backend.academy.scrapper.dto.LinkInfo;
+import backend.academy.scrapper.model.AddLinkRequest;
 import backend.academy.scrapper.model.LinkResponse;
 import backend.academy.scrapper.model.ListLinksResponse;
 import backend.academy.scrapper.model.RemoveLinkRequest;
@@ -55,7 +56,31 @@ public class LinkServiceTest {
         assertEquals(filters, response.getLinks().get(0).getFilters());
     }
 
+    @Test
+    void shouldAddLinkAndReturnLinkResponseWhenAddLinkMethodIsCalled() {
+        // Arrange
+        Long chatId = 123L;
+        Set<String> tags = new HashSet<>();
+        tags.add("tag1");
+        Set<String> filters = new HashSet<>();
+        filters.add("filter1");
 
+        AddLinkRequest addLinkRequest = new AddLinkRequest("http://example.com", tags, filters);
+        LinkInfo linkInfo = new LinkInfo("http://example.com", tags, filters);
+        doNothing().when(linkRepository).addLink(chatId, linkInfo);
+        // Act
+        LinkResponse response = linkService.addLink(chatId, addLinkRequest);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(chatId, response.getId());
+        assertEquals("http://example.com", response.getLink());
+        assertEquals(tags, response.getTags());
+        assertEquals(filters, response.getFilters());
+
+        // Verify that linkRepository.addLink() was called once
+        verify(linkRepository, times(1)).addLink(chatId, linkInfo);
+    }
 
     @Test
     void shouldRemoveLinkAndReturnLinkResponseWhenRemoveLinksMethodIsCalled() {
@@ -101,5 +126,23 @@ public class LinkServiceTest {
 
         // Verify that linkRepository.remove() was called once
         verify(linkRepository, times(1)).removeLink(chatId, "http://nonexistent.com");
+    }
+
+    @Test
+    void shouldLogWhenAddingLink() {
+        // Arrange
+        Long chatId = 123L;
+        Set<String> tags = new HashSet<>();
+        tags.add("tag1");
+        Set<String> filters = new HashSet<>();
+        filters.add("filter1");
+
+        AddLinkRequest addLinkRequest = new AddLinkRequest("http://example.com", tags, filters);
+
+        // Act
+        linkService.addLink(chatId, addLinkRequest);
+
+        // Assert that log method was called
+        verify(linkRepository, times(1)).addLink(chatId, new LinkInfo("http://example.com", tags, filters));
     }
 }
