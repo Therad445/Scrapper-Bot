@@ -5,6 +5,7 @@ import backend.academy.scrapper.model.LinkResponse;
 import backend.academy.scrapper.model.ListLinksResponse;
 import backend.academy.scrapper.model.RemoveLinkRequest;
 import backend.academy.scrapper.service.LinkService;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.extern.slf4j.Slf4j;
@@ -39,14 +40,16 @@ public class LinksController {
     }
 
     @PostMapping
-    public ResponseEntity<?> addLink(@RequestHeader("Tg-chat-id") @NotNull @Positive Long chatId, @RequestBody @NotNull AddLinkRequest addLinkRequest) {
+    public ResponseEntity<?> addLink(@RequestHeader("Tg-chat-id") @NotNull @Positive Long chatId,
+                                     @RequestBody @Valid AddLinkRequest addLinkRequest) {
         LinkResponse linkResponse = linkService.addLink(chatId, addLinkRequest);
         log.info("Ссылка успешно добавлена");
         return ResponseEntity.ok().body(linkResponse);
     }
 
     @DeleteMapping
-    public ResponseEntity<?> deleteLink(@RequestHeader("Tg-chat-id") @NotNull @Positive Long chatId, @RequestBody @NotNull RemoveLinkRequest removeLinkRequest) {
+    public ResponseEntity<?> deleteLink(@RequestHeader("Tg-chat-id") @NotNull @Positive Long chatId,
+                                        @RequestBody @Valid RemoveLinkRequest removeLinkRequest) {
         LinkResponse linkResponse = linkService.removeLinks(chatId, removeLinkRequest);
         log.info("Ссылка успешно убрана");
         return ResponseEntity.ok().body(linkResponse);
