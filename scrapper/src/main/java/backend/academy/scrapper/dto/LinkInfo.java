@@ -12,8 +12,8 @@ public class LinkInfo {
 
     public LinkInfo(String link, Set<String> tags, Set<String> filters) {
         this.link = link;
-        this.tags = tags == null ? new HashSet<>() : tags;
-        this.filters = filters == null ? new HashSet<>() : filters;
+        this.tags = tags == null ? new HashSet<>() : new HashSet<>(tags);
+        this.filters = filters == null ? new HashSet<>() : new HashSet<>(filters);
         this.updateInfo = new UpdateInfo();
     }
 
