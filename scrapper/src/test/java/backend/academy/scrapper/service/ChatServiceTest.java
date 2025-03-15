@@ -35,11 +35,11 @@ class ChatServiceTest {
 
         when(chatRepository.exists(chatId)).thenReturn(true);
 
-        // Act & Assert
-        assertThatThrownBy(() -> chatService.register(chatId))
-            .isInstanceOf(ResponseStatusException.class)
-            .hasMessageContaining("Чат уже зарегистрирован")
-            .hasFieldOrPropertyWithValue("status", HttpStatus.BAD_REQUEST);
+        // Act
+        chatService.register(chatId);
+
+        // Assert
+        verify(chatRepository, times(0)).register(chatId);
     }
 
     @Test
