@@ -90,5 +90,4 @@ class BotControllerTest {
                 .andExpect(status().isBadRequest());
         verify(telegramBotService, never()).sendMessage(any(), any());
     }
-
 }

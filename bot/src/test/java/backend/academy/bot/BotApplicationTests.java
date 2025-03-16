@@ -22,8 +22,7 @@ class BotApplicationTests {
     private TelegramBotService mockBotService;
 
     @Test
-    void contextLoads() {
-    }
+    void contextLoads() {}
 
     @Test
     void testBotConfigLoads() {
