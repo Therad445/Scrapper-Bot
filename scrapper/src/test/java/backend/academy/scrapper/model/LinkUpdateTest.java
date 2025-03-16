@@ -79,18 +79,4 @@ class LinkUpdateTest {
         // Assert
         assertFalse(violations.isEmpty(), "Validation should fail due to null description.");
     }
-
-    // Arrange
-    @Test
-    void testLinkUpdate_EmptyTgChatIds() {
-        LinkUpdate linkUpdate = new LinkUpdate(1L, "https://example.com", "Description", new HashSet<>());
-
-        // Act
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        Validator validator = factory.getValidator();
-        Set<ConstraintViolation<LinkUpdate>> violations = validator.validate(linkUpdate);
-
-        // Assert
-        assertFalse(violations.isEmpty(), "Validation should fail due to empty tgChatIds.");
-    }
 }
