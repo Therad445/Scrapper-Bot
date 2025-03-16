@@ -1,6 +1,5 @@
 package backend.academy.scrapper.dto;
 
-
 public class UpdateInfo {
     private String lastUpdated = "";
 

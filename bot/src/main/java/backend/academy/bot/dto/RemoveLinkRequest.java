@@ -1,9 +1,5 @@
 package backend.academy.bot.dto;
 
-import lombok.Getter;
-import lombok.Setter;
-
-
 public class RemoveLinkRequest {
     private String link;
 

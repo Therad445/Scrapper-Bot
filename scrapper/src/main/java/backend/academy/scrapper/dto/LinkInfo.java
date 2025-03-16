@@ -33,12 +33,13 @@ public class LinkInfo {
         return updateInfo;
     }
 
-
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         LinkInfo linkInfo = (LinkInfo) o;
-        return Objects.equals(link, linkInfo.link) && Objects.equals(tags, linkInfo.tags) && Objects.equals(filters, linkInfo.filters);
+        return Objects.equals(link, linkInfo.link)
+                && Objects.equals(tags, linkInfo.tags)
+                && Objects.equals(filters, linkInfo.filters);
     }
 
     @Override

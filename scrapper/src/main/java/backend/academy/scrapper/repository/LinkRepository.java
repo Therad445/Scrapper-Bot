@@ -1,7 +1,6 @@
 package backend.academy.scrapper.repository;
 
 import backend.academy.scrapper.dto.LinkInfo;
-import org.springframework.stereotype.Repository;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -11,6 +10,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import org.springframework.stereotype.Repository;
 
 @Repository
 public class LinkRepository {
@@ -30,8 +30,8 @@ public class LinkRepository {
             return Optional.empty();
         }
         Optional<LinkInfo> removedLink = links.stream()
-            .filter(linkInfo -> linkInfo.getLink().equals(link))
-            .findFirst();
+                .filter(linkInfo -> linkInfo.getLink().equals(link))
+                .findFirst();
         removedLink.ifPresent(linkInfo -> {
             links.remove(linkInfo);
             if (links.isEmpty()) {

@@ -1,8 +1,8 @@
 package backend.academy.scrapper.repository;
 
-import org.springframework.stereotype.Repository;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import org.springframework.stereotype.Repository;
 
 @Repository
 public class ChatRepository {

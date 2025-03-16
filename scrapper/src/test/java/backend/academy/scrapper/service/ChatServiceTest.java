@@ -1,12 +1,12 @@
 package backend.academy.scrapper.service;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.*;
+
 import backend.academy.scrapper.repository.ChatRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
-
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.*;
 
 class ChatServiceTest {
 
@@ -69,8 +69,8 @@ class ChatServiceTest {
 
         // Act & Assert
         assertThatThrownBy(() -> chatService.delete(chatId))
-            .isInstanceOf(ResponseStatusException.class)
-            .hasMessageContaining("Чат не существует")
-            .hasFieldOrPropertyWithValue("status", HttpStatus.NOT_FOUND);
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("Чат не существует")
+                .hasFieldOrPropertyWithValue("status", HttpStatus.NOT_FOUND);
     }
 }

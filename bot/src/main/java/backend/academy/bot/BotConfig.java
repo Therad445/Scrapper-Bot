@@ -14,4 +14,3 @@ public record BotConfig(@NotEmpty String telegramToken) {
         return new RestTemplate();
     }
 }
-

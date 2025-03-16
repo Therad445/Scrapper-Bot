@@ -1,8 +1,6 @@
 package backend.academy.bot.dto;
 
-
 import java.util.List;
-
 
 public class LinkResponse {
     private Long id;

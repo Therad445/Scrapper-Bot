@@ -1,21 +1,22 @@
 package backend.academy.bot.dto;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.validator.constraints.URL;
 import java.util.Set;
+import org.hibernate.validator.constraints.URL;
 
 public class LinkUpdate {
     @NotNull
     private Long id;
+
     @URL
     @NotNull
     private String url;
+
     @NotNull
     private String description;
+
     @NotNull
     private Set<Long> tgChatIds;
-
 
     public LinkUpdate(Long id, String url, String description, Set<Long> tgChatIds) {
         this.id = id;

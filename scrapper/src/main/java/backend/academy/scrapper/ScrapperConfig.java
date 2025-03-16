@@ -12,6 +12,7 @@ import org.springframework.web.client.RestTemplate;
 @EnableScheduling
 public record ScrapperConfig(@NotEmpty String githubToken, StackOverflowCredentials stackOverflow) {
     public record StackOverflowCredentials(@NotEmpty String key, @NotEmpty String accessToken) {}
+
     @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate();

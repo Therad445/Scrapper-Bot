@@ -1,21 +1,20 @@
 package backend.academy.scrapper.scheduler;
 
+import backend.academy.scrapper.client.BotClient;
 import backend.academy.scrapper.dto.LinkInfo;
 import backend.academy.scrapper.model.GithubResponse;
 import backend.academy.scrapper.model.LinkUpdate;
 import backend.academy.scrapper.model.StackOverflowItem;
 import backend.academy.scrapper.model.StackOverflowResponse;
 import backend.academy.scrapper.repository.LinkRepository;
-import backend.academy.scrapper.client.BotClient;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
-
 import java.net.URI;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 @Component
 @Slf4j
@@ -93,10 +92,12 @@ public class LinkScraperScheduler {
                 return false;
             }
             String questionId = segments[index + 1];
-            String apiUrl = "https://api.stackexchange.com/2.3/questions/" + questionId +
-                "?order=desc&sort=activity&site=stackoverflow";
+            String apiUrl = "https://api.stackexchange.com/2.3/questions/" + questionId
+                    + "?order=desc&sort=activity&site=stackoverflow";
             StackOverflowResponse response = restTemplate.getForObject(apiUrl, StackOverflowResponse.class);
-            if (response != null && response.getItems() != null && !response.getItems().isEmpty()) {
+            if (response != null
+                    && response.getItems() != null
+                    && !response.getItems().isEmpty()) {
                 StackOverflowItem item = response.getItems().get(0);
                 String newActivity = String.valueOf(item.getLast_activity_date());
                 if (!newActivity.equals(linkInfo.getUpdateInfo().getLastUpdated())) {
@@ -129,14 +130,12 @@ public class LinkScraperScheduler {
             StringBuilder digest = new StringBuilder("Дайджест обновлений:\n");
             updates.forEach(update -> {
                 digest.append(update.getUrl())
-                    .append(" - ")
-                    .append(update.getDescription())
-                    .append("\n");
+                        .append(" - ")
+                        .append(update.getDescription())
+                        .append("\n");
             });
-            String validUrl = updates.stream()
-                .findFirst()
-                .map(LinkUpdate::getUrl)
-                .orElse("http://localhost");
+            String validUrl =
+                    updates.stream().findFirst().map(LinkUpdate::getUrl).orElse("http://localhost");
             try {
                 botClient.notifyUpdate(chatId, validUrl, digest.toString(), Set.of(chatId));
             } catch (Exception e) {
@@ -145,5 +144,4 @@ public class LinkScraperScheduler {
         });
         batchUpdates.clear();
     }
-
 }

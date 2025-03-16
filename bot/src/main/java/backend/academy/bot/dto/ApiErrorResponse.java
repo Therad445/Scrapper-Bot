@@ -10,14 +10,14 @@ public class ApiErrorResponse {
     private String exceptionMessage;
     private List<String> stacktrace;
 
-    public ApiErrorResponse(String description, String code, String exceptionName, String exceptionMessage, List<String> stacktrace) {
+    public ApiErrorResponse(
+            String description, String code, String exceptionName, String exceptionMessage, List<String> stacktrace) {
         this.description = description;
         this.code = code;
         this.exceptionName = exceptionName;
         this.exceptionMessage = exceptionMessage;
         this.stacktrace = stacktrace;
     }
-
 
     public String getDescription() {
         return description;

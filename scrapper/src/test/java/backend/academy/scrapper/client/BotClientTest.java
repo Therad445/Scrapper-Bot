@@ -1,6 +1,13 @@
 package backend.academy.scrapper.client;
 
+import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
+
 import backend.academy.scrapper.model.LinkUpdate;
+import java.net.URI;
+import java.util.HashSet;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,14 +18,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
-
-import java.net.URI;
-import java.util.HashSet;
-import java.util.Set;
-
-import static org.junit.Assert.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class BotClientTest {
@@ -52,14 +51,15 @@ public class BotClientTest {
         // Arrange
         ResponseEntity<String> mockResponse = ResponseEntity.ok("Success");
         when(restTemplate.exchange(any(URI.class), eq(HttpMethod.POST), any(HttpEntity.class), eq(String.class)))
-            .thenReturn(mockResponse);
+                .thenReturn(mockResponse);
 
         // Act
         Object response = botClient.notifyUpdate(id, url, description, tgChatIds);
 
         // Assert
         assertEquals("Success", response);
-        verify(restTemplate, times(1)).exchange(any(URI.class), eq(HttpMethod.POST), any(HttpEntity.class), eq(String.class));
+        verify(restTemplate, times(1))
+                .exchange(any(URI.class), eq(HttpMethod.POST), any(HttpEntity.class), eq(String.class));
     }
 
     @Test
@@ -67,14 +67,15 @@ public class BotClientTest {
         // Arrange
         ResponseEntity<String> mockResponse = ResponseEntity.status(500).body("Error");
         when(restTemplate.exchange(any(URI.class), eq(HttpMethod.POST), any(HttpEntity.class), eq(String.class)))
-            .thenReturn(mockResponse);
+                .thenReturn(mockResponse);
 
         // Act
         Object response = botClient.notifyUpdate(id, url, description, tgChatIds);
 
         // Assert
         assertEquals("Error", response);
-        verify(restTemplate, times(1)).exchange(any(URI.class), eq(HttpMethod.POST), any(HttpEntity.class), eq(String.class));
+        verify(restTemplate, times(1))
+                .exchange(any(URI.class), eq(HttpMethod.POST), any(HttpEntity.class), eq(String.class));
     }
 
     @Test

@@ -8,20 +8,19 @@ import backend.academy.bot.state.BotState;
 import backend.academy.bot.state.UserSession;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
+import com.pengrad.telegrambot.model.BotCommand;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.request.SetMyCommands;
-import com.pengrad.telegrambot.model.BotCommand;
 import jakarta.annotation.PostConstruct;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
@@ -93,12 +92,14 @@ public class TelegramBotService {
     }
 
     private void handleHelp(Long chatId) {
-        sendMessage(chatId, "Доступные команды:\n"
-            + "/start - регистрация\n"
-            + "/help - помощь\n"
-            + "/track - отслеживать ссылку\n"
-            + "/untrack - прекратить отслеживание ссылки\n"
-            + "/list - список ссылок");
+        sendMessage(
+                chatId,
+                "Доступные команды:\n"
+                        + "/start - регистрация\n"
+                        + "/help - помощь\n"
+                        + "/track - отслеживать ссылку\n"
+                        + "/untrack - прекратить отслеживание ссылки\n"
+                        + "/list - список ссылок");
     }
 
     private void handleTrack(Long chatId, String text, UserSession session) {
@@ -135,7 +136,6 @@ public class TelegramBotService {
         }
     }
 
-
     private void handleStatefulInput(Long chatId, String text, UserSession session) {
         if (session.getState() == BotState.WAITING_FOR_TAGS) {
             String tagsInput = text.trim().isEmpty() ? "Нет" : text;
@@ -145,16 +145,16 @@ public class TelegramBotService {
         } else if (session.getState() == BotState.WAITING_FOR_FILTERS) {
             String filtersInput = text.trim().isEmpty() ? "Нет" : text;
             session.setPendingFilters(filtersInput);
-            List<String> tags = !session.getPendingTags().equals("Нет") ?
-                Arrays.asList(session.getPendingTags().split("\\s+")) : Collections.emptyList();
-            List<String> filters = !filtersInput.equals("Нет") ?
-                Arrays.asList(filtersInput.split("\\s+")) : Collections.emptyList();
+            List<String> tags = !session.getPendingTags().equals("Нет")
+                    ? Arrays.asList(session.getPendingTags().split("\\s+"))
+                    : Collections.emptyList();
+            List<String> filters =
+                    !filtersInput.equals("Нет") ? Arrays.asList(filtersInput.split("\\s+")) : Collections.emptyList();
             LinkResponse response = scrapperClient.trackLink(chatId, session.getPendingUrl(), tags, filters);
             sendMessage(chatId, "Ссылка добавлена в отслеживание: " + response.getLink());
             session.reset();
         }
     }
-
 
     public void sendMessage(Long chatId, String text) {
         telegramBot.execute(new SendMessage(chatId, text));

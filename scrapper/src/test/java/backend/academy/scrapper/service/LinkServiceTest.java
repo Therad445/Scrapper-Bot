@@ -1,24 +1,23 @@
 package backend.academy.scrapper.service;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 import backend.academy.scrapper.dto.LinkInfo;
 import backend.academy.scrapper.model.AddLinkRequest;
 import backend.academy.scrapper.model.LinkResponse;
 import backend.academy.scrapper.model.ListLinksResponse;
 import backend.academy.scrapper.model.RemoveLinkRequest;
 import backend.academy.scrapper.repository.LinkRepository;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 public class LinkServiceTest {
 
@@ -119,9 +118,8 @@ public class LinkServiceTest {
         when(linkRepository.removeLink(chatId, "http://nonexistent.com")).thenReturn(Optional.empty());
 
         // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-            linkService.removeLinks(chatId, removeLinkRequest)
-        );
+        IllegalArgumentException exception =
+                assertThrows(IllegalArgumentException.class, () -> linkService.removeLinks(chatId, removeLinkRequest));
         assertEquals("Ссылка не найдена!", exception.getMessage());
 
         // Verify that linkRepository.remove() was called once

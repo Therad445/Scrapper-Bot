@@ -1,16 +1,15 @@
 package backend.academy.scrapper.repository;
 
-import backend.academy.scrapper.dto.LinkInfo;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
+import backend.academy.scrapper.dto.LinkInfo;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class LinkRepositoryTest {
 

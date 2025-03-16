@@ -1,5 +1,10 @@
 package backend.academy.bot.exception;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,13 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
-import jakarta.validation.ConstraintViolationException;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
 @ExtendWith(MockitoExtension.class)
 class GlobalExceptionHandlerTest {
@@ -33,8 +31,7 @@ class GlobalExceptionHandlerTest {
     @Test
     void testHandleValidationException() throws Exception {
         // Arrange
-        ConstraintViolationException exception = new ConstraintViolationException(
-            "id cannot be null", null);
+        ConstraintViolationException exception = new ConstraintViolationException("id cannot be null", null);
 
         // Act
         ResponseEntity<String> responseEntity = globalExceptionHandler.handleValidationException(exception);
@@ -43,7 +40,6 @@ class GlobalExceptionHandlerTest {
         assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
         assertEquals("Некорректные параметры запроса: id cannot be null", responseEntity.getBody());
 
-        mockMvc.perform(get("/nonexistent"))
-            .andExpect(status().isNotFound());
+        mockMvc.perform(get("/nonexistent")).andExpect(status().isNotFound());
     }
 }

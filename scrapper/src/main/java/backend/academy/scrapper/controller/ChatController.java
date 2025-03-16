@@ -31,8 +31,8 @@ public class ChatController {
         chatService.register(id);
         log.info("Чат {} зарегистрирован", id);
         return ResponseEntity.ok()
-            .header("Content-Type", "application/json;charset=UTF-8")
-            .body("Чат зарегистрирован");
+                .header("Content-Type", "application/json;charset=UTF-8")
+                .body("Чат зарегистрирован");
     }
 
     @DeleteMapping("/{id}")
@@ -40,8 +40,7 @@ public class ChatController {
         chatService.delete(id);
         log.info("Чат {} успешно удалён", id);
         return ResponseEntity.ok()
-            .header("Content-Type", "application/json;charset=UTF-8")
-            .body("Чат успешно удалён");
+                .header("Content-Type", "application/json;charset=UTF-8")
+                .body("Чат успешно удалён");
     }
-
 }

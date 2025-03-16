@@ -1,10 +1,16 @@
 package backend.academy.scrapper.controller;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
+
 import backend.academy.scrapper.model.AddLinkRequest;
 import backend.academy.scrapper.model.LinkResponse;
 import backend.academy.scrapper.model.ListLinksResponse;
 import backend.academy.scrapper.model.RemoveLinkRequest;
 import backend.academy.scrapper.service.LinkService;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,14 +18,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class LinksControllerTest {
@@ -62,7 +60,9 @@ public class LinksControllerTest {
         ResponseEntity<?> response = linksController.getLinks(chatId);
 
         // Assert
-        assertEquals(200, response.getStatusCode().value());  // Используем getStatusCode().value() вместо getStatusCodeValue()
+        assertEquals(
+                200,
+                response.getStatusCode().value()); // Используем getStatusCode().value() вместо getStatusCodeValue()
         assertEquals(listLinksResponse, response.getBody());
         verify(linkService, times(1)).getLinks(chatId);
     }

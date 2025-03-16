@@ -1,6 +1,5 @@
 package backend.academy.scrapper.model;
 
-
 public class StackOverflowItem {
     private long last_activity_date;
 

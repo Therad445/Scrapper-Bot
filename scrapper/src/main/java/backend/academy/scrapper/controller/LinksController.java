@@ -40,16 +40,18 @@ public class LinksController {
     }
 
     @PostMapping
-    public ResponseEntity<?> addLink(@RequestHeader("Tg-chat-id") @NotNull @Positive Long chatId,
-                                     @RequestBody @Valid AddLinkRequest addLinkRequest) {
+    public ResponseEntity<?> addLink(
+            @RequestHeader("Tg-chat-id") @NotNull @Positive Long chatId,
+            @RequestBody @Valid AddLinkRequest addLinkRequest) {
         LinkResponse linkResponse = linkService.addLink(chatId, addLinkRequest);
         log.info("Ссылка успешно добавлена");
         return ResponseEntity.ok().body(linkResponse);
     }
 
     @DeleteMapping
-    public ResponseEntity<?> deleteLink(@RequestHeader("Tg-chat-id") @NotNull @Positive Long chatId,
-                                        @RequestBody @Valid RemoveLinkRequest removeLinkRequest) {
+    public ResponseEntity<?> deleteLink(
+            @RequestHeader("Tg-chat-id") @NotNull @Positive Long chatId,
+            @RequestBody @Valid RemoveLinkRequest removeLinkRequest) {
         LinkResponse linkResponse = linkService.removeLinks(chatId, removeLinkRequest);
         log.info("Ссылка успешно убрана");
         return ResponseEntity.ok().body(linkResponse);
