@@ -39,11 +39,8 @@ public class LinkService {
     }
 
     public LinkResponse removeLinks(Long chatId, RemoveLinkRequest removeLinkRequest) {
-        Optional<LinkInfo> removedLinkInfo = linkRepository.removeLink(chatId, removeLinkRequest.getLink());
-        if (removedLinkInfo.isEmpty()) {
-            throw new IllegalArgumentException("Ссылка не найдена!");
-        }
-        LinkInfo linkInfo = removedLinkInfo.get();
+        LinkInfo linkInfo = linkRepository.removeLink(chatId, removeLinkRequest.getLink())
+            .orElseThrow(() -> new IllegalArgumentException("Ссылка не найдена!"));
         return new LinkResponse(chatId, linkInfo.getLink(), linkInfo.getTags(), linkInfo.getFilters());
     }
 }
