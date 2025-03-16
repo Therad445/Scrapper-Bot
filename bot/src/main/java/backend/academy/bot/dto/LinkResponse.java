@@ -1,12 +1,13 @@
 package backend.academy.bot.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class LinkResponse {
     private Long id;
     private String link;
-    private List<String> tags;
-    private List<String> filters;
+    private List<String> tags = new ArrayList<>();
+    private List<String> filters = new ArrayList<>();
 
     public LinkResponse() {}
 
