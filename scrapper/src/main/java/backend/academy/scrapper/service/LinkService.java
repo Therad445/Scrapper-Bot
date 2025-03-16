@@ -7,7 +7,6 @@ import backend.academy.scrapper.model.ListLinksResponse;
 import backend.academy.scrapper.model.RemoveLinkRequest;
 import backend.academy.scrapper.repository.LinkRepository;
 import java.util.List;
-import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -39,8 +38,9 @@ public class LinkService {
     }
 
     public LinkResponse removeLinks(Long chatId, RemoveLinkRequest removeLinkRequest) {
-        LinkInfo linkInfo = linkRepository.removeLink(chatId, removeLinkRequest.getLink())
-            .orElseThrow(() -> new IllegalArgumentException("Ссылка не найдена!"));
+        LinkInfo linkInfo = linkRepository
+                .removeLink(chatId, removeLinkRequest.getLink())
+                .orElseThrow(() -> new IllegalArgumentException("Ссылка не найдена!"));
         return new LinkResponse(chatId, linkInfo.getLink(), linkInfo.getTags(), linkInfo.getFilters());
     }
 }
