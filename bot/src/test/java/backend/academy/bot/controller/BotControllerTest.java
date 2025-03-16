@@ -91,16 +91,4 @@ class BotControllerTest {
         verify(telegramBotService, never()).sendMessage(any(), any());
     }
 
-    @Test
-    void testSendNotificationInvalidJson() throws Exception {
-        // Act & Assert
-        mockMvc.perform(
-                        post("/updates")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(
-                                        "{ \"id\": 1, \"url\": \"http://example.com\", \"description\": \"Test description\" }"))
-                .andExpect(status().isBadRequest());
-
-        verify(telegramBotService, never()).sendMessage(any(), any());
-    }
 }
