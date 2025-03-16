@@ -1,6 +1,7 @@
 package backend.academy.bot.dto;
 
 import jakarta.validation.constraints.NotNull;
+import java.util.Collections;
 import java.util.Set;
 import org.hibernate.validator.constraints.URL;
 
@@ -22,7 +23,7 @@ public class LinkUpdate {
         this.id = id;
         this.url = url;
         this.description = description;
-        this.tgChatIds = tgChatIds;
+        this.tgChatIds = tgChatIds != null ? Set.copyOf(tgChatIds) : Collections.emptySet();
     }
 
     public Long getId() {
