@@ -7,6 +7,7 @@ import backend.academy.bot.dto.RemoveLinkRequest;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
@@ -67,7 +68,7 @@ public class ScrapperClient {
                 url,
                 tags,
                 filters,
-                response.getBody().getLink());
+                Objects.requireNonNull(response.getBody()).getLink());
         return response.getBody();
     }
 
