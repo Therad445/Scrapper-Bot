@@ -29,7 +29,7 @@ public class ChatController {
     @PostMapping("/{id}")
     public ResponseEntity<?> registerChat(@PathVariable @NotNull @Positive Long id) {
         chatService.register(id);
-        log.info("Чат {} зарегистрирован", id);
+        log.info("Чат {} зарегистрирован", id.toString().replaceAll("[\\r\\n]", ""));
         return ResponseEntity.ok()
                 .header("Content-Type", "application/json;charset=UTF-8")
                 .body("Чат зарегистрирован");
@@ -38,7 +38,7 @@ public class ChatController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteChat(@PathVariable @NotNull @Positive Long id) {
         chatService.delete(id);
-        log.info("Чат {} успешно удалён", id);
+        log.info("Чат {} успешно удалён", id.toString().replaceAll("[\\r\\n]", ""));
         return ResponseEntity.ok()
                 .header("Content-Type", "application/json;charset=UTF-8")
                 .body("Чат успешно удалён");
