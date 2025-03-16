@@ -1,9 +1,10 @@
 package backend.academy.bot.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ListLinksResponse {
-    private List<LinkResponse> links;
+    private List<LinkResponse> links = new ArrayList<>();
     private int size;
 
     public ListLinksResponse() {}
