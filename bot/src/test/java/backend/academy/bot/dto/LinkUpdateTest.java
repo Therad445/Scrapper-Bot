@@ -2,6 +2,7 @@ package backend.academy.bot.dto;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
@@ -56,7 +57,7 @@ class LinkUpdateTest {
         LinkUpdate linkUpdate = new LinkUpdate(1L, "http://example.com", "Test description", null);
 
         // Act & Assert
-        assertNull(linkUpdate.getTgChatIds());
+        assertEquals(Collections.emptySet(), linkUpdate.getTgChatIds());
     }
 
     @Test
