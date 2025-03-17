@@ -64,6 +64,11 @@ public class LinkScraperScheduler {
             GithubResponse response = restTemplate.getForObject(apiUrl, GithubResponse.class);
             if (response != null) {
                 String newUpdated = response.getUpdated_at();
+                log.info(
+                        "GitHub обновление для {}: старое {}, новое {}",
+                        linkInfo.getLink(),
+                        linkInfo.getUpdateInfo().getLastUpdated(),
+                        newUpdated);
                 if (!newUpdated.equals(linkInfo.getUpdateInfo().getLastUpdated())) {
                     linkInfo.getUpdateInfo().setLastUpdated(newUpdated);
                     log.info("GitHub обновление обнаружено для: {}", linkInfo.getLink());
