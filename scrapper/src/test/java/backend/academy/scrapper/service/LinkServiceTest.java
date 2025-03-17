@@ -76,8 +76,6 @@ public class LinkServiceTest {
         assertEquals("http://example.com", response.getLink());
         assertEquals(tags, response.getTags());
         assertEquals(filters, response.getFilters());
-
-        // Verify that linkRepository.addLink() was called once
         verify(linkRepository, times(1)).addLink(chatId, linkInfo);
     }
 
@@ -104,8 +102,6 @@ public class LinkServiceTest {
         assertEquals("http://example.com", response.getLink());
         assertEquals(tags, response.getTags());
         assertEquals(filters, response.getFilters());
-
-        // Verify that linkRepository.remove() was called once
         verify(linkRepository, times(1)).removeLink(chatId, "http://example.com");
     }
 
@@ -121,8 +117,6 @@ public class LinkServiceTest {
         IllegalArgumentException exception =
                 assertThrows(IllegalArgumentException.class, () -> linkService.removeLinks(chatId, removeLinkRequest));
         assertEquals("Ссылка не найдена!", exception.getMessage());
-
-        // Verify that linkRepository.remove() was called once
         verify(linkRepository, times(1)).removeLink(chatId, "http://nonexistent.com");
     }
 
@@ -140,7 +134,7 @@ public class LinkServiceTest {
         // Act
         linkService.addLink(chatId, addLinkRequest);
 
-        // Assert that log method was called
+        // Assert
         verify(linkRepository, times(1)).addLink(chatId, new LinkInfo("http://example.com", tags, filters));
     }
 }

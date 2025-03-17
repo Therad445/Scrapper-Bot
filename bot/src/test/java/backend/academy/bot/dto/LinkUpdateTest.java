@@ -17,7 +17,6 @@ class LinkUpdateTest {
         LinkUpdate linkUpdate = new LinkUpdate(1L, "http://example.com", "Test description", tgChatIds);
 
         // Act
-        // Нет валидации, просто проверяем поля вручную
 
         // Assert
         assertEquals(1L, linkUpdate.getId());
@@ -34,7 +33,6 @@ class LinkUpdateTest {
         LinkUpdate linkUpdate = new LinkUpdate(1L, "invalid-url", "Test description", tgChatIds);
 
         // Act
-        // Не проверяем URL напрямую, но можем проверить, что метод getUrl() возвращает неправильный формат
 
         // Assert
         assertEquals("invalid-url", linkUpdate.getUrl());

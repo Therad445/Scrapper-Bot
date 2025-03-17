@@ -38,7 +38,6 @@ public class LinksControllerTest {
     public void setUp() {
         chatId = 123L;
 
-        // Создаем коллекции для AddLinkRequest и LinkResponse
         Set<String> tags = new HashSet<>();
         tags.add("tag1");
 
@@ -60,9 +59,7 @@ public class LinksControllerTest {
         ResponseEntity<?> response = linksController.getLinks(chatId);
 
         // Assert
-        assertEquals(
-                200,
-                response.getStatusCode().value()); // Используем getStatusCode().value() вместо getStatusCodeValue()
+        assertEquals(200, response.getStatusCode().value());
         assertEquals(listLinksResponse, response.getBody());
         verify(linkService, times(1)).getLinks(chatId);
     }

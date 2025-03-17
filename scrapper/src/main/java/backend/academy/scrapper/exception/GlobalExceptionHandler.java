@@ -23,11 +23,7 @@ public class GlobalExceptionHandler {
         String exceptionMessage = exception.getMessage();
         List<String> stacktrace = getStackTraceAsList(exception);
         ApiErrorResponse apiErrorResponse = new ApiErrorResponse(
-                "Некорректные параметры запроса",
-                "400",
-                exceptionName,
-                exceptionMessage,
-                stacktrace);
+                "Некорректные параметры запроса", "400", exceptionName, exceptionMessage, stacktrace);
         log.error("Ошибка 400: {}", apiErrorResponse);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiErrorResponse);
     }
@@ -39,12 +35,8 @@ public class GlobalExceptionHandler {
         String exceptionMessage = exception.getMessage();
         List<String> stacktrace = getStackTraceAsList(exception);
 
-        ApiErrorResponse apiErrorResponse = new ApiErrorResponse(
-                "Ресурс не существует",
-                "404",
-                exceptionName,
-                exceptionMessage,
-                stacktrace);
+        ApiErrorResponse apiErrorResponse =
+                new ApiErrorResponse("Ресурс не существует", "404", exceptionName, exceptionMessage, stacktrace);
 
         log.error("Ошибка 404: {}", apiErrorResponse);
 

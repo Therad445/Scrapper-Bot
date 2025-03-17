@@ -83,7 +83,7 @@ public class BotClientTest {
         // Arrange
         String invalidUrl = "http://invalid-url";
         Set<Long> invalidTgChatIds = new HashSet<>();
-        invalidTgChatIds.add(-1L); // Добавляем некорректный chatId
+        invalidTgChatIds.add(-1L);
 
         // Act & Assert
         assertThrows(IllegalArgumentException.class, () -> {

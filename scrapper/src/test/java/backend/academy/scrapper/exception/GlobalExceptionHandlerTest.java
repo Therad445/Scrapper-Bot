@@ -1,6 +1,7 @@
 package backend.academy.scrapper.exception;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import backend.academy.scrapper.model.ApiErrorResponse;
@@ -37,7 +38,7 @@ public class GlobalExceptionHandlerTest {
         assert body != null;
         assertEquals("Некорректные параметры запроса", body.getDescription());
         assertEquals("400", body.getCode());
-        assertTrue(body.getStacktrace().size() > 0);
+        assertFalse(body.getStacktrace().isEmpty());
         assertTrue(body.getExceptionName().contains("ConstraintViolationException"));
         assertEquals(exceptionMessage, body.getExceptionMessage());
     }
@@ -57,7 +58,7 @@ public class GlobalExceptionHandlerTest {
         assert body != null;
         assertEquals("Ресурс не существует", body.getDescription());
         assertEquals("404", body.getCode());
-        assertTrue(body.getStacktrace().size() > 0);
+        assertFalse(body.getStacktrace().isEmpty());
         assertTrue(body.getExceptionName().contains("IllegalArgumentException"));
         assertEquals(exceptionMessage, body.getExceptionMessage());
     }

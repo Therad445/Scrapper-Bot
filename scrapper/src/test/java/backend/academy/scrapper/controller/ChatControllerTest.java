@@ -27,8 +27,7 @@ class ChatControllerTest {
         doNothing().when(chatService).register(chatId);
 
         // Act & Assert
-        mockMvc.perform(post("/tg-chat/{id}", chatId))
-                .andExpect(status().isOk());
+        mockMvc.perform(post("/tg-chat/{id}", chatId)).andExpect(status().isOk());
 
         verify(chatService, times(1)).register(chatId);
     }
@@ -56,8 +55,7 @@ class ChatControllerTest {
         doNothing().when(chatService).delete(chatId);
 
         // Act & Assert
-        mockMvc.perform(delete("/tg-chat/{id}", chatId))
-                .andExpect(status().isOk());
+        mockMvc.perform(delete("/tg-chat/{id}", chatId)).andExpect(status().isOk());
 
         verify(chatService, times(1)).delete(chatId);
     }

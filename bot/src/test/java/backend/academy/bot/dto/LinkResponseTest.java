@@ -56,7 +56,6 @@ class LinkResponseTest {
         List<String> filters = Arrays.asList("filter1", "filter2");
 
         // Act
-        // Set fields using the constructor since no setters are present
         LinkResponse response = new LinkResponse(id, link, tags, filters);
 
         // Assert
