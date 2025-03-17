@@ -1,25 +1,24 @@
 package backend.academy.bot.telegram;
 
-import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-import com.pengrad.telegrambot.model.Update;
-import com.pengrad.telegrambot.model.Message;
-import com.pengrad.telegrambot.model.Chat;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import backend.academy.bot.client.ScrapperClient;
 import backend.academy.bot.BotConfig;
-import backend.academy.bot.state.UserSession;
-import backend.academy.bot.dto.ListLinksResponse;
+import backend.academy.bot.client.ScrapperClient;
 import backend.academy.bot.dto.LinkResponse;
+import backend.academy.bot.dto.ListLinksResponse;
 import backend.academy.bot.state.BotState;
-
+import backend.academy.bot.state.UserSession;
+import com.pengrad.telegrambot.model.Chat;
+import com.pengrad.telegrambot.model.Message;
+import com.pengrad.telegrambot.model.Update;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class TelegramBotServiceTest {
 
@@ -46,7 +45,7 @@ public class TelegramBotServiceTest {
         assertEquals(BotState.WAITING_FOR_TAGS, session.getState());
 
         List<String> messages = botService.getSentMessages().get(chatId);
-        assertTrue(messages.get(messages.size()-1).contains("Введите тэги"));
+        assertTrue(messages.get(messages.size() - 1).contains("Введите тэги"));
     }
 
     @Test
@@ -55,7 +54,7 @@ public class TelegramBotServiceTest {
         String unknownCommand = "/unknown";
         botService.processText(chatId, unknownCommand);
         List<String> messages = botService.getSentMessages().get(chatId);
-        assertTrue(messages.get(messages.size()-1).contains("Неизвестная команда"));
+        assertTrue(messages.get(messages.size() - 1).contains("Неизвестная команда"));
     }
 
     @Test
@@ -64,17 +63,19 @@ public class TelegramBotServiceTest {
         when(scrapperClient.getLinks(chatId)).thenReturn(new ListLinksResponse(Collections.emptyList(), 0));
         botService.processText(chatId, "/list");
         List<String> messages = botService.getSentMessages().get(chatId);
-        assertTrue(messages.get(messages.size()-1).contains("Список отслеживаемых ссылок пуст."));
+        assertTrue(messages.get(messages.size() - 1).contains("Список отслеживаемых ссылок пуст."));
     }
 
     @Test
     public void testListCommandFormattingWithLinks() throws Exception {
         Long chatId = 101L;
-        LinkResponse linkResponse = new LinkResponse(1L, "https://example.com", Collections.emptyList(), Collections.emptyList());
-        when(scrapperClient.getLinks(chatId)).thenReturn(new backend.academy.bot.dto.ListLinksResponse(List.of(linkResponse), 1));
+        LinkResponse linkResponse =
+                new LinkResponse(1L, "https://example.com", Collections.emptyList(), Collections.emptyList());
+        when(scrapperClient.getLinks(chatId))
+                .thenReturn(new backend.academy.bot.dto.ListLinksResponse(List.of(linkResponse), 1));
         botService.processText(chatId, "/list");
         List<String> messages = botService.getSentMessages().get(chatId);
-        assertTrue(messages.get(messages.size()-1).contains("https://example.com"));
+        assertTrue(messages.get(messages.size() - 1).contains("https://example.com"));
     }
 
     private static class TestableTelegramBotService extends TelegramBotService {
@@ -86,7 +87,9 @@ public class TelegramBotServiceTest {
 
         @Override
         public void sendMessage(Long chatId, String text) {
-            sentMessages.computeIfAbsent(chatId, k -> new java.util.ArrayList<>()).add(text);
+            sentMessages
+                    .computeIfAbsent(chatId, k -> new java.util.ArrayList<>())
+                    .add(text);
         }
 
         public void processText(Long chatId, String text) throws Exception {
