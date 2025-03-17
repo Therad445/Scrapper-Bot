@@ -23,8 +23,8 @@ public class GlobalExceptionHandler {
         String exceptionMessage = exception.getMessage();
         List<String> stacktrace = getStackTraceAsList(exception);
         ApiErrorResponse apiErrorResponse = new ApiErrorResponse(
-                "Некорректные параметры запроса", // Статичное описание
-                "400", // Статичный код
+                "Некорректные параметры запроса",
+                "400",
                 exceptionName,
                 exceptionMessage,
                 stacktrace);
@@ -40,8 +40,8 @@ public class GlobalExceptionHandler {
         List<String> stacktrace = getStackTraceAsList(exception);
 
         ApiErrorResponse apiErrorResponse = new ApiErrorResponse(
-                "Request parameter is invalid", // Статичное описание
-                "404", // Статичный код
+                "Ресурс не существует",
+                "404",
                 exceptionName,
                 exceptionMessage,
                 stacktrace);

@@ -55,7 +55,7 @@ public class GlobalExceptionHandlerTest {
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         ApiErrorResponse body = response.getBody();
         assert body != null;
-        assertEquals("Request parameter is invalid", body.getDescription());
+        assertEquals("Ресурс не существует", body.getDescription());
         assertEquals("404", body.getCode());
         assertTrue(body.getStacktrace().size() > 0);
         assertTrue(body.getExceptionName().contains("IllegalArgumentException"));
