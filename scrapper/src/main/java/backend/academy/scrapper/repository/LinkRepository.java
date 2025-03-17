@@ -10,9 +10,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@Slf4j
 public class LinkRepository {
     private final Map<Long, Set<LinkInfo>> dataBase = new ConcurrentHashMap<>();
 
@@ -21,7 +23,13 @@ public class LinkRepository {
     }
 
     public void addLink(Long chatId, LinkInfo linkInfo) {
-        dataBase.computeIfAbsent(chatId, k -> new HashSet<>()).add(linkInfo);
+        Set<LinkInfo> links = dataBase.computeIfAbsent(chatId, k -> new HashSet<>());
+
+        if (links.contains(linkInfo)) {
+            log.info("Ссылка уже отслеживается: {}", linkInfo.getLink());
+            return;
+        }
+        links.add(linkInfo);
     }
 
     public Optional<LinkInfo> removeLink(Long chatId, String link) {
