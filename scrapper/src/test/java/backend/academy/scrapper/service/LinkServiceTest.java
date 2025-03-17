@@ -10,26 +10,19 @@ import backend.academy.scrapper.model.ListLinksResponse;
 import backend.academy.scrapper.model.RemoveLinkRequest;
 import backend.academy.scrapper.repository.LinkRepository;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 public class LinkServiceTest {
 
-    @Mock
     private LinkRepository linkRepository;
-
-    @InjectMocks
     private LinkService linkService;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        linkRepository = new LinkRepository();
+        linkService = new LinkService(linkRepository);
     }
 
     @Test
@@ -42,7 +35,7 @@ public class LinkServiceTest {
         filters.add("filter1");
 
         LinkInfo linkInfo = new LinkInfo("http://example.com", tags, filters);
-        when(linkRepository.getLinks(chatId)).thenReturn(List.of(linkInfo));
+        linkRepository.addLink(chatId, linkInfo);
 
         // Act
         ListLinksResponse response = linkService.getLinks(chatId);
@@ -66,7 +59,7 @@ public class LinkServiceTest {
 
         AddLinkRequest addLinkRequest = new AddLinkRequest("http://example.com", tags, filters);
         LinkInfo linkInfo = new LinkInfo("http://example.com", tags, filters);
-        doNothing().when(linkRepository).addLink(chatId, linkInfo);
+
         // Act
         LinkResponse response = linkService.addLink(chatId, addLinkRequest);
 
@@ -76,7 +69,6 @@ public class LinkServiceTest {
         assertEquals("http://example.com", response.getLink());
         assertEquals(tags, response.getTags());
         assertEquals(filters, response.getFilters());
-        verify(linkRepository, times(1)).addLink(chatId, linkInfo);
     }
 
     @Test
@@ -89,9 +81,8 @@ public class LinkServiceTest {
         filters.add("filter1");
 
         LinkInfo linkInfo = new LinkInfo("http://example.com", tags, filters);
+        linkRepository.addLink(chatId, linkInfo);
         RemoveLinkRequest removeLinkRequest = new RemoveLinkRequest("http://example.com");
-
-        when(linkRepository.removeLink(chatId, "http://example.com")).thenReturn(Optional.of(linkInfo));
 
         // Act
         LinkResponse response = linkService.removeLinks(chatId, removeLinkRequest);
@@ -102,7 +93,6 @@ public class LinkServiceTest {
         assertEquals("http://example.com", response.getLink());
         assertEquals(tags, response.getTags());
         assertEquals(filters, response.getFilters());
-        verify(linkRepository, times(1)).removeLink(chatId, "http://example.com");
     }
 
     @Test
@@ -111,13 +101,10 @@ public class LinkServiceTest {
         Long chatId = 123L;
         RemoveLinkRequest removeLinkRequest = new RemoveLinkRequest("http://nonexistent.com");
 
-        when(linkRepository.removeLink(chatId, "http://nonexistent.com")).thenReturn(Optional.empty());
-
         // Act & Assert
         IllegalArgumentException exception =
                 assertThrows(IllegalArgumentException.class, () -> linkService.removeLinks(chatId, removeLinkRequest));
         assertEquals("Ссылка не найдена!", exception.getMessage());
-        verify(linkRepository, times(1)).removeLink(chatId, "http://nonexistent.com");
     }
 
     @Test
@@ -135,6 +122,25 @@ public class LinkServiceTest {
         linkService.addLink(chatId, addLinkRequest);
 
         // Assert
-        verify(linkRepository, times(1)).addLink(chatId, new LinkInfo("http://example.com", tags, filters));
+        assertEquals(1, linkRepository.getLinks(chatId).size());
+        assertEquals(
+                "http://example.com", linkRepository.getLinks(chatId).get(0).getLink());
+    }
+
+    @Test
+    public void testDuplicateLinkNotAdded() {
+        // Arrange
+        Long chatId = 100L;
+        AddLinkRequest request = new AddLinkRequest("https://example.com", Set.of("tag"), Set.of("filter"));
+
+        // Act
+        LinkResponse firstResponse = linkService.addLink(chatId, request);
+        LinkResponse duplicateResponse = linkService.addLink(chatId, request);
+
+        // Assert
+        assertNotNull(firstResponse, "Первая ссылка должна быть добавлена");
+        assertNull(duplicateResponse, "Дублирующая ссылка не должна добавляться");
+        var links = linkRepository.getLinks(chatId);
+        assertEquals(1, links.size());
     }
 }
