@@ -5,8 +5,8 @@ Scrapper Bot — это сервис для мониторинга измене�
 ## Требования
 
 Перед запуском убедитесь, что у вас установлены:
-- **Java 17+**
-- **Maven 3.8+**
+- **Java 23**
+- **Maven 3.9.9**
 
 ## Установка и запуск
 
@@ -60,14 +60,23 @@ java -jar bot/target/bot.jar
 
 ## Использование
 
-После запуска сервис доступен по адресу: `http://localhost:8080`.
+После запуска сервис доступен по адресу: `http://localhost:8081`.
 
 Для тестирования API можно использовать `curl` или Postman. Пример запроса:
 
 ```sh
-curl -X POST http://localhost:8080/api/links \
-     -H "Content-Type: application/json" \
-     -d '{"chatId": 100, "url": "https://example.com"}'
+curl --location 'http://localhost:8081/links' \
+--header 'Tg-chat-id: 99' \
+--header 'Content-Type: application/json' \
+--data '{
+  "link": "https://example.com/",
+  "tags": [
+    "string"
+  ],
+  "filters": [
+    "string"
+  ]
+}'
 ```
 
 ## Лицензия
