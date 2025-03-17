@@ -1,20 +1,76 @@
-![Build](https://github.com/central-university-dev/backend-academy-2025-spring-template/actions/workflows/build.yaml/badge.svg)
+# Scrapper Bot
 
-# Link Tracker
+Scrapper Bot — это сервис для мониторинга изменений на веб-ресурсах с отправкой уведомлений через Telegram.
 
-<!-- этот файл можно и нужно менять -->
+## Требования
 
-Проект сделан в рамках курса Академия Бэкенда.
+Перед запуском убедитесь, что у вас установлены:
+- **Java 17+**
+- **Maven 3.8+**
 
-Приложение для отслеживания обновлений контента по ссылкам.
-При появлении новых событий отправляется уведомление в Telegram.
+## Установка и запуск
 
-Проект написан на `Java 23` с использованием `Spring Boot 3`.
+### 1. Клонирование репозитория
 
-Проект состоит из 2-х приложений:
-* Bot
-* Scrapper
+```sh
+git clone https://github.com/central-university-dev/java-Therad445
+cd java-Therad445
+```
 
-Для работы требуется БД `PostgreSQL`. Присутствует опциональная зависимость на `Kafka`.
+### 2. Настройка переменных окружения
 
-Для дополнительной справки: [HELP.md](./HELP.md)
+Создайте файлы конфигурации для scrapper и бота:
+
+#### scrapper/src/main/resources/application-secrets.yaml
+
+```yaml
+app:
+  githubToken: "ваш_github_токен"
+  stackOverflow:
+    key: "ваш_stackoverflow_ключ"
+    accessToken: "ваш_stackoverflow_токен"
+```
+
+#### bot/src/main/resources/application-secrets.yaml
+
+```yaml
+app:
+  telegramToken: "ваш_telegram_токен"
+```
+
+### 3. Сборка и запуск
+
+#### Сборка проекта
+
+```sh
+mvn clean install
+```
+
+#### Запуск Scrapper
+
+```sh
+java -jar scrapper/target/scrapper.jar
+```
+
+#### Запуск бота
+
+```sh
+java -jar bot/target/bot.jar
+```
+
+## Использование
+
+После запуска сервис доступен по адресу: `http://localhost:8080`.
+
+Для тестирования API можно использовать `curl` или Postman. Пример запроса:
+
+```sh
+curl -X POST http://localhost:8080/api/links \
+     -H "Content-Type: application/json" \
+     -d '{"chatId": 100, "url": "https://example.com"}'
+```
+
+## Лицензия
+
+MIT License.
+
