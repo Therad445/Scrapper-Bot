@@ -109,6 +109,15 @@ public class TelegramBotService {
             return;
         }
         String url = parts[1];
+
+        ListLinksResponse existingLinksResponse = scrapperClient.getLinks(chatId);
+        if (existingLinksResponse != null
+                && existingLinksResponse.getLinks().stream()
+                        .anyMatch(link -> link.getLink().equals(url))) {
+            sendMessage(chatId, "Ссылка уже отслеживается: " + url);
+            return;
+        }
+
         session.setPendingUrl(url);
         session.setState(BotState.WAITING_FOR_TAGS);
         sendMessage(chatId, "Введите тэги (опционально):");
