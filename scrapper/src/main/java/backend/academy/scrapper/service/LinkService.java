@@ -31,6 +31,12 @@ public class LinkService {
     public LinkResponse addLink(Long chatId, AddLinkRequest addLinkRequest) {
         LinkInfo linkInfo =
                 new LinkInfo(addLinkRequest.getLink(), addLinkRequest.getTags(), addLinkRequest.getFilters());
+        boolean linkExists = linkRepository.getLinks(chatId).stream()
+                .anyMatch(existingLink -> existingLink.getLink().equals(linkInfo.getLink()));
+        if (linkExists) {
+            log.info("Ссылка уже существует: chatId={}, url={}", chatId, linkInfo.getLink());
+            return null;
+        }
         linkRepository.addLink(chatId, linkInfo);
         log.info("Scrapper сохранил: chatId={}, url={}", chatId, linkInfo.getLink());
         return new LinkResponse(
