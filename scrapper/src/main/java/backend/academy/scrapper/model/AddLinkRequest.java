@@ -1,7 +1,6 @@
 package backend.academy.scrapper.model;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import java.util.Set;
 import org.hibernate.validator.constraints.URL;
 
@@ -10,16 +9,14 @@ public class AddLinkRequest {
     @NotBlank
     private final String link;
 
-    @NotEmpty
     private final Set<String> tags;
 
-    @NotEmpty
     private final Set<String> filters;
 
     public AddLinkRequest(String link, Set<String> tags, Set<String> filters) {
         this.link = link;
-        this.tags = tags;
-        this.filters = filters;
+        this.tags = tags != null ? tags : Set.of();
+        this.filters = filters != null ? filters : Set.of();
     }
 
     public String getLink() {
