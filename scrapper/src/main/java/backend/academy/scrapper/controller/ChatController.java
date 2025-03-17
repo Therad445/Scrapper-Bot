@@ -27,20 +27,16 @@ public class ChatController {
     }
 
     @PostMapping("/{id}")
-    public ResponseEntity<?> registerChat(@PathVariable @NotNull @Positive Long id) {
+    public ResponseEntity<Void> registerChat(@PathVariable @NotNull @Positive Long id) {
         chatService.register(id);
         log.info("Чат {} зарегистрирован", id.toString().replaceAll("[\\r\\n]", ""));
-        return ResponseEntity.ok()
-                .header("Content-Type", "application/json;charset=UTF-8")
-                .body("Чат зарегистрирован");
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteChat(@PathVariable @NotNull @Positive Long id) {
         chatService.delete(id);
         log.info("Чат {} успешно удалён", id.toString().replaceAll("[\\r\\n]", ""));
-        return ResponseEntity.ok()
-                .header("Content-Type", "application/json;charset=UTF-8")
-                .body("Чат успешно удалён");
+        return ResponseEntity.ok().build();
     }
 }

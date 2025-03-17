@@ -28,8 +28,7 @@ class ChatControllerTest {
 
         // Act & Assert
         mockMvc.perform(post("/tg-chat/{id}", chatId))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Чат зарегистрирован"));
+                .andExpect(status().isOk());
 
         verify(chatService, times(1)).register(chatId);
     }
@@ -58,8 +57,7 @@ class ChatControllerTest {
 
         // Act & Assert
         mockMvc.perform(delete("/tg-chat/{id}", chatId))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Чат успешно удалён"));
+                .andExpect(status().isOk());
 
         verify(chatService, times(1)).delete(chatId);
     }
