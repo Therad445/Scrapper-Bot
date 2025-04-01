@@ -22,3 +22,7 @@ dependency-reduced-pom.xml
 ### log files ###
 *.log
 hs_err_pid*
+
+### Secret files ###
+scrapper/src/main/resources/application-secrets.yaml
+bot/src/main/resources/application-secrets.yaml

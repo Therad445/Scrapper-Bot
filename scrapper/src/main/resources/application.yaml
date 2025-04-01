@@ -1,10 +1,6 @@
-app:
-  github-token: ${GITHUB_TOKEN} # env variable
-  stackoverflow:
-    key: ${SO_TOKEN_KEY}
-    access-token: ${SO_ACCESS_TOKEN}
-
 spring:
+  config:
+    import: application-secrets.yaml
   application:
     name: Scrapper
   liquibase:

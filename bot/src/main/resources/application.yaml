@@ -1,7 +1,6 @@
-app:
-  telegram-token: ${TELEGRAM_TOKEN} # env variable
-
 spring:
+  config:
+    import: application-secrets.yaml
   application:
     name: Bot
   liquibase:
