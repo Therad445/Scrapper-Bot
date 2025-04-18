@@ -33,7 +33,7 @@ class ScrapperClientTest {
     void registerUser_ShouldSendPostRequest() {
         // Arrange
         Long chatId = 100L;
-        URI uri = URI.create("http://localhost:8081/tg-chat/" + chatId);
+        URI uri = URI.create("http://scrapper:8081/tg-chat/" + chatId);
 
         when(restTemplate.postForEntity(eq(uri), eq(null), eq(Void.class)))
                 .thenReturn(new ResponseEntity<>(HttpStatus.OK));
@@ -74,7 +74,7 @@ class ScrapperClientTest {
 
         LinkResponse expectedResponse = new LinkResponse(chatId, url, Collections.emptyList(), Collections.emptyList());
 
-        URI uri = URI.create("http://localhost:8081/links");
+        URI uri = URI.create("http://scrapper:8081/links");
 
         when(restTemplate.postForEntity(eq(uri), any(HttpEntity.class), eq(LinkResponse.class)))
                 .thenReturn(new ResponseEntity<>(expectedResponse, HttpStatus.OK));
@@ -93,7 +93,7 @@ class ScrapperClientTest {
         // Arrange
         Long chatId = 100L;
         String url = "https://example.com";
-        URI uri = URI.create("http://localhost:8081/links");
+        URI uri = URI.create("http://scrapper:8081:8081/links");
 
         when(restTemplate.exchange(eq(uri), eq(HttpMethod.DELETE), any(HttpEntity.class), eq(LinkResponse.class)))
                 .thenReturn(new ResponseEntity<>(HttpStatus.OK));

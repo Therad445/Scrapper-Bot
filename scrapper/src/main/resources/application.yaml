@@ -2,11 +2,15 @@ app:
   github-token: ${GITHUB_TOKEN} # env variable
   stackoverflow:
     key: ${SO_TOKEN_KEY}
-    access-token: ${SO_ACCESS_TOKEN
+    access-token: ${SO_ACCESS_TOKEN}
 
 spring:
   application:
     name: Scrapper
+  datasource:
+    url: jdbc:postgresql://postgres:5432/local
+    username: postgres
+    password: postgres
   liquibase:
     enabled: false
   jpa:

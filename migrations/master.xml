@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+         http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="1" author="Radmir">
+        <createTable tableName="links">
+            <column name="id" type="SERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="chat_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="link" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tags" type="TEXT"/>
+            <column name="filters" type="TEXT"/>
+            <column name="last_updated" type="VARCHAR(50)"/>
+        </createTable>
+        <createIndex indexName="idx_links_chat_link" tableName="links">
+            <column name="chat_id"/>
+            <column name="link"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>

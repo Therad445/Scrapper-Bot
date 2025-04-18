@@ -140,7 +140,7 @@ public class LinkScraperScheduler {
                         .append("\n");
             });
             String validUrl =
-                    updates.stream().findFirst().map(LinkUpdate::getUrl).orElse("http://localhost");
+                    updates.stream().findFirst().map(LinkUpdate::getUrl).orElse("http://bot");
             try {
                 botClient.notifyUpdate(chatId, validUrl, digest.toString(), Set.of(chatId));
             } catch (Exception e) {

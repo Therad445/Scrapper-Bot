@@ -23,7 +23,7 @@ public class ScrapperClient {
 
     public ScrapperClient(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
-        this.scrapperBaseUrl = "http://localhost:8081";
+        this.scrapperBaseUrl = "http://scrapper:8081/";
     }
 
     public void registerUser(Long chatId) {

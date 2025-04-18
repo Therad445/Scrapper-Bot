@@ -21,7 +21,7 @@ public class BotClient {
     @Autowired
     public BotClient(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
-        this.botBaseUrl = "http://localhost:8080";
+        this.botBaseUrl = "http://bot:8080/";
     }
 
     public Object notifyUpdate(Long id, String url, String description, Set<Long> tgChatIds) {
