@@ -11,11 +11,14 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
 @Repository
 @Slf4j
-public class LinkRepository {
+@ConditionalOnProperty(name="access-type", havingValue="INMEMORY", matchIfMissing=true)
+
+public class InMemoryLinkRepository implements ILinkRepository {
     private final Map<Long, Set<LinkInfo>> dataBase = new ConcurrentHashMap<>();
 
     public List<LinkInfo> getLinks(Long chatId) {
