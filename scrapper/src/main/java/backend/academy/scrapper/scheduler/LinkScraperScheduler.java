@@ -6,7 +6,8 @@ import backend.academy.scrapper.model.GithubResponse;
 import backend.academy.scrapper.model.LinkUpdate;
 import backend.academy.scrapper.model.StackOverflowItem;
 import backend.academy.scrapper.model.StackOverflowResponse;
-import backend.academy.scrapper.repository.LinkRepository;
+import backend.academy.scrapper.repository.ILinkRepository;
+import backend.academy.scrapper.repository.ChatRepository;
 import java.net.URI;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,25 +21,32 @@ import org.springframework.web.client.RestTemplate;
 @Slf4j
 public class LinkScraperScheduler {
 
-    private final LinkRepository linkRepository;
-    private final BotClient botClient;
-    private final RestTemplate restTemplate;
+    private final ChatRepository   chatRepository;
+    private final ILinkRepository  linkRepository;
+    private final BotClient        botClient;
+    private final RestTemplate     restTemplate;
 
     private final ConcurrentMap<Long, List<LinkUpdate>> batchUpdates = new ConcurrentHashMap<>();
 
-    public LinkScraperScheduler(LinkRepository linkRepository, BotClient botClient, RestTemplate restTemplate) {
+    public LinkScraperScheduler(
+        ChatRepository chatRepository,
+        ILinkRepository linkRepository,
+        BotClient botClient,
+        RestTemplate restTemplate
+    ) {
+        this.chatRepository = chatRepository;
         this.linkRepository = linkRepository;
-        this.botClient = botClient;
-        this.restTemplate = restTemplate;
+        this.botClient      = botClient;
+        this.restTemplate   = restTemplate;
     }
 
-    @Scheduled(fixedDelay = 600000)
+    @Scheduled(fixedDelay = 600_000)
     public void checkForUpdates() {
         log.info("Проверка обновлений ссылок...");
-        linkRepository.getAllLinks().forEach((chatId, linkSet) -> {
-            for (LinkInfo linkInfo : linkSet) {
-                String url = linkInfo.getLink();
+        for (Long chatId : chatRepository.getAllChats()) {
+            for (LinkInfo linkInfo : linkRepository.getLinks(chatId)) {
                 boolean isUpdated = false;
+                String url = linkInfo.getLink();
                 if (url.contains("github.com")) {
                     isUpdated = checkGithubLink(linkInfo);
                 } else if (url.contains("stackoverflow.com")) {
@@ -48,7 +56,7 @@ public class LinkScraperScheduler {
                     addBatchUpdate(chatId, linkInfo);
                 }
             }
-        });
+        }
     }
 
     private boolean checkGithubLink(LinkInfo linkInfo) {

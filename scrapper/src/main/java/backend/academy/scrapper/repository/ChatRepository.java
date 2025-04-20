@@ -1,5 +1,6 @@
 package backend.academy.scrapper.repository;
 
+import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.stereotype.Repository;
@@ -18,5 +19,9 @@ public class ChatRepository {
 
     public boolean exists(Long chatId) {
         return chats.contains(chatId);
+    }
+
+    public Set<Long> getAllChats() {
+        return Collections.unmodifiableSet(chats);
     }
 }
