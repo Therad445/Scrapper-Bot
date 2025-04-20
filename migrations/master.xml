@@ -6,9 +6,9 @@
          http://www.liquibase.org/xml/ns/dbchangelog
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <changeSet id="1" author="Radmir">
+    <changeSet id="1-create-links-table" author="Radmir">
         <createTable tableName="links">
-            <column name="id" type="SERIAL">
+            <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="chat_id" type="BIGINT">
@@ -21,6 +21,7 @@
             <column name="filters" type="TEXT"/>
             <column name="last_updated" type="VARCHAR(50)"/>
         </createTable>
+
         <createIndex indexName="idx_links_chat_link" tableName="links">
             <column name="chat_id"/>
             <column name="link"/>
