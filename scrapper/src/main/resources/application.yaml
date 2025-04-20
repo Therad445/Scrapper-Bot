@@ -4,18 +4,22 @@ app:
     key: ${SO_TOKEN_KEY}
     access-token: ${SO_ACCESS_TOKEN}
 
+access-type: SQL
+
 spring:
   application:
     name: Scrapper
   datasource:
-    url: jdbc:postgresql://postgres:5432/local
+    url: jdbc:postgresql://postgres:5432/scrapper
     username: postgres
     password: postgres
   liquibase:
     enabled: false
+#    enabled: true
+#    change-log: file:/migrations/master.xml
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: none
     open-in-view: false
 
 server:
