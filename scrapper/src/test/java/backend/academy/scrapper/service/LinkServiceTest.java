@@ -1,14 +1,13 @@
 package backend.academy.scrapper.service;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 import backend.academy.scrapper.dto.LinkInfo;
 import backend.academy.scrapper.model.AddLinkRequest;
 import backend.academy.scrapper.model.LinkResponse;
 import backend.academy.scrapper.model.ListLinksResponse;
 import backend.academy.scrapper.model.RemoveLinkRequest;
-import backend.academy.scrapper.repository.LinkRepository;
+import backend.academy.scrapper.repository.InMemoryLinkRepository;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,13 +15,13 @@ import org.junit.jupiter.api.Test;
 
 public class LinkServiceTest {
 
-    private LinkRepository linkRepository;
+    private InMemoryLinkRepository inMemoryLinkRepository;
     private LinkService linkService;
 
     @BeforeEach
     void setUp() {
-        linkRepository = new LinkRepository();
-        linkService = new LinkService(linkRepository);
+        inMemoryLinkRepository = new InMemoryLinkRepository();
+        linkService = new LinkService(inMemoryLinkRepository);
     }
 
     @Test
@@ -35,7 +34,7 @@ public class LinkServiceTest {
         filters.add("filter1");
 
         LinkInfo linkInfo = new LinkInfo("http://example.com", tags, filters);
-        linkRepository.addLink(chatId, linkInfo);
+        inMemoryLinkRepository.addLink(chatId, linkInfo);
 
         // Act
         ListLinksResponse response = linkService.getLinks(chatId);
@@ -81,7 +80,7 @@ public class LinkServiceTest {
         filters.add("filter1");
 
         LinkInfo linkInfo = new LinkInfo("http://example.com", tags, filters);
-        linkRepository.addLink(chatId, linkInfo);
+        inMemoryLinkRepository.addLink(chatId, linkInfo);
         RemoveLinkRequest removeLinkRequest = new RemoveLinkRequest("http://example.com");
 
         // Act
@@ -122,9 +121,9 @@ public class LinkServiceTest {
         linkService.addLink(chatId, addLinkRequest);
 
         // Assert
-        assertEquals(1, linkRepository.getLinks(chatId).size());
+        assertEquals(1, inMemoryLinkRepository.getLinks(chatId).size());
         assertEquals(
-                "http://example.com", linkRepository.getLinks(chatId).get(0).getLink());
+                "http://example.com", inMemoryLinkRepository.getLinks(chatId).get(0).getLink());
     }
 
     @Test
@@ -140,7 +139,7 @@ public class LinkServiceTest {
         // Assert
         assertNotNull(firstResponse, "Первая ссылка должна быть добавлена");
         assertNull(duplicateResponse, "Дублирующая ссылка не должна добавляться");
-        var links = linkRepository.getLinks(chatId);
+        var links = inMemoryLinkRepository.getLinks(chatId);
         assertEquals(1, links.size());
     }
 }

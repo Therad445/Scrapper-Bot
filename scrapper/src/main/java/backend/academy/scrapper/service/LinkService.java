@@ -5,7 +5,7 @@ import backend.academy.scrapper.model.AddLinkRequest;
 import backend.academy.scrapper.model.LinkResponse;
 import backend.academy.scrapper.model.ListLinksResponse;
 import backend.academy.scrapper.model.RemoveLinkRequest;
-import backend.academy.scrapper.repository.LinkRepository;
+import backend.academy.scrapper.repository.ILinkRepository ;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -13,9 +13,9 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class LinkService {
-    private final LinkRepository linkRepository;
+    private final ILinkRepository  linkRepository;
 
-    public LinkService(LinkRepository linkRepository) {
+    public LinkService(ILinkRepository  linkRepository) {
         this.linkRepository = linkRepository;
     }
 

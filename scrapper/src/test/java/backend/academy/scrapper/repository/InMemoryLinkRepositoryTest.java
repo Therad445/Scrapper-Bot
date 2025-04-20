@@ -11,13 +11,13 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class LinkRepositoryTest {
+public class InMemoryLinkRepositoryTest {
 
-    private LinkRepository linkRepository;
+    private InMemoryLinkRepository inMemoryLinkRepository;
 
     @BeforeEach
     void setUp() {
-        linkRepository = new LinkRepository();
+        inMemoryLinkRepository = new InMemoryLinkRepository();
     }
 
     @Test
@@ -32,8 +32,8 @@ public class LinkRepositoryTest {
         LinkInfo linkInfo = new LinkInfo("http://example.com", tags, filters);
 
         // Act
-        linkRepository.addLink(chatId, linkInfo);
-        List<LinkInfo> links = linkRepository.getLinks(chatId);
+        inMemoryLinkRepository.addLink(chatId, linkInfo);
+        List<LinkInfo> links = inMemoryLinkRepository.getLinks(chatId);
 
         // Assert
         assertEquals(1, links.size());
@@ -49,7 +49,7 @@ public class LinkRepositoryTest {
         Long chatId = 123L;
 
         // Act
-        List<LinkInfo> links = linkRepository.getLinks(chatId);
+        List<LinkInfo> links = inMemoryLinkRepository.getLinks(chatId);
 
         // Assert
         assertTrue(links.isEmpty());
@@ -65,10 +65,10 @@ public class LinkRepositoryTest {
         filters.add("filter1");
 
         LinkInfo linkInfo = new LinkInfo("http://example.com", tags, filters);
-        linkRepository.addLink(chatId, linkInfo);
+        inMemoryLinkRepository.addLink(chatId, linkInfo);
 
         // Act
-        Optional<LinkInfo> removedLink = linkRepository.removeLink(chatId, "http://example.com");
+        Optional<LinkInfo> removedLink = inMemoryLinkRepository.removeLink(chatId, "http://example.com");
 
         // Assert
         assertTrue(removedLink.isPresent());
@@ -77,7 +77,7 @@ public class LinkRepositoryTest {
         assertEquals(linkInfo.getFilters(), removedLink.get().getFilters());
 
         // Ensure link is removed from the repository
-        List<LinkInfo> links = linkRepository.getLinks(chatId);
+        List<LinkInfo> links = inMemoryLinkRepository.getLinks(chatId);
         assertTrue(links.isEmpty());
     }
 
@@ -91,10 +91,10 @@ public class LinkRepositoryTest {
         filters.add("filter1");
 
         LinkInfo linkInfo = new LinkInfo("http://example.com", tags, filters);
-        linkRepository.addLink(chatId, linkInfo);
+        inMemoryLinkRepository.addLink(chatId, linkInfo);
 
         // Act
-        Optional<LinkInfo> removedLink = linkRepository.removeLink(chatId, "http://nonexistent.com");
+        Optional<LinkInfo> removedLink = inMemoryLinkRepository.removeLink(chatId, "http://nonexistent.com");
 
         // Assert
         assertFalse(removedLink.isPresent());
@@ -117,15 +117,15 @@ public class LinkRepositoryTest {
         LinkInfo linkInfo1 = new LinkInfo("http://example1.com", tags1, filters1);
         LinkInfo linkInfo2 = new LinkInfo("http://example2.com", tags2, filters2);
 
-        linkRepository.addLink(chatId, linkInfo1);
-        linkRepository.addLink(chatId, linkInfo2);
+        inMemoryLinkRepository.addLink(chatId, linkInfo1);
+        inMemoryLinkRepository.addLink(chatId, linkInfo2);
 
         // Act
-        linkRepository.removeLink(chatId, "http://example1.com");
-        linkRepository.removeLink(chatId, "http://example2.com");
+        inMemoryLinkRepository.removeLink(chatId, "http://example1.com");
+        inMemoryLinkRepository.removeLink(chatId, "http://example2.com");
 
         // Assert
-        List<LinkInfo> links = linkRepository.getLinks(chatId);
+        List<LinkInfo> links = inMemoryLinkRepository.getLinks(chatId);
         assertTrue(links.isEmpty());
     }
 
@@ -148,12 +148,12 @@ public class LinkRepositoryTest {
         LinkInfo linkInfo1 = new LinkInfo("http://example1.com", tags1, filters1);
         LinkInfo linkInfo2 = new LinkInfo("http://example2.com", tags2, filters2);
 
-        LinkRepository linkRepository = new LinkRepository();
-        linkRepository.addLink(chatId1, linkInfo1);
-        linkRepository.addLink(chatId2, linkInfo2);
+        InMemoryLinkRepository inMemoryLinkRepository = new InMemoryLinkRepository();
+        inMemoryLinkRepository.addLink(chatId1, linkInfo1);
+        inMemoryLinkRepository.addLink(chatId2, linkInfo2);
 
         // Act
-        Map<Long, List<LinkInfo>> allLinks = linkRepository.getAllLinks();
+        Map<Long, List<LinkInfo>> allLinks = inMemoryLinkRepository.getAllLinks();
 
         // Assert
         assertEquals(2, allLinks.size());
@@ -176,11 +176,11 @@ public class LinkRepositoryTest {
 
         LinkInfo linkInfo = new LinkInfo("http://example.com", tags, filters);
 
-        LinkRepository linkRepository = new LinkRepository();
+        InMemoryLinkRepository inMemoryLinkRepository = new InMemoryLinkRepository();
 
         // Act
-        linkRepository.addLink(chatId, linkInfo);
-        List<LinkInfo> links = linkRepository.getLinks(chatId);
+        inMemoryLinkRepository.addLink(chatId, linkInfo);
+        List<LinkInfo> links = inMemoryLinkRepository.getLinks(chatId);
 
         // Assert
         assertEquals(1, links.size());
@@ -194,10 +194,10 @@ public class LinkRepositoryTest {
     void shouldReturnEmptyListWhenChatIdHasNoLinks() {
         // Arrange
         Long chatId = 999L;
-        LinkRepository linkRepository = new LinkRepository();
+        InMemoryLinkRepository inMemoryLinkRepository = new InMemoryLinkRepository();
 
         // Act
-        List<LinkInfo> links = linkRepository.getLinks(chatId);
+        List<LinkInfo> links = inMemoryLinkRepository.getLinks(chatId);
 
         // Assert
         assertTrue(links.isEmpty());
@@ -207,17 +207,17 @@ public class LinkRepositoryTest {
     void shouldNotRemoveLinkFromNonExistentChatId() {
         // Arrange
         Long chatId = 999L;
-        LinkRepository linkRepository = new LinkRepository();
+        InMemoryLinkRepository inMemoryLinkRepository = new InMemoryLinkRepository();
         Set<String> tags = new HashSet<>();
         tags.add("tag1");
         Set<String> filters = new HashSet<>();
         filters.add("filter1");
 
         LinkInfo linkInfo = new LinkInfo("http://example.com", tags, filters);
-        linkRepository.addLink(123L, linkInfo);
+        inMemoryLinkRepository.addLink(123L, linkInfo);
 
         // Act
-        Optional<LinkInfo> removedLink = linkRepository.removeLink(chatId, "http://example.com");
+        Optional<LinkInfo> removedLink = inMemoryLinkRepository.removeLink(chatId, "http://example.com");
 
         // Assert
         assertFalse(removedLink.isPresent());

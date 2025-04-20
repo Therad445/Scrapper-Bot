@@ -5,7 +5,8 @@ import static org.mockito.Mockito.*;
 import backend.academy.scrapper.client.BotClient;
 import backend.academy.scrapper.dto.LinkInfo;
 import backend.academy.scrapper.model.GithubResponse;
-import backend.academy.scrapper.repository.LinkRepository;
+import backend.academy.scrapper.repository.ChatRepository;
+import backend.academy.scrapper.repository.InMemoryLinkRepository;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,19 +14,21 @@ import org.springframework.web.client.RestTemplate;
 
 public class LinkScraperSchedulerTest {
 
-    private LinkRepository linkRepository;
+    private InMemoryLinkRepository inMemoryLinkRepository;
     private BotClient botClient;
     private RestTemplate restTemplate;
     private LinkScraperScheduler scheduler;
+    private ChatRepository chatRepository;
     private final Long chatId = 200L;
 
     @BeforeEach
     public void setup() {
         // Arrange
-        linkRepository = new LinkRepository();
+        inMemoryLinkRepository = new InMemoryLinkRepository();
+        chatRepository = mock(ChatRepository.class);
         botClient = mock(BotClient.class);
         restTemplate = mock(RestTemplate.class);
-        scheduler = new LinkScraperScheduler(linkRepository, botClient, restTemplate);
+        scheduler = new LinkScraperScheduler(chatRepository, inMemoryLinkRepository, botClient, restTemplate);
     }
 
     @Test
@@ -34,7 +37,7 @@ public class LinkScraperSchedulerTest {
         LinkInfo linkInfo = new LinkInfo("https://github.com/owner/repo", Set.of("tag"), Set.of("filter"));
         linkInfo.getUpdateInfo().setLastUpdated("oldDate");
 
-        linkRepository.addLink(200L, linkInfo);
+        inMemoryLinkRepository.addLink(200L, linkInfo);
 
         GithubResponse githubResponse = new GithubResponse();
         githubResponse.setUpdated_at("newDate");
@@ -53,7 +56,7 @@ public class LinkScraperSchedulerTest {
         // Arrange
         LinkInfo linkInfo = new LinkInfo("https://github.com/owner/repo", Set.of("tag"), Set.of("filter"));
         linkInfo.getUpdateInfo().setLastUpdated("sameDate");
-        linkRepository.addLink(chatId, linkInfo);
+        inMemoryLinkRepository.addLink(chatId, linkInfo);
 
         // Arrange
         GithubResponse githubResponse = new GithubResponse();
