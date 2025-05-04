@@ -1,52 +1,53 @@
 package backend.academy.scrapper.service;
 
-import backend.academy.scrapper.dto.LinkInfo;
 import backend.academy.scrapper.model.AddLinkRequest;
+import backend.academy.scrapper.model.LinkInfo;
 import backend.academy.scrapper.model.LinkResponse;
 import backend.academy.scrapper.model.ListLinksResponse;
 import backend.academy.scrapper.model.RemoveLinkRequest;
-import backend.academy.scrapper.repository.ILinkRepository ;
-import java.util.List;
-import lombok.extern.slf4j.Slf4j;
+import backend.academy.scrapper.repository.ChatRepository;
+import backend.academy.scrapper.repository.LinkRepository;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import java.util.List;
+import java.util.Set;
+
+
 
 @Service
-@Slf4j
+@RequiredArgsConstructor
 public class LinkService {
-    private final ILinkRepository  linkRepository;
 
-    public LinkService(ILinkRepository  linkRepository) {
-        this.linkRepository = linkRepository;
+    private final ChatRepository chatRepository;
+    private final LinkRepository linkRepository;
+
+    public ListLinksResponse getLinks(long tgChatId) {
+        List<LinkInfo> links = linkRepository.findAllByChat(tgChatId);
+        List<LinkResponse> responses = links.stream()
+            .map(link -> new LinkResponse(
+                link.id(),
+                link.url(),
+                Set.of(),
+                Set.of()
+            ))
+            .toList();
+        return new ListLinksResponse(responses, responses.size());
     }
 
-    public ListLinksResponse getLinks(Long chatId) {
-        List<LinkInfo> links = linkRepository.getLinks(chatId);
-        List<LinkResponse> linkResponses = links.stream()
-                .map(linkInfo ->
-                        new LinkResponse(chatId, linkInfo.getLink(), linkInfo.getTags(), linkInfo.getFilters()))
-                .toList();
-        return new ListLinksResponse(linkResponses, linkResponses.size());
+    @Transactional
+    public LinkResponse addLink(long tgChatId, AddLinkRequest request) {
+        chatRepository.register(tgChatId);
+        linkRepository.add(tgChatId, request.link());
+        return new LinkResponse(null, request.link(), Set.of(), Set.of());
     }
 
-    public LinkResponse addLink(Long chatId, AddLinkRequest addLinkRequest) {
-        LinkInfo linkInfo =
-                new LinkInfo(addLinkRequest.getLink(), addLinkRequest.getTags(), addLinkRequest.getFilters());
-        boolean linkExists = linkRepository.getLinks(chatId).stream()
-                .anyMatch(existingLink -> existingLink.getLink().equals(linkInfo.getLink()));
-        if (linkExists) {
-            log.info("Ссылка уже существует: chatId={}, url={}", chatId, linkInfo.getLink());
-            return null;
-        }
-        linkRepository.addLink(chatId, linkInfo);
-        log.info("Scrapper сохранил: chatId={}, url={}", chatId, linkInfo.getLink());
-        return new LinkResponse(
-                chatId, addLinkRequest.getLink(), addLinkRequest.getTags(), addLinkRequest.getFilters());
+    @Transactional
+    public LinkResponse removeLinks(long tgChatId, RemoveLinkRequest request) {
+        return linkRepository
+            .remove(tgChatId, request.link())
+            .map(link -> new LinkResponse(null, request.link(), Set.of(), Set.of()))
+            .orElseThrow(() -> new IllegalArgumentException("Ссылка не найдена!"));
     }
 
-    public LinkResponse removeLinks(Long chatId, RemoveLinkRequest removeLinkRequest) {
-        LinkInfo linkInfo = linkRepository
-                .removeLink(chatId, removeLinkRequest.getLink())
-                .orElseThrow(() -> new IllegalArgumentException("Ссылка не найдена!"));
-        return new LinkResponse(chatId, linkInfo.getLink(), linkInfo.getTags(), linkInfo.getFilters());
-    }
 }
