@@ -1,15 +1,12 @@
 package backend.academy.scrapper.model;
 
+import lombok.Getter;
+import lombok.Setter;
 import java.util.List;
 
+@Setter
+@Getter
 public class StackOverflowResponse {
     private List<StackOverflowItem> items;
 
-    public List<StackOverflowItem> getItems() {
-        return items;
-    }
-
-    public void setItems(List<StackOverflowItem> items) {
-        this.items = items;
-    }
 }
