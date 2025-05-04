@@ -1,59 +1,92 @@
 package backend.academy.scrapper.repository.orm;
 
-import backend.academy.scrapper.dto.LinkInfo;
-import backend.academy.scrapper.repository.ILinkRepository;
-import java.util.*;
+import backend.academy.scrapper.entity.ChatEntity;
+import backend.academy.scrapper.entity.LinkEntity;
+import backend.academy.scrapper.model.LinkInfo;
+import backend.academy.scrapper.repository.LinkRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
 
 @Repository
+@RequiredArgsConstructor
 @ConditionalOnProperty(name = "access-type", havingValue = "ORM")
-public class OrmLinkRepository implements ILinkRepository {
-    private final LinkJpaRepository repo;
+public class OrmLinkRepository implements LinkRepository {
 
-    public OrmLinkRepository(LinkJpaRepository repo) {
-        this.repo = repo;
-    }
+    private final LinkJpaRepository linkJpa;
+    private final ChatJpaRepository chatJpa;
 
     @Override
-    public List<LinkInfo> getLinks(Long chatId) {
-        return repo.findByChatId(chatId).stream().map(e -> {
-            var tags = parseSet(e.getTags());
-            var filters = parseSet(e.getFilters());
-            LinkInfo info = new LinkInfo(e.getLink(), tags, filters);
-            info.getUpdateInfo().setLastUpdated(e.getLastUpdated());
-            return info;
-        }).toList();
-    }
+    @Transactional
+    public void add(long chatId, String url) {
+        ChatEntity chat = chatJpa.findById(chatId)
+            .orElseThrow(() -> new IllegalArgumentException("Chat not found: " + chatId));
 
-    @Override
-    public void addLink(Long chatId, LinkInfo li) {
-        if (repo.findByChatIdAndLink(chatId, li.getLink()).isPresent()) return;
-        var e = new LinkEntity();
-        e.setChatId(chatId);
-        e.setLink(li.getLink());
-        e.setTags(stringify(li.getTags()));
-        e.setFilters(stringify(li.getFilters()));
-        e.setLastUpdated("");
-        repo.save(e);
-    }
-
-    @Override
-    public Optional<LinkInfo> removeLink(Long chatId, String link) {
-        return repo.findByChatIdAndLink(chatId, link)
-            .map(e -> {
-                repo.delete(e);
-                var li = new LinkInfo(e.getLink(), parseSet(e.getTags()), parseSet(e.getFilters()));
-                li.getUpdateInfo().setLastUpdated(e.getLastUpdated());
-                return li;
+        LinkEntity link = linkJpa.findByUrl(url)
+            .orElseGet(() -> {
+                LinkEntity newLink = new LinkEntity();
+                newLink.url(url);
+                newLink.lastCheckedAt(Instant.EPOCH);
+                return linkJpa.save(newLink);
             });
+
+        chat.links().add(link);
+        chatJpa.save(chat);
     }
 
-    private static Set<String> parseSet(String s) {
-        if (s == null || s.isBlank()) return Collections.emptySet();
-        return new HashSet<>(Arrays.asList(s.split(",")));
+    @Override
+    @Transactional
+    public Optional<LinkInfo> remove(long chatId, String url) {
+        Optional<ChatEntity> chatOpt = chatJpa.findById(chatId);
+        Optional<LinkEntity> linkOpt = linkJpa.findByUrl(url);
+
+        if (chatOpt.isPresent() && linkOpt.isPresent()) {
+            ChatEntity chat = chatOpt.get();
+            LinkEntity link = linkOpt.get();
+
+            boolean removed = chat.links().remove(link);
+            if (removed) {
+                chatJpa.save(chat);
+                return Optional.of(new LinkInfo(link.id(), link.url()));
+            }
+        }
+        return Optional.empty();
     }
-    private static String stringify(Set<String> set) {
-        return set == null || set.isEmpty() ? "" : String.join(",", set);
+
+    @Override
+    public Page<LinkInfo> findLinksForCheck(Instant threshold, Pageable pageable) {
+        return linkJpa.findOldLinks(threshold, pageable)
+            .map(link -> new LinkInfo(link.id(), link.url()));
+    }
+
+    @Override
+    @Transactional
+    public void updateCheckTime(long linkId, Instant checkedAt, Instant updatedAt) {
+        LinkEntity link = linkJpa.findById(linkId)
+            .orElseThrow(() -> new IllegalArgumentException("Link not found: " + linkId));
+
+        link.lastCheckedAt(checkedAt);
+        if (updatedAt != null) {
+            link.lastUpdatedAt(updatedAt);
+        }
+        linkJpa.save(link);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<LinkInfo> findAllByChat(long chatId) {
+        ChatEntity chat = chatJpa.findById(chatId)
+            .orElseThrow(() -> new IllegalArgumentException("Chat not found: " + chatId));
+
+        return chat.links().stream()
+            .map(link -> new LinkInfo(link.id(), link.url()))
+            .toList();
     }
 }
