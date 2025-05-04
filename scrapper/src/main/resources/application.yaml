@@ -3,8 +3,13 @@ app:
   stackoverflow:
     key: ${SO_TOKEN_KEY}
     access-token: ${SO_ACCESS_TOKEN}
+  scheduler:
+    enable: true
+    interval: 30s
+    force-check-delay: 15m
+    batch-size: 100
 
-access-type: SQL
+access-type: ORM
 
 spring:
   application:
