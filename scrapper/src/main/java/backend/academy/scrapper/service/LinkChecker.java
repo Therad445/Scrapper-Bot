@@ -4,5 +4,6 @@ import backend.academy.scrapper.model.LinkInfo;
 
 public interface LinkChecker {
     boolean hasUpdates(LinkInfo linkInfo);
-    String  preview();
+
+    String preview();
 }

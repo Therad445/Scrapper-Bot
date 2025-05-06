@@ -9,7 +9,6 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.kafka.KafkaContainer;
 import org.testcontainers.utility.DockerImageName;
 
-// isolated from the "bot" module's containers!
 @TestConfiguration(proxyBeanMethods = false)
 class TestcontainersConfiguration {
 
@@ -25,10 +24,10 @@ class TestcontainersConfiguration {
     @ServiceConnection
     PostgreSQLContainer<?> postgresContainer() {
         return new PostgreSQLContainer<>("postgres:17-alpine")
-                .withExposedPorts(5432)
-                .withDatabaseName("local")
-                .withUsername("postgres")
-                .withPassword("test");
+            .withExposedPorts(5432)
+            .withDatabaseName("local")
+            .withUsername("postgres")
+            .withPassword("test");
     }
 
     @Bean

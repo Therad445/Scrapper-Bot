@@ -2,12 +2,11 @@ package backend.academy.scrapper.repository.orm;
 
 import backend.academy.scrapper.entity.ChatEntity;
 import backend.academy.scrapper.repository.ChatRepository;
+import java.time.Instant;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
-
-import java.time.Instant;
-import java.util.List;
 
 @Repository
 @RequiredArgsConstructor

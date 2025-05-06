@@ -7,16 +7,15 @@ import backend.academy.scrapper.model.LinkUpdate;
 import backend.academy.scrapper.repository.ChatRepository;
 import backend.academy.scrapper.repository.LinkRepository;
 import backend.academy.scrapper.service.impl.GitHubStackChecker;
+import java.time.Instant;
+import java.util.List;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-
-import java.time.Instant;
-import java.util.List;
-import java.util.Set;
 
 @Slf4j
 @Component
@@ -61,6 +60,6 @@ public class LinkScraperScheduler {
             );
         }
 
-        log.info("Scheduler finished checking {} links", links.size());
+        log.info("Scheduler закончил проверку {} ссылок", links.size());
     }
 }

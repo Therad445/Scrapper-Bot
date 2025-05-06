@@ -2,12 +2,12 @@ package backend.academy.scrapper.service.impl;
 
 import backend.academy.scrapper.model.LinkInfo;
 import backend.academy.scrapper.service.LinkChecker;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
@@ -26,9 +26,13 @@ public class GitHubStackChecker implements LinkChecker {
                 preview = "Обновлён ETag: " + etag;
                 return true;
             }
-        } catch (Exception ignored) { }
+        } catch (Exception ignored) {
+        }
         return false;
     }
 
-    @Override public String preview() { return preview == null ? "" : preview; }
+    @Override
+    public String preview() {
+        return preview == null ? "" : preview;
+    }
 }

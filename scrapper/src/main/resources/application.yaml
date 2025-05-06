@@ -20,8 +20,8 @@ spring:
     password: postgres
   liquibase:
     enabled: false
-#    enabled: true
-#    change-log: file:/migrations/master.xml
+  #    enabled: true
+  #    change-log: file:/migrations/master.xml
   jpa:
     hibernate:
       ddl-auto: none
