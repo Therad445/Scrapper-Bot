@@ -1,9 +1,5 @@
 package backend.academy.bot.client;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
-
 import backend.academy.bot.dto.AddLinkRequest;
 import backend.academy.bot.dto.LinkResponse;
 import backend.academy.bot.dto.ListLinksResponse;
@@ -13,8 +9,18 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class ScrapperClientTest {
 
@@ -36,7 +42,7 @@ class ScrapperClientTest {
         URI uri = URI.create("http://scrapper:8081/tg-chat/" + chatId);
 
         when(restTemplate.postForEntity(eq(uri), eq(null), eq(Void.class)))
-                .thenReturn(new ResponseEntity<>(HttpStatus.OK));
+            .thenReturn(new ResponseEntity<>(HttpStatus.OK));
 
         // Act
         scrapperClient.registerUser(chatId);
@@ -51,8 +57,8 @@ class ScrapperClientTest {
         Long chatId = 100L;
         ListLinksResponse expectedResponse = new ListLinksResponse();
         when(restTemplate.exchange(
-                        any(URI.class), eq(HttpMethod.GET), any(HttpEntity.class), eq(ListLinksResponse.class)))
-                .thenReturn(new ResponseEntity<>(expectedResponse, HttpStatus.OK));
+            any(URI.class), eq(HttpMethod.GET), any(HttpEntity.class), eq(ListLinksResponse.class)))
+            .thenReturn(new ResponseEntity<>(expectedResponse, HttpStatus.OK));
 
         // Act
         ListLinksResponse response = scrapperClient.getLinks(chatId);
@@ -77,7 +83,7 @@ class ScrapperClientTest {
         URI uri = URI.create("http://scrapper:8081/links");
 
         when(restTemplate.postForEntity(eq(uri), any(HttpEntity.class), eq(LinkResponse.class)))
-                .thenReturn(new ResponseEntity<>(expectedResponse, HttpStatus.OK));
+            .thenReturn(new ResponseEntity<>(expectedResponse, HttpStatus.OK));
 
         // Act
         LinkResponse response = scrapperClient.trackLink(chatId, url);
@@ -96,13 +102,13 @@ class ScrapperClientTest {
         URI uri = URI.create("http://scrapper:8081:8081/links");
 
         when(restTemplate.exchange(eq(uri), eq(HttpMethod.DELETE), any(HttpEntity.class), eq(LinkResponse.class)))
-                .thenReturn(new ResponseEntity<>(HttpStatus.OK));
+            .thenReturn(new ResponseEntity<>(HttpStatus.OK));
 
         // Act
         scrapperClient.untrackLink(chatId, url);
 
         // Assert
         verify(restTemplate, times(1))
-                .exchange(eq(uri), eq(HttpMethod.DELETE), any(HttpEntity.class), eq(LinkResponse.class));
+            .exchange(eq(uri), eq(HttpMethod.DELETE), any(HttpEntity.class), eq(LinkResponse.class));
     }
 }

@@ -6,7 +6,10 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping
@@ -24,7 +27,7 @@ public class BotController {
         telegramBotService.sendMessage(linkUpdate.getId(), "Обновилась ссылка " + linkUpdate.getUrl());
         log.info("Обновление обработано");
         return ResponseEntity.ok()
-                .header("Content-Type", "application/json;charset=UTF-8")
-                .body("Обновление обработано");
+            .header("Content-Type", "application/json;charset=UTF-8")
+            .body("Обновление обработано");
     }
 }

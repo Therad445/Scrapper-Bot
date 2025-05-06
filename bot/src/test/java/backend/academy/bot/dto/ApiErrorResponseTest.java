@@ -1,9 +1,8 @@
 package backend.academy.bot.dto;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class ApiErrorResponseTest {
 
@@ -14,7 +13,7 @@ class ApiErrorResponseTest {
 
         // Act
         ApiErrorResponse response =
-                new ApiErrorResponse("Error description", "404", "NotFoundException", "Resource not found", stacktrace);
+            new ApiErrorResponse("Error description", "404", "NotFoundException", "Resource not found", stacktrace);
 
         // Assert
         assertThat(response.getDescription()).isEqualTo("Error description");
@@ -31,7 +30,7 @@ class ApiErrorResponseTest {
 
         // Act
         ApiErrorResponse response = new ApiErrorResponse(
-                "Error description", "500", "InternalServerErrorException", "Something went wrong", emptyStacktrace);
+            "Error description", "500", "InternalServerErrorException", "Something went wrong", emptyStacktrace);
 
         // Assert
         assertThat(response.getStacktrace()).isEmpty();
@@ -44,7 +43,7 @@ class ApiErrorResponseTest {
 
         // Act
         ApiErrorResponse response = new ApiErrorResponse(
-                "Error description", "400", "BadRequestException", "Invalid request", nullStacktrace);
+            "Error description", "400", "BadRequestException", "Invalid request", nullStacktrace);
 
         // Assert
         assertThat(response.getStacktrace()).isNull();

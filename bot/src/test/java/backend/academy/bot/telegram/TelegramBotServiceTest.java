@@ -1,8 +1,5 @@
 package backend.academy.bot.telegram;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 import backend.academy.bot.BotConfig;
 import backend.academy.bot.client.ScrapperClient;
 import backend.academy.bot.dto.LinkResponse;
@@ -19,6 +16,10 @@ import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class TelegramBotServiceTest {
 
@@ -70,9 +71,9 @@ public class TelegramBotServiceTest {
     public void testListCommandFormattingWithLinks() throws Exception {
         Long chatId = 101L;
         LinkResponse linkResponse =
-                new LinkResponse(1L, "https://example.com", Collections.emptyList(), Collections.emptyList());
+            new LinkResponse(1L, "https://example.com", Collections.emptyList(), Collections.emptyList());
         when(scrapperClient.getLinks(chatId))
-                .thenReturn(new backend.academy.bot.dto.ListLinksResponse(List.of(linkResponse), 1));
+            .thenReturn(new backend.academy.bot.dto.ListLinksResponse(List.of(linkResponse), 1));
         botService.processText(chatId, "/list");
         List<String> messages = botService.getSentMessages().get(chatId);
         assertTrue(messages.get(messages.size() - 1).contains("https://example.com"));
@@ -88,8 +89,8 @@ public class TelegramBotServiceTest {
         @Override
         public void sendMessage(Long chatId, String text) {
             sentMessages
-                    .computeIfAbsent(chatId, k -> new java.util.ArrayList<>())
-                    .add(text);
+                .computeIfAbsent(chatId, k -> new java.util.ArrayList<>())
+                .add(text);
         }
 
         public void processText(Long chatId, String text) throws Exception {

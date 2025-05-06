@@ -11,7 +11,7 @@ public class ApiErrorResponse {
     private List<String> stacktrace;
 
     public ApiErrorResponse(
-            String description, String code, String exceptionName, String exceptionMessage, List<String> stacktrace) {
+        String description, String code, String exceptionName, String exceptionMessage, List<String> stacktrace) {
         this.description = description;
         this.code = code;
         this.exceptionName = exceptionName;

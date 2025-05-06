@@ -7,7 +7,8 @@ public class ListLinksResponse {
     private List<LinkResponse> links = new ArrayList<>();
     private int size;
 
-    public ListLinksResponse() {}
+    public ListLinksResponse() {
+    }
 
     public ListLinksResponse(List<LinkResponse> links, int size) {
         this.links = links;
