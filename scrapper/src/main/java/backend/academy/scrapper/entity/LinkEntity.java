@@ -1,18 +1,25 @@
 package backend.academy.scrapper.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
-
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Setter
-@Getter
 @Entity
 @Table(name = "link")
+@Getter
+@Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class LinkEntity {
 
     @Id
@@ -22,13 +29,15 @@ public class LinkEntity {
     @Column(nullable = false, unique = true)
     private String url;
 
-    @Column(name = "last_updated_at")
-    private Instant lastUpdatedAt;
-
     @Column(name = "last_checked_at")
     private Instant lastCheckedAt;
 
-    @ManyToMany(mappedBy = "links")
-    private Set<ChatEntity> chats = new HashSet<>();
+    @Column(name = "last_updated_at")
+    private Instant lastUpdatedAt;
+
+    @OneToMany(mappedBy = "link",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true)
+    private Set<SubscriptionEntity> subscriptions = new HashSet<>();
 
 }
