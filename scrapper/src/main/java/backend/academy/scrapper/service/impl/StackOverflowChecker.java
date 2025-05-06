@@ -40,7 +40,7 @@ class StackOverflowChecker implements LinkChecker {
         Matcher mAns = ANSWER.matcher(li.url());
         Matcher mCom = COMMENT.matcher(li.url());
         if (!mAns.matches() && !mCom.matches()) return false;
-        String id = (mAns.matches() ? mAns.group("id") : mCom.group("id"));
+        String id = mAns.matches() ? mAns.group("id") : mCom.group("id");
         boolean isComment = mCom.matches();
 
         Map<String, Object> post =

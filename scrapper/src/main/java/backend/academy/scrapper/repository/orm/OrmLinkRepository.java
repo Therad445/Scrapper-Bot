@@ -131,9 +131,8 @@ public class OrmLinkRepository implements LinkRepository {
     @Override
     @Transactional
     public Optional<LinkInfo> remove(long chatId, String url) {
-        ChatEntity chat = chatJpa.findById(chatId).orElse(null);
-        LinkEntity link = linkJpa.findByUrl(url).orElse(null);
-        if (chat == null || link == null) return Optional.empty();
+        ChatEntity chat = chatJpa.findById(chatId).orElseThrow();
+        LinkEntity link = linkJpa.findByUrl(url).orElseThrow();
 
         boolean deleted = chat.subscriptions().removeIf(s -> s.link().equals(link));
 

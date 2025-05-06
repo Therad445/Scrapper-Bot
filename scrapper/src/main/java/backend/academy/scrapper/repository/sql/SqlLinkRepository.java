@@ -131,7 +131,12 @@ public class SqlLinkRepository implements LinkRepository {
                 """
             SELECT id FROM link WHERE url = ?
             """,
-                rs -> rs.next() ? rs.getLong(1) : null,
+                rs -> {
+                    if (rs.next()) {
+                        return rs.getLong(1);
+                    }
+                    return null;
+                },
                 url);
 
         if (linkId == null) return Optional.empty();

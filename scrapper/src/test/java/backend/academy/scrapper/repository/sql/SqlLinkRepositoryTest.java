@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import backend.academy.scrapper.model.LinkInfo;
 import backend.academy.scrapper.repository.ChatRepository;
 import backend.academy.scrapper.repository.LinkRepository;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.time.Instant;
 import java.util.List;
@@ -57,7 +57,7 @@ class SqlLinkRepositoryTest {
         try (Connection conn = ds.getConnection()) {
             var database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(conn));
             var resourceAccessor = new DirectoryResourceAccessor(
-                    Paths.get("../migrations").toAbsolutePath().normalize());
+                    Path.of("../migrations").toAbsolutePath().normalize());
             var liquibase = new Liquibase("master.xml", resourceAccessor, database);
             liquibase.update();
         }
@@ -88,7 +88,7 @@ class SqlLinkRepositoryTest {
         Optional<LinkInfo> removed = repo.remove(1L, "https://remove.me");
 
         assertTrue(removed.isPresent());
-        assertEquals("https://remove.me", removed.get().url());
+        assertEquals("https://remove.me", removed.orElseThrow().url());
 
         List<LinkInfo> links = repo.findAllByChat(1L);
         assertTrue(links.isEmpty());

@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import backend.academy.scrapper.entity.ChatEntity;
 import backend.academy.scrapper.model.LinkInfo;
 import jakarta.transaction.Transactional;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -56,7 +56,7 @@ class OrmLinkRepositoryTest {
         r.add(
                 "spring.liquibase.change-log",
                 () -> "file:"
-                        + Paths.get("../migrations/master.xml").toAbsolutePath().normalize());
+                        + Path.of("../migrations/master.xml").toAbsolutePath().normalize());
         r.add("spring.liquibase.enabled", () -> "true");
         r.add("spring.jpa.hibernate.ddl-auto", () -> "none");
     }
@@ -94,7 +94,7 @@ class OrmLinkRepositoryTest {
         Optional<LinkInfo> removed = ormLinkRepository.remove(chatId, url);
 
         assertTrue(removed.isPresent());
-        assertEquals(url, removed.get().url());
+        assertEquals(url, removed.orElseThrow().url());
         assertTrue(ormLinkRepository.findAllByChat(chatId).isEmpty());
     }
 

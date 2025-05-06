@@ -1,12 +1,12 @@
 package backend.academy.scrapper.repository.sql;
 
-import static java.nio.file.Paths.get;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import backend.academy.scrapper.repository.ChatRepository;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.util.List;
 import javax.sql.DataSource;
@@ -53,7 +53,7 @@ class SqlChatRepositoryTest {
             var liquibase = new Liquibase(
                     "master.xml",
                     new DirectoryResourceAccessor(
-                            get("../migrations").toAbsolutePath().normalize()),
+                            Path.of("../migrations").toAbsolutePath().normalize()),
                     database);
             liquibase.update();
         }

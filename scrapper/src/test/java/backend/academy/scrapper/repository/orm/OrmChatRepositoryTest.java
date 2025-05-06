@@ -9,7 +9,7 @@ import backend.academy.scrapper.entity.ChatEntity;
 import backend.academy.scrapper.entity.LinkEntity;
 import backend.academy.scrapper.entity.SubscriptionEntity;
 import backend.academy.scrapper.repository.ChatRepository;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,7 +49,7 @@ class OrmChatRepositoryTest {
         r.add(
                 "spring.liquibase.change-log",
                 () -> "file:"
-                        + Paths.get("../migrations/master.xml").toAbsolutePath().normalize());
+                        + Path.of("../migrations/master.xml").toAbsolutePath().normalize());
         r.add("spring.liquibase.enabled", () -> "true");
         r.add("spring.jpa.hibernate.ddl-auto", () -> "none");
     }
