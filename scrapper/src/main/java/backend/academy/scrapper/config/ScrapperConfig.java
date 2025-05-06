@@ -1,4 +1,4 @@
-package backend.academy.scrapper;
+package backend.academy.scrapper.config;
 
 import jakarta.validation.constraints.NotEmpty;
 import java.time.Duration;

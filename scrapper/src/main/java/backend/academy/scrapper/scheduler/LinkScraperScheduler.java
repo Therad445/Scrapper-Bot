@@ -1,7 +1,6 @@
 package backend.academy.scrapper.scheduler;
 
-import backend.academy.scrapper.ScrapperConfig;
-import backend.academy.scrapper.client.BotClient;
+import backend.academy.scrapper.config.ScrapperConfig;
 import backend.academy.scrapper.model.LinkInfo;
 import backend.academy.scrapper.model.LinkUpdate;
 import backend.academy.scrapper.repository.ChatRepository;
