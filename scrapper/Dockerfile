@@ -6,7 +6,8 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-COPY target/scrapper-1.0.jar scrapper.jar
+COPY scrapper/target/scrapper-1.0.jar scrapper.jar
+COPY ../migrations ./migrations
 EXPOSE 8081
 
 HEALTHCHECK --interval=10s --timeout=5s --start-period=10s --retries=3 \

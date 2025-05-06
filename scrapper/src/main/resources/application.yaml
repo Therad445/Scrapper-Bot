@@ -8,6 +8,8 @@ app:
     interval: 30s
     force-check-delay: 15m
     batch-size: 100
+notification:
+  type: http
 
 access-type: ORM
 
@@ -20,8 +22,6 @@ spring:
     password: postgres
   liquibase:
     enabled: false
-  #    enabled: true
-  #    change-log: file:/migrations/master.xml
   jpa:
     hibernate:
       ddl-auto: none

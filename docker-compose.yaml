@@ -13,28 +13,12 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
 
-  liquibase:
-    image: liquibase/liquibase:4.29
-    depends_on:
-      - postgresql
-    command:
-      - --search-path=/changesets
-      - --changelog-file=master.xml
-      - --driver=org.postgresql.Driver
-      - --url=jdbc:postgresql://postgresql:5432/scrapper
-      - --username=postgres
-      - --password=postgres
-      - update
-    volumes:
-      - ./migrations:/changesets
-    networks:
-      - backend
-
   scrapper:
-    build: ./scrapper
+    build:
+      context: .
+      dockerfile: scrapper/Dockerfile
     depends_on:
       - postgresql
-      - liquibase
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgresql:5432/scrapper
