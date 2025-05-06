@@ -1,9 +1,14 @@
 package backend.academy.scrapper.service;
 
 import backend.academy.scrapper.model.LinkInfo;
+import java.time.Instant;
 
 public interface LinkChecker {
-    boolean hasUpdates(LinkInfo linkInfo);
+    boolean supports(LinkInfo link);
+
+    boolean hasUpdates(LinkInfo link);
 
     String preview();
+
+    Instant remoteUpdatedAt();
 }
