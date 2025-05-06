@@ -33,14 +33,9 @@ public class SubscriptionEntity {
     @JoinColumn(name = "link_id")
     private LinkEntity link;
 
-    @OneToMany(mappedBy = "subscription",
-        cascade = CascadeType.ALL,
-        orphanRemoval = true)
+    @OneToMany(mappedBy = "subscription", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<SubscriptionTagEntity> tags = new HashSet<>();
 
-    @OneToMany(mappedBy = "subscription",
-        cascade = CascadeType.ALL,
-        orphanRemoval = true)
+    @OneToMany(mappedBy = "subscription", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<SubscriptionFilterEntity> filters = new HashSet<>();
 }
-

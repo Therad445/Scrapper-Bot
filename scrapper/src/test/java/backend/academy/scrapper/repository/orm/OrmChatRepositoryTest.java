@@ -1,5 +1,10 @@
 package backend.academy.scrapper.repository.orm;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import backend.academy.scrapper.entity.ChatEntity;
 import backend.academy.scrapper.entity.LinkEntity;
 import backend.academy.scrapper.entity.SubscriptionEntity;
@@ -18,10 +23,6 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataJpaTest
 @Testcontainers
@@ -30,22 +31,25 @@ class OrmChatRepositoryTest {
 
     @ServiceConnection
     @Container
-    static final PostgreSQLContainer<?> postgres =
-        new PostgreSQLContainer<>("postgres:15")
+    static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15")
             .withDatabaseName("scrapper")
             .withUsername("postgres")
             .withPassword("postgres");
+
     @Autowired
     ChatJpaRepository chatJpa;
+
     @Autowired
     LinkJpaRepository linkJpa;
+
     ChatRepository ormChatRepository;
 
     @DynamicPropertySource
     static void props(DynamicPropertyRegistry r) {
-        r.add("spring.liquibase.change-log", () ->
-            "file:" + Paths.get("../migrations/master.xml")
-                .toAbsolutePath().normalize());
+        r.add(
+                "spring.liquibase.change-log",
+                () -> "file:"
+                        + Paths.get("../migrations/master.xml").toAbsolutePath().normalize());
         r.add("spring.liquibase.enabled", () -> "true");
         r.add("spring.jpa.hibernate.ddl-auto", () -> "none");
     }
@@ -54,7 +58,6 @@ class OrmChatRepositoryTest {
     void init() {
         ormChatRepository = new OrmChatRepository(chatJpa);
     }
-
 
     @Test
     void register_shouldCreateChat() {

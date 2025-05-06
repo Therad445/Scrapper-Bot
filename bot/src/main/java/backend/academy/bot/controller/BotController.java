@@ -27,7 +27,7 @@ public class BotController {
         telegramBotService.sendMessage(linkUpdate.getId(), "Обновилась ссылка " + linkUpdate.getUrl());
         log.info("Обновление обработано");
         return ResponseEntity.ok()
-            .header("Content-Type", "application/json;charset=UTF-8")
-            .body("Обновление обработано");
+                .header("Content-Type", "application/json;charset=UTF-8")
+                .body("Обновление обработано");
     }
 }

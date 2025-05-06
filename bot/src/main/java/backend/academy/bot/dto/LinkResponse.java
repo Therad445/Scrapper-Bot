@@ -9,8 +9,7 @@ public class LinkResponse {
     private List<String> tags = new ArrayList<>();
     private List<String> filters = new ArrayList<>();
 
-    public LinkResponse() {
-    }
+    public LinkResponse() {}
 
     public LinkResponse(Long id, String link, List<String> tags, List<String> filters) {
         this.id = id;

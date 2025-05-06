@@ -1,6 +1,5 @@
 package backend.academy.scrapper.model;
 
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import java.io.Serializable;
@@ -19,6 +18,7 @@ public class SubscriptionId implements Serializable {
 
     @Column(name = "chat_id")
     private Long chatId;
+
     @Column(name = "link_id")
     private Long linkId;
 
@@ -26,8 +26,7 @@ public class SubscriptionId implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof SubscriptionId that)) return false;
-        return Objects.equals(chatId, that.chatId) &&
-            Objects.equals(linkId, that.linkId);
+        return Objects.equals(chatId, that.chatId) && Objects.equals(linkId, that.linkId);
     }
 
     @Override

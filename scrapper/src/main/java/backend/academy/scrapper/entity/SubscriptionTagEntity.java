@@ -1,5 +1,7 @@
 package backend.academy.scrapper.entity;
 
+import static jakarta.persistence.FetchType.LAZY;
+
 import backend.academy.scrapper.model.SubscriptionTagId;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
@@ -10,7 +12,6 @@ import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
-import static jakarta.persistence.FetchType.LAZY;
 
 @Getter
 @Setter
@@ -38,10 +39,8 @@ public class SubscriptionTagEntity {
 
     @ManyToOne(fetch = LAZY)
     @JoinColumns({
-        @JoinColumn(name = "chat_id", referencedColumnName = "chat_id",
-            insertable = false, updatable = false),
-        @JoinColumn(name = "link_id", referencedColumnName = "link_id",
-            insertable = false, updatable = false)
+        @JoinColumn(name = "chat_id", referencedColumnName = "chat_id", insertable = false, updatable = false),
+        @JoinColumn(name = "link_id", referencedColumnName = "link_id", insertable = false, updatable = false)
     })
     private SubscriptionEntity subscription;
 }

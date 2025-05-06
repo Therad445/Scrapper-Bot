@@ -17,10 +17,9 @@ import org.springframework.web.client.RestTemplate;
 @RequiredArgsConstructor
 class StackOverflowChecker implements LinkChecker {
 
-    private static final Pattern ANSWER =
-        Pattern.compile("https://stackoverflow\\.com/a/(?<id>\\d+)(/.*)?");
+    private static final Pattern ANSWER = Pattern.compile("https://stackoverflow\\.com/a/(?<id>\\d+)(/.*)?");
     private static final Pattern COMMENT =
-        Pattern.compile("https://stackoverflow\\.com/questions/\\d+/.+?#comment(?<id>\\d+)_\\d+");
+            Pattern.compile("https://stackoverflow\\.com/questions/\\d+/.+?#comment(?<id>\\d+)_\\d+");
 
     private final RestTemplate restTemplate;
 
@@ -32,7 +31,8 @@ class StackOverflowChecker implements LinkChecker {
 
     @Override
     public boolean supports(LinkInfo link) {
-        return ANSWER.matcher(link.url()).matches() || COMMENT.matcher(link.url()).matches();
+        return ANSWER.matcher(link.url()).matches()
+                || COMMENT.matcher(link.url()).matches();
     }
 
     @Override
@@ -43,8 +43,8 @@ class StackOverflowChecker implements LinkChecker {
         String id = (mAns.matches() ? mAns.group("id") : mCom.group("id"));
         boolean isComment = mCom.matches();
 
-        Map<String, Object> post = fetch("https://api.stackexchange.com/2.3/" +
-            (isComment ? "comments/" : "answers/") + id);
+        Map<String, Object> post =
+                fetch("https://api.stackexchange.com/2.3/" + (isComment ? "comments/" : "answers/") + id);
         if (post == null) return false;
 
         long creation = ((Number) post.get("creation_date")).longValue();
@@ -67,12 +67,15 @@ class StackOverflowChecker implements LinkChecker {
             }
         }
 
-        preview = """
+        preview =
+                """
             Stack Overflow: %s
             Автор: %s
             Создано: %s
             %s
-            """.formatted(title, author, remoteUpdated.toString().substring(0, 10), body).strip();
+            """
+                        .formatted(title, author, remoteUpdated.toString().substring(0, 10), body)
+                        .strip();
         return true;
     }
 

@@ -35,9 +35,6 @@ public class LinkEntity {
     @Column(name = "last_updated_at")
     private Instant lastUpdatedAt;
 
-    @OneToMany(mappedBy = "link",
-        cascade = CascadeType.ALL,
-        orphanRemoval = true)
+    @OneToMany(mappedBy = "link", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<SubscriptionEntity> subscriptions = new HashSet<>();
-
 }

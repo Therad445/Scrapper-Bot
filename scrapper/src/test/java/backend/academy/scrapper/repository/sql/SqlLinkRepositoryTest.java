@@ -1,5 +1,9 @@
 package backend.academy.scrapper.repository.sql;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import backend.academy.scrapper.model.LinkInfo;
 import backend.academy.scrapper.repository.ChatRepository;
 import backend.academy.scrapper.repository.LinkRepository;
@@ -23,9 +27,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Testcontainers
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -33,9 +34,9 @@ class SqlLinkRepositoryTest {
 
     @Container
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15")
-        .withDatabaseName("scrapper")
-        .withUsername("user")
-        .withPassword("pass");
+            .withDatabaseName("scrapper")
+            .withUsername("user")
+            .withPassword("pass");
 
     JdbcTemplate jdbc;
     LinkRepository repo;
@@ -44,10 +45,10 @@ class SqlLinkRepositoryTest {
     @BeforeAll
     void setupSchema() throws Exception {
         DataSource ds = DataSourceBuilder.create()
-            .url(postgres.getJdbcUrl())
-            .username(postgres.getUsername())
-            .password(postgres.getPassword())
-            .build();
+                .url(postgres.getJdbcUrl())
+                .username(postgres.getUsername())
+                .password(postgres.getPassword())
+                .build();
 
         jdbc = new JdbcTemplate(ds);
         repo = new SqlLinkRepository(jdbc);
@@ -55,7 +56,8 @@ class SqlLinkRepositoryTest {
 
         try (Connection conn = ds.getConnection()) {
             var database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(conn));
-            var resourceAccessor = new DirectoryResourceAccessor(Paths.get("../migrations").toAbsolutePath().normalize());
+            var resourceAccessor = new DirectoryResourceAccessor(
+                    Paths.get("../migrations").toAbsolutePath().normalize());
             var liquibase = new Liquibase("master.xml", resourceAccessor, database);
             liquibase.update();
         }
@@ -63,7 +65,8 @@ class SqlLinkRepositoryTest {
 
     @BeforeEach
     void cleanup() {
-        jdbc.execute("TRUNCATE tag, filter, link, subscription, subscription_tag, subscription_filter, chat RESTART IDENTITY CASCADE");
+        jdbc.execute(
+                "TRUNCATE tag, filter, link, subscription, subscription_tag, subscription_filter, chat RESTART IDENTITY CASCADE");
         chatRepo.register(1L);
         chatRepo.register(2L);
     }
@@ -101,7 +104,11 @@ class SqlLinkRepositoryTest {
 
         var timestamps = jdbc.queryForMap("SELECT last_checked_at, last_updated_at FROM link WHERE id = ?", linkId);
         assertNotNull(timestamps.get("last_checked_at"));
-        assertEquals(now.getEpochSecond(), ((java.sql.Timestamp) timestamps.get("last_checked_at")).toInstant().getEpochSecond());
+        assertEquals(
+                now.getEpochSecond(),
+                ((java.sql.Timestamp) timestamps.get("last_checked_at"))
+                        .toInstant()
+                        .getEpochSecond());
     }
 
     @Test
@@ -117,7 +124,8 @@ class SqlLinkRepositoryTest {
         repo.updateCheckTime(idOld, Instant.EPOCH, null);
         repo.updateCheckTime(idNew, Instant.now(), null);
 
-        var page = repo.findLinksForCheck(recent.minusSeconds(1), org.springframework.data.domain.PageRequest.of(0, 10));
+        var page =
+                repo.findLinksForCheck(recent.minusSeconds(1), org.springframework.data.domain.PageRequest.of(0, 10));
 
         assertEquals(1, page.getContent().size());
         assertEquals("https://old.com", page.getContent().getFirst().url());

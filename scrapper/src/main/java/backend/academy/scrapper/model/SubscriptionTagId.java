@@ -28,7 +28,9 @@ public class SubscriptionTagId implements Serializable {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         SubscriptionTagId that = (SubscriptionTagId) o;
-        return Objects.equals(tagId, that.tagId) && Objects.equals(chatId, that.chatId) && Objects.equals(linkId, that.linkId);
+        return Objects.equals(tagId, that.tagId)
+                && Objects.equals(chatId, that.chatId)
+                && Objects.equals(linkId, that.linkId);
     }
 
     @Override

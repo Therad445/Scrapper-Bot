@@ -11,7 +11,6 @@ public class ThreadPoolConfig {
     @Bean(name = "linkCheckerPool", destroyMethod = "shutdown")
     public ExecutorService linkCheckerPool(ScrapperConfig cfg) {
         int n = Math.max(1, cfg.scheduler().threadCount());
-        return Executors.newFixedThreadPool(n,
-            r -> new Thread(r, "link-checker-" + r.hashCode()));
+        return Executors.newFixedThreadPool(n, r -> new Thread(r, "link-checker-" + r.hashCode()));
     }
 }

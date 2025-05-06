@@ -43,8 +43,8 @@ public class LinksController {
 
     @PostMapping
     public ResponseEntity<?> addLink(
-        @RequestHeader("Tg-chat-id") @NotNull @Positive Long chatId,
-        @RequestBody @Valid AddLinkRequest addLinkRequest) {
+            @RequestHeader("Tg-chat-id") @NotNull @Positive Long chatId,
+            @RequestBody @Valid AddLinkRequest addLinkRequest) {
         LinkResponse linkResponse = linkService.addLink(chatId, addLinkRequest);
         log.info("Ссылка успешно добавлена");
         return ResponseEntity.ok().body(linkResponse);
@@ -52,40 +52,32 @@ public class LinksController {
 
     @DeleteMapping
     public ResponseEntity<?> deleteLink(
-        @RequestHeader("Tg-chat-id") @NotNull @Positive Long chatId,
-        @RequestBody @Valid RemoveLinkRequest removeLinkRequest) {
+            @RequestHeader("Tg-chat-id") @NotNull @Positive Long chatId,
+            @RequestBody @Valid RemoveLinkRequest removeLinkRequest) {
         LinkResponse linkResponse = linkService.removeLinks(chatId, removeLinkRequest);
         log.info("Ссылка успешно убрана");
         return ResponseEntity.ok().body(linkResponse);
     }
 
     @PostMapping("/{id}/tags")
-    public void addTag(@PathVariable long id,
-                       @RequestParam String tag,
-                       @RequestHeader("Tg-chat-id") long chatId) {
+    public void addTag(@PathVariable long id, @RequestParam String tag, @RequestHeader("Tg-chat-id") long chatId) {
         linkService.addTag(chatId, id, tag);
     }
 
     @DeleteMapping("/{id}/tags/{tag}")
-    public void deleteTag(@PathVariable long id,
-                          @PathVariable String tag,
-                          @RequestHeader("Tg-chat-id") long chatId) {
+    public void deleteTag(@PathVariable long id, @PathVariable String tag, @RequestHeader("Tg-chat-id") long chatId) {
         linkService.deleteTag(chatId, id, tag);
     }
 
     @PostMapping("/{id}/filters")
-    public void addFilter(@PathVariable long id,
-                          @RequestParam String filter,
-                          @RequestHeader("Tg-chat-id") long chatId) {
+    public void addFilter(
+            @PathVariable long id, @RequestParam String filter, @RequestHeader("Tg-chat-id") long chatId) {
         linkService.addFilter(chatId, id, filter);
     }
 
     @DeleteMapping("/{id}/filters/{filter}")
-    public void deleteFilter(@PathVariable long id,
-                             @PathVariable String filter,
-                             @RequestHeader("Tg-chat-id") long chatId) {
+    public void deleteFilter(
+            @PathVariable long id, @PathVariable String filter, @RequestHeader("Tg-chat-id") long chatId) {
         linkService.removeFilter(chatId, id, filter);
     }
-
-
 }

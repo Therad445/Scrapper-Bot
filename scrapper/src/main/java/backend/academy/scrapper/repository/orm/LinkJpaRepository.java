@@ -14,7 +14,8 @@ public interface LinkJpaRepository extends JpaRepository<LinkEntity, Long> {
 
     Optional<LinkEntity> findByUrl(String url);
 
-    @Query("""
+    @Query(
+            """
         SELECT l FROM LinkEntity l
          WHERE l.lastCheckedAt < :threshold
          ORDER BY l.lastCheckedAt

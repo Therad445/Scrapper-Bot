@@ -1,5 +1,8 @@
 package backend.academy.scrapper.repository.orm;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import backend.academy.scrapper.entity.ChatEntity;
 import backend.academy.scrapper.model.LinkInfo;
 import jakarta.transaction.Transactional;
@@ -23,8 +26,6 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataJpaTest
 @Testcontainers
@@ -34,24 +35,28 @@ class OrmLinkRepositoryTest {
 
     @ServiceConnection
     @Container
-    static final PostgreSQLContainer<?> postgres =
-        new PostgreSQLContainer<>("postgres:15")
+    static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15")
             .withDatabaseName("scrapper")
             .withUsername("postgres")
             .withPassword("postgres");
+
     private final long chatId = 1L;
+
     @Autowired
     OrmLinkRepository ormLinkRepository;
+
     @Autowired
     ChatJpaRepository chatJpa;
+
     @Autowired
     LinkJpaRepository linkJpa;
 
     @DynamicPropertySource
     static void properties(DynamicPropertyRegistry r) {
-        r.add("spring.liquibase.change-log", () ->
-            "file:" + Paths.get("../migrations/master.xml")
-                .toAbsolutePath().normalize());
+        r.add(
+                "spring.liquibase.change-log",
+                () -> "file:"
+                        + Paths.get("../migrations/master.xml").toAbsolutePath().normalize());
         r.add("spring.liquibase.enabled", () -> "true");
         r.add("spring.jpa.hibernate.ddl-auto", () -> "none");
     }
@@ -120,8 +125,9 @@ class OrmLinkRepositoryTest {
         long linkId = linkJpa.findByUrl(url).orElseThrow().id();
         ormLinkRepository.addTag(chatId, linkId, "spring");
 
-        assertEquals(Set.of("spring"),
-            ormLinkRepository.findAllByChat(chatId).getFirst().tags());
+        assertEquals(
+                Set.of("spring"),
+                ormLinkRepository.findAllByChat(chatId).getFirst().tags());
 
         ormLinkRepository.removeTag(chatId, linkId, "spring");
 
@@ -138,8 +144,9 @@ class OrmLinkRepositoryTest {
         long linkId = linkJpa.findByUrl(url).orElseThrow().id();
         ormLinkRepository.addFilter(chatId, linkId, "user:x");
 
-        assertEquals(Set.of("user:x"),
-            ormLinkRepository.findAllByChat(chatId).getFirst().filters());
+        assertEquals(
+                Set.of("user:x"),
+                ormLinkRepository.findAllByChat(chatId).getFirst().filters());
 
         ormLinkRepository.removeFilter(chatId, linkId, "user:x");
 
@@ -160,8 +167,7 @@ class OrmLinkRepositoryTest {
         linkJpa.saveAll(List.of(old, fresh));
 
         var page = ormLinkRepository.findLinksForCheck(
-            Instant.now().minusSeconds(10),
-            org.springframework.data.domain.PageRequest.of(0, 10));
+                Instant.now().minusSeconds(10), org.springframework.data.domain.PageRequest.of(0, 10));
 
         assertEquals(1, page.getTotalElements());
         assertEquals("https://old.com", page.getContent().getFirst().url());
@@ -171,11 +177,10 @@ class OrmLinkRepositoryTest {
     static class Config {
         @Bean
         OrmLinkRepository ormLinkRepository(
-            LinkJpaRepository linkJpa,
-            ChatJpaRepository chatJpa,
-            TagJpaRepository tagJpa,
-            FilterJpaRepository filterJpa
-        ) {
+                LinkJpaRepository linkJpa,
+                ChatJpaRepository chatJpa,
+                TagJpaRepository tagJpa,
+                FilterJpaRepository filterJpa) {
             return new OrmLinkRepository(linkJpa, chatJpa, tagJpa, filterJpa);
         }
     }

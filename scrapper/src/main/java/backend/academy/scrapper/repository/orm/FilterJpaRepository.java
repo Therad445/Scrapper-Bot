@@ -9,4 +9,3 @@ import org.springframework.stereotype.Repository;
 public interface FilterJpaRepository extends JpaRepository<FilterEntity, Long> {
     Optional<FilterEntity> findByName(String name);
 }
-

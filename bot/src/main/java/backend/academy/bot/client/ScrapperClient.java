@@ -32,22 +32,22 @@ public class ScrapperClient {
 
     public void registerUser(Long chatId) {
         URI uri = UriComponentsBuilder.fromHttpUrl(scrapperBaseUrl)
-            .path("/tg-chat/" + chatId)
-            .build()
-            .toUri();
+                .path("/tg-chat/" + chatId)
+                .build()
+                .toUri();
         restTemplate.postForEntity(uri, null, Void.class);
     }
 
     public ListLinksResponse getLinks(Long chatId) {
         URI uri = UriComponentsBuilder.fromHttpUrl(scrapperBaseUrl)
-            .path("/links")
-            .build()
-            .toUri();
+                .path("/links")
+                .build()
+                .toUri();
         HttpHeaders headers = new HttpHeaders();
         headers.set("Tg-chat-id", chatId.toString());
         HttpEntity<?> entity = new HttpEntity<>(headers);
         ResponseEntity<ListLinksResponse> response =
-            restTemplate.exchange(uri, HttpMethod.GET, entity, ListLinksResponse.class);
+                restTemplate.exchange(uri, HttpMethod.GET, entity, ListLinksResponse.class);
         return response.getBody();
     }
 
@@ -58,9 +58,9 @@ public class ScrapperClient {
         requestBody.setFilters(filters);
 
         URI uri = UriComponentsBuilder.fromHttpUrl(scrapperBaseUrl)
-            .path("/links")
-            .build()
-            .toUri();
+                .path("/links")
+                .build()
+                .toUri();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Tg-chat-id", chatId.toString());
@@ -68,11 +68,11 @@ public class ScrapperClient {
         HttpEntity<AddLinkRequest> entity = new HttpEntity<>(requestBody, headers);
         ResponseEntity<LinkResponse> response = restTemplate.postForEntity(uri, entity, LinkResponse.class);
         log.info(
-            "ScrapperClient: отправили запрос на Scrapper с URL {}, тэгами {} и фильтрами {}. Scrapper ответил: {}",
-            url,
-            tags,
-            filters,
-            Objects.requireNonNull(response.getBody()).getLink());
+                "ScrapperClient: отправили запрос на Scrapper с URL {}, тэгами {} и фильтрами {}. Scrapper ответил: {}",
+                url,
+                tags,
+                filters,
+                Objects.requireNonNull(response.getBody()).getLink());
         return response.getBody();
     }
 
@@ -85,9 +85,9 @@ public class ScrapperClient {
         requestBody.setLink(url);
 
         URI uri = UriComponentsBuilder.fromHttpUrl(scrapperBaseUrl)
-            .path("/links")
-            .build()
-            .toUri();
+                .path("/links")
+                .build()
+                .toUri();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Tg-chat-id", chatId.toString());

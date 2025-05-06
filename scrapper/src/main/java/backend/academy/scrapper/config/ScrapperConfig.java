@@ -14,29 +14,20 @@ import org.springframework.web.client.RestTemplate;
 @EnableScheduling
 @EnableTransactionManagement
 public record ScrapperConfig(
-    @NotEmpty String githubToken,
-    StackOverflowCredentials stackOverflow,
-    Scheduler scheduler,
-    String accessType,
-    Notification notification
-) {
+        @NotEmpty String githubToken,
+        StackOverflowCredentials stackOverflow,
+        Scheduler scheduler,
+        String accessType,
+        Notification notification) {
     @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate();
     }
 
-    public record StackOverflowCredentials(@NotEmpty String key, @NotEmpty String accessToken) {
-    }
+    public record StackOverflowCredentials(@NotEmpty String key, @NotEmpty String accessToken) {}
 
     public record Scheduler(
-        boolean enable,
-        Duration interval,
-        Duration forceCheckDelay,
-        int batchSize,
-        int threadCount
-    ) {
-    }
+            boolean enable, Duration interval, Duration forceCheckDelay, int batchSize, int threadCount) {}
 
-    public record Notification(String type) {
-    }
+    public record Notification(String type) {}
 }

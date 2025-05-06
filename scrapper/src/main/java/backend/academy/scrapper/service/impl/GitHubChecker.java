@@ -19,7 +19,7 @@ import org.springframework.web.client.RestTemplate;
 @RequiredArgsConstructor
 public class GitHubChecker implements LinkChecker {
     private static final Pattern PATTERN =
-        Pattern.compile("https://github\\.com/(?<owner>[^/]+)/(?<repo>[^/]+)/(issues|pull)/(?<num>\\d+)");
+            Pattern.compile("https://github\\.com/(?<owner>[^/]+)/(?<repo>[^/]+)/(issues|pull)/(?<num>\\d+)");
 
     private final RestTemplate restTemplate;
 
@@ -69,8 +69,9 @@ public class GitHubChecker implements LinkChecker {
             Автор: %s
             Создано: %s
             %s
-            """.formatted(resp.title(), resp.user().login(),
-            resp.created_at().substring(0, 10), body).strip();
+            """
+                .formatted(resp.title(), resp.user().login(), resp.created_at().substring(0, 10), body)
+                .strip();
     }
 
     @Override
@@ -83,10 +84,7 @@ public class GitHubChecker implements LinkChecker {
         return remoteUpdated;
     }
 
-    private record GitHubIssue(String title, User user,
-                               String created_at, String updated_at, String body) {
-    }
+    private record GitHubIssue(String title, User user, String created_at, String updated_at, String body) {}
 
-    private record User(String login) {
-    }
+    private record User(String login) {}
 }

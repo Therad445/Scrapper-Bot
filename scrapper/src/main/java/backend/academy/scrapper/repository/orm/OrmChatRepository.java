@@ -37,4 +37,3 @@ public class OrmChatRepository implements ChatRepository {
         return jpa.findChatIdsByLinkId(linkId);
     }
 }
-

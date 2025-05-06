@@ -31,16 +31,15 @@ public class LinkScraperScheduler {
     private final ChatRepository chatRepo;
     private final List<LinkChecker> checkers;
     private final NotificationService notifier;
-    private final ExecutorService linkCheckerPool;   // ← инжектируем
+    private final ExecutorService linkCheckerPool; // ← инжектируем
 
     @Scheduled(fixedDelayString = "${app.scheduler.interval}")
     public void run() {
         var sch = cfg.scheduler();
         Instant threshold = Instant.now().minus(sch.forceCheckDelay());
 
-        List<LinkInfo> batch = linkRepo
-            .findLinksForCheck(threshold, PageRequest.of(0, sch.batchSize()))
-            .getContent();
+        List<LinkInfo> batch = linkRepo.findLinksForCheck(threshold, PageRequest.of(0, sch.batchSize()))
+                .getContent();
         if (batch.isEmpty()) return;
 
         int chunk = (int) Math.ceil((double) batch.size() / sch.threadCount());
@@ -65,22 +64,17 @@ public class LinkScraperScheduler {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-        log.info("Scheduler проверил {} ссылок в {} поток(ах)",
-            batch.size(), sch.threadCount());
+        log.info("Scheduler проверил {} ссылок в {} поток(ах)", batch.size(), sch.threadCount());
     }
 
     private void processSingle(LinkInfo link) {
         List<Long> chatIds = chatRepo.findChatIdsByLinkId(link.id());
 
-        checkers.stream()
-            .filter(ch -> ch.supports(link))
-            .findFirst()
-            .ifPresent(ch -> {
-                if (ch.hasUpdates(link) && !chatIds.isEmpty()) {
-                    notifier.notify(new LinkUpdate(
-                        link.id(), link.url(), ch.preview(), Set.copyOf(chatIds)));
-                }
-                linkRepo.updateCheckTime(link.id(), Instant.now(), ch.remoteUpdatedAt());
-            });
+        checkers.stream().filter(ch -> ch.supports(link)).findFirst().ifPresent(ch -> {
+            if (ch.hasUpdates(link) && !chatIds.isEmpty()) {
+                notifier.notify(new LinkUpdate(link.id(), link.url(), ch.preview(), Set.copyOf(chatIds)));
+            }
+            linkRepo.updateCheckTime(link.id(), Instant.now(), ch.remoteUpdatedAt());
+        });
     }
 }

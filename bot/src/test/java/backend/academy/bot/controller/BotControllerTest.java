@@ -1,5 +1,13 @@
 package backend.academy.bot.controller;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import backend.academy.bot.telegram.TelegramBotService;
 import java.util.HashSet;
 import java.util.Set;
@@ -12,13 +20,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
 class BotControllerTest {
@@ -44,12 +45,12 @@ class BotControllerTest {
 
         // Act & Assert
         mockMvc.perform(
-                post("/updates")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(
-                        "{ \"id\": 1, \"url\": \"http://example.com\", \"description\": \"Test description\", \"tgChatIds\": [123] }"))
-            .andExpect(status().isOk())
-            .andExpect(content().string("Обновление обработано"));
+                        post("/updates")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        "{ \"id\": 1, \"url\": \"http://example.com\", \"description\": \"Test description\", \"tgChatIds\": [123] }"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Обновление обработано"));
 
         verify(telegramBotService, times(1)).sendMessage(1L, "Обновилась ссылка http://example.com");
     }
@@ -58,11 +59,11 @@ class BotControllerTest {
     void testSendNotificationInvalidLinkUpdate() throws Exception {
         // Act & Assert
         mockMvc.perform(
-                post("/updates")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(
-                        "{ \"id\": null, \"url\": \"http://example.com\", \"description\": \"Test description\", \"tgChatIds\": [123] }"))
-            .andExpect(status().isBadRequest());
+                        post("/updates")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        "{ \"id\": null, \"url\": \"http://example.com\", \"description\": \"Test description\", \"tgChatIds\": [123] }"))
+                .andExpect(status().isBadRequest());
         verify(telegramBotService, never()).sendMessage(any(), any());
     }
 
@@ -70,9 +71,9 @@ class BotControllerTest {
     void testSendNotificationMissingUrl() throws Exception {
         // Act & Assert
         mockMvc.perform(post("/updates")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{ \"id\": 1, \"description\": \"Test description\", \"tgChatIds\": [123] }"))
-            .andExpect(status().isBadRequest());
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{ \"id\": 1, \"description\": \"Test description\", \"tgChatIds\": [123] }"))
+                .andExpect(status().isBadRequest());
         verify(telegramBotService, never()).sendMessage(any(), any());
     }
 
@@ -80,11 +81,11 @@ class BotControllerTest {
     void testSendNotificationInvalidUrl() throws Exception {
         // Act & Assert
         mockMvc.perform(
-                post("/updates")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(
-                        "{ \"id\": 1, \"url\": \"invalid-url\", \"description\": \"Test description\", \"tgChatIds\": [123] }"))
-            .andExpect(status().isBadRequest());
+                        post("/updates")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        "{ \"id\": 1, \"url\": \"invalid-url\", \"description\": \"Test description\", \"tgChatIds\": [123] }"))
+                .andExpect(status().isBadRequest());
         verify(telegramBotService, never()).sendMessage(any(), any());
     }
 }

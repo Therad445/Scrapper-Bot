@@ -11,7 +11,6 @@ import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-
 @Service
 @RequiredArgsConstructor
 public class LinkService {
@@ -23,28 +22,26 @@ public class LinkService {
     public ListLinksResponse getLinks(long chatId) {
         var list = linkRepository.findAllByChat(chatId);
         var resp = list.stream()
-            .map(l -> new LinkResponse(
-                l.id(), l.url(),
-                l.tags(), l.filters()))
-            .toList();
+                .map(l -> new LinkResponse(
+                        l.id(), l.url(),
+                        l.tags(), l.filters()))
+                .toList();
         return new ListLinksResponse(resp, resp.size());
     }
 
     @Transactional
     public LinkResponse addLink(long chatId, AddLinkRequest req) {
         chatRepository.register(chatId);
-        linkRepository.add(chatId, req.link(),
-            req.tags(), req.filters());
-        return new LinkResponse(null, req.link(),
-            req.tags(), req.filters());
+        linkRepository.add(chatId, req.link(), req.tags(), req.filters());
+        return new LinkResponse(null, req.link(), req.tags(), req.filters());
     }
 
     @Transactional
     public LinkResponse removeLinks(long tgChatId, RemoveLinkRequest request) {
         return linkRepository
-            .remove(tgChatId, request.link())
-            .map(link -> new LinkResponse(null, request.link(), Set.of(), Set.of()))
-            .orElseThrow(() -> new IllegalArgumentException("Ссылка не найдена!"));
+                .remove(tgChatId, request.link())
+                .map(link -> new LinkResponse(null, request.link(), Set.of(), Set.of()))
+                .orElseThrow(() -> new IllegalArgumentException("Ссылка не найдена!"));
     }
 
     @Transactional
@@ -66,6 +63,4 @@ public class LinkService {
     public void removeFilter(long chatId, long linkId, String filter) {
         linkRepository.removeFilter(chatId, linkId, filter);
     }
-
-
 }

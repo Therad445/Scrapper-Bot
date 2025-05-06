@@ -24,10 +24,10 @@ class TestcontainersConfiguration {
     @ServiceConnection
     PostgreSQLContainer<?> postgresContainer() {
         return new PostgreSQLContainer<>("postgres:17-alpine")
-            .withExposedPorts(5432)
-            .withDatabaseName("local")
-            .withUsername("postgres")
-            .withPassword("test");
+                .withExposedPorts(5432)
+                .withDatabaseName("local")
+                .withUsername("postgres")
+                .withPassword("test");
     }
 
     @Bean

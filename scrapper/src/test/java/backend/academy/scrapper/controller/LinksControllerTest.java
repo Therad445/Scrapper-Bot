@@ -1,5 +1,14 @@
 package backend.academy.scrapper.controller;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import backend.academy.scrapper.model.AddLinkRequest;
 import backend.academy.scrapper.model.LinkResponse;
 import backend.academy.scrapper.model.ListLinksResponse;
@@ -23,14 +32,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.AbstractPlatformTransactionManager;
 import org.springframework.transaction.support.DefaultTransactionStatus;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(LinksController.class)
 @Import(LinksControllerTest.MockConfig.class)
@@ -56,11 +57,10 @@ class LinksControllerTest {
         List<LinkResponse> links = List.of(new LinkResponse(1L, "https://example.com", Set.of("a"), Set.of("f")));
         when(linkService.getLinks(123L)).thenReturn(new ListLinksResponse(links, links.size()));
 
-        mockMvc.perform(get("/links")
-                .header("Tg-chat-id", 123))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.size").value(1))
-            .andExpect(jsonPath("$.links[0].link").value("https://example.com"));
+        mockMvc.perform(get("/links").header("Tg-chat-id", 123))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size").value(1))
+                .andExpect(jsonPath("$.links[0].link").value("https://example.com"));
     }
 
     @Test
@@ -72,12 +72,12 @@ class LinksControllerTest {
         when(linkService.addLink(123L, request)).thenReturn(response);
 
         mockMvc.perform(post("/links")
-                .header("Tg-chat-id", 123)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.link").value("https://foo.bar"))
-            .andExpect(jsonPath("$.tags[0]").value("dev"));
+                        .header("Tg-chat-id", 123)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.link").value("https://foo.bar"))
+                .andExpect(jsonPath("$.tags[0]").value("dev"));
     }
 
     @Test
@@ -89,20 +89,18 @@ class LinksControllerTest {
         when(linkService.removeLinks(123L, request)).thenReturn(response);
 
         mockMvc.perform(delete("/links")
-                .header("Tg-chat-id", 123)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.link").value("https://foo.bar"));
+                        .header("Tg-chat-id", 123)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.link").value("https://foo.bar"));
     }
 
     @Test
     @DisplayName("POST /links/{id}/tags - add tag")
     void addTag_shouldCallService() throws Exception {
-        mockMvc.perform(post("/links/10/tags")
-                .header("Tg-chat-id", 321)
-                .param("tag", "java"))
-            .andExpect(status().isOk());
+        mockMvc.perform(post("/links/10/tags").header("Tg-chat-id", 321).param("tag", "java"))
+                .andExpect(status().isOk());
 
         verify(linkService).addTag(321L, 10L, "java");
     }
@@ -110,9 +108,8 @@ class LinksControllerTest {
     @Test
     @DisplayName("DELETE /links/{id}/tags/{tag} - delete tag")
     void deleteTag_shouldCallService() throws Exception {
-        mockMvc.perform(delete("/links/20/tags/spring")
-                .header("Tg-chat-id", 555))
-            .andExpect(status().isOk());
+        mockMvc.perform(delete("/links/20/tags/spring").header("Tg-chat-id", 555))
+                .andExpect(status().isOk());
 
         verify(linkService).deleteTag(555L, 20L, "spring");
     }
@@ -120,10 +117,8 @@ class LinksControllerTest {
     @Test
     @DisplayName("POST /links/{id}/filters - add filter")
     void addFilter_shouldCallService() throws Exception {
-        mockMvc.perform(post("/links/5/filters")
-                .header("Tg-chat-id", 777)
-                .param("filter", "user:foo"))
-            .andExpect(status().isOk());
+        mockMvc.perform(post("/links/5/filters").header("Tg-chat-id", 777).param("filter", "user:foo"))
+                .andExpect(status().isOk());
 
         verify(linkService).addFilter(777L, 5L, "user:foo");
     }
@@ -131,9 +126,8 @@ class LinksControllerTest {
     @Test
     @DisplayName("DELETE /links/{id}/filters/{filter} - delete filter")
     void deleteFilter_shouldCallService() throws Exception {
-        mockMvc.perform(delete("/links/8/filters/user:bar")
-                .header("Tg-chat-id", 999))
-            .andExpect(status().isOk());
+        mockMvc.perform(delete("/links/8/filters/user:bar").header("Tg-chat-id", 999))
+                .andExpect(status().isOk());
 
         verify(linkService).removeFilter(999L, 8L, "user:bar");
     }
@@ -155,16 +149,13 @@ class LinksControllerTest {
                 }
 
                 @Override
-                protected void doBegin(Object transaction, TransactionDefinition definition) {
-                }
+                protected void doBegin(Object transaction, TransactionDefinition definition) {}
 
                 @Override
-                protected void doCommit(DefaultTransactionStatus status) {
-                }
+                protected void doCommit(DefaultTransactionStatus status) {}
 
                 @Override
-                protected void doRollback(DefaultTransactionStatus status) {
-                }
+                protected void doRollback(DefaultTransactionStatus status) {}
             };
         }
     }

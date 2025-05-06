@@ -9,9 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface LinkRepository {
-    void add(long chatId, String url,
-             Set<String> tags,
-             Set<String> filters);
+    void add(long chatId, String url, Set<String> tags, Set<String> filters);
 
     void addTag(long chatId, long linkId, String tag);
 

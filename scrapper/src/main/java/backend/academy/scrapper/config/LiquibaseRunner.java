@@ -28,21 +28,16 @@ public class LiquibaseRunner {
     @PostConstruct
     public void runMigrations() {
         try (Connection connection = dataSource.getConnection()) {
-            Database database = DatabaseFactory.getInstance()
-                .findCorrectDatabaseImplementation(new JdbcConnection(connection));
+            Database database =
+                    DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(connection));
 
             Path migrationsDir = Path.of(System.getProperty("user.dir"), "migrations");
             File changelog = migrationsDir.resolve("master.xml").toFile();
 
-            Liquibase liquibase = new Liquibase(
-                changelog.getName(),
-                new DirectoryResourceAccessor(migrationsDir.toFile()),
-                database
-            );
+            Liquibase liquibase =
+                    new Liquibase(changelog.getName(), new DirectoryResourceAccessor(migrationsDir.toFile()), database);
 
-            List<ChangeSet> pending = liquibase.listUnrunChangeSets(
-                new Contexts(), new LabelExpression()
-            );
+            List<ChangeSet> pending = liquibase.listUnrunChangeSets(new Contexts(), new LabelExpression());
 
             if (pending.isEmpty()) {
                 log.info("Liquibase: все миграции уже применены");

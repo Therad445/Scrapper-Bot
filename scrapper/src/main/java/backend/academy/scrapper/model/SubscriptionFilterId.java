@@ -28,7 +28,9 @@ public class SubscriptionFilterId implements Serializable {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         SubscriptionFilterId that = (SubscriptionFilterId) o;
-        return Objects.equals(filterId, that.filterId) && Objects.equals(chatId, that.chatId) && Objects.equals(linkId, that.linkId);
+        return Objects.equals(filterId, that.filterId)
+                && Objects.equals(chatId, that.chatId)
+                && Objects.equals(linkId, that.linkId);
     }
 
     @Override

@@ -1,5 +1,11 @@
 package backend.academy.scrapper.controller;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import backend.academy.scrapper.service.ChatService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -11,11 +17,6 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ChatController.class)
 @Import(ChatControllerTest.MockConfig.class)
@@ -36,8 +37,7 @@ class ChatControllerTest {
     @DisplayName("POST /tg-chat/{id} - valid ID")
     void registerChat_validId_shouldReturnOk() throws Exception {
         long chatId = 123;
-        mockMvc.perform(post("/tg-chat/{id}", chatId))
-            .andExpect(status().isOk());
+        mockMvc.perform(post("/tg-chat/{id}", chatId)).andExpect(status().isOk());
 
         verify(chatService).register(chatId);
     }
@@ -46,8 +46,7 @@ class ChatControllerTest {
     @DisplayName("DELETE /tg-chat/{id} - valid ID")
     void deleteChat_validId_shouldReturnOk() throws Exception {
         long chatId = 456;
-        mockMvc.perform(delete("/tg-chat/{id}", chatId))
-            .andExpect(status().isOk());
+        mockMvc.perform(delete("/tg-chat/{id}", chatId)).andExpect(status().isOk());
 
         verify(chatService).delete(chatId);
     }
@@ -55,15 +54,13 @@ class ChatControllerTest {
     @Test
     @DisplayName("POST /tg-chat/{id} - invalid (negative) ID")
     void registerChat_invalidId_shouldReturnBadRequest() throws Exception {
-        mockMvc.perform(post("/tg-chat/{id}", -1))
-            .andExpect(status().isBadRequest());
+        mockMvc.perform(post("/tg-chat/{id}", -1)).andExpect(status().isBadRequest());
     }
 
     @Test
     @DisplayName("DELETE /tg-chat/{id} - invalid (zero) ID")
     void deleteChat_zeroId_shouldReturnBadRequest() throws Exception {
-        mockMvc.perform(delete("/tg-chat/{id}", 0))
-            .andExpect(status().isBadRequest());
+        mockMvc.perform(delete("/tg-chat/{id}", 0)).andExpect(status().isBadRequest());
     }
 
     @TestConfiguration

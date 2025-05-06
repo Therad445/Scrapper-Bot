@@ -1,9 +1,5 @@
 package backend.academy.scrapper.service;
 
-import backend.academy.scrapper.repository.ChatRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.web.server.ResponseStatusException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -12,6 +8,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import backend.academy.scrapper.repository.ChatRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.web.server.ResponseStatusException;
 
 class ChatServiceTest {
 
@@ -43,7 +44,6 @@ class ChatServiceTest {
 
         verify(chatRepository, never()).register(anyLong());
     }
-
 
     @Test
     void delete_shouldCallDelete_whenChatExists() {

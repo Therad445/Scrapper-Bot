@@ -18,7 +18,6 @@ public class HttpNotificationService implements NotificationService {
 
     private final RestTemplate restTemplate;
 
-
     @Override
     public void notify(LinkUpdate update) {
         try {
@@ -27,11 +26,7 @@ public class HttpNotificationService implements NotificationService {
             HttpEntity<LinkUpdate> request = new HttpEntity<>(update, headers);
 
             String botBaseUrl = "http://bot:8080";
-            restTemplate.postForEntity(
-                botBaseUrl + "/updates",
-                request,
-                Void.class
-            );
+            restTemplate.postForEntity(botBaseUrl + "/updates", request, Void.class);
 
             log.info("Отправлено уведомление о ссылке id={}, url={}", update.id(), update.url());
         } catch (Exception e) {

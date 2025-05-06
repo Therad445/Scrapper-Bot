@@ -93,13 +93,13 @@ public class TelegramBotService {
 
     private void handleHelp(Long chatId) {
         sendMessage(
-            chatId,
-            "Доступные команды:\n"
-                + "/start - регистрация\n"
-                + "/help - помощь\n"
-                + "/track - отслеживать ссылку\n"
-                + "/untrack - прекратить отслеживание ссылки\n"
-                + "/list - список ссылок");
+                chatId,
+                "Доступные команды:\n"
+                        + "/start - регистрация\n"
+                        + "/help - помощь\n"
+                        + "/track - отслеживать ссылку\n"
+                        + "/untrack - прекратить отслеживание ссылки\n"
+                        + "/list - список ссылок");
     }
 
     private void handleTrack(Long chatId, String text, UserSession session) {
@@ -112,8 +112,8 @@ public class TelegramBotService {
 
         ListLinksResponse existingLinksResponse = scrapperClient.getLinks(chatId);
         if (existingLinksResponse != null
-            && existingLinksResponse.getLinks().stream()
-            .anyMatch(link -> link.getLink().equals(url))) {
+                && existingLinksResponse.getLinks().stream()
+                        .anyMatch(link -> link.getLink().equals(url))) {
             sendMessage(chatId, "Ссылка уже отслеживается: " + url);
             return;
         }
@@ -155,10 +155,10 @@ public class TelegramBotService {
             String filtersInput = text.trim().isEmpty() ? "Нет" : text;
             session.setPendingFilters(filtersInput);
             List<String> tags = !session.getPendingTags().equals("Нет")
-                ? Arrays.asList(session.getPendingTags().split("\\s+"))
-                : Collections.emptyList();
+                    ? Arrays.asList(session.getPendingTags().split("\\s+"))
+                    : Collections.emptyList();
             List<String> filters =
-                !filtersInput.equals("Нет") ? Arrays.asList(filtersInput.split("\\s+")) : Collections.emptyList();
+                    !filtersInput.equals("Нет") ? Arrays.asList(filtersInput.split("\\s+")) : Collections.emptyList();
             LinkResponse response = scrapperClient.trackLink(chatId, session.getPendingUrl(), tags, filters);
             sendMessage(chatId, "Ссылка добавлена в отслеживание: " + response.getLink());
             session.reset();

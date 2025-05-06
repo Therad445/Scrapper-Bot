@@ -1,13 +1,14 @@
 package backend.academy.bot;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import backend.academy.bot.telegram.TelegramBotService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 @SpringBootTest
 class BotApplicationTests {
@@ -22,8 +23,7 @@ class BotApplicationTests {
     private TelegramBotService mockBotService;
 
     @Test
-    void contextLoads() {
-    }
+    void contextLoads() {}
 
     @Test
     void testBotConfigLoads() {

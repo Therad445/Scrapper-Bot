@@ -26,9 +26,7 @@ public class ChatEntity {
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
-    @OneToMany(mappedBy = "chat",
-        cascade = CascadeType.ALL,
-        orphanRemoval = true)
+    @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<SubscriptionEntity> subscriptions = new HashSet<>();
 
     public ChatEntity(Long id, Instant createdAt) {

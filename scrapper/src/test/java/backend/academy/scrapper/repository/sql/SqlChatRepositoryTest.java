@@ -1,5 +1,11 @@
 package backend.academy.scrapper.repository.sql;
 
+import static java.nio.file.Paths.get;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import backend.academy.scrapper.repository.ChatRepository;
 import java.sql.Connection;
 import java.util.List;
@@ -17,11 +23,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import static java.nio.file.Paths.get;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Testcontainers
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -29,9 +30,9 @@ class SqlChatRepositoryTest {
 
     @Container
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15")
-        .withDatabaseName("scrapper")
-        .withUsername("user")
-        .withPassword("pass");
+            .withDatabaseName("scrapper")
+            .withUsername("user")
+            .withPassword("pass");
 
     JdbcTemplate jdbc;
     ChatRepository repo;
@@ -39,19 +40,21 @@ class SqlChatRepositoryTest {
     @BeforeAll
     void setup() throws Exception {
         DataSource ds = DataSourceBuilder.create()
-            .url(postgres.getJdbcUrl())
-            .username(postgres.getUsername())
-            .password(postgres.getPassword())
-            .build();
+                .url(postgres.getJdbcUrl())
+                .username(postgres.getUsername())
+                .password(postgres.getPassword())
+                .build();
 
         jdbc = new JdbcTemplate(ds);
         repo = new SqlChatRepository(jdbc);
 
         try (Connection conn = ds.getConnection()) {
-            var database = DatabaseFactory.getInstance()
-                .findCorrectDatabaseImplementation(new JdbcConnection(conn));
-            var liquibase = new Liquibase("master.xml",
-                new DirectoryResourceAccessor(get("../migrations").toAbsolutePath().normalize()), database);
+            var database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(conn));
+            var liquibase = new Liquibase(
+                    "master.xml",
+                    new DirectoryResourceAccessor(
+                            get("../migrations").toAbsolutePath().normalize()),
+                    database);
             liquibase.update();
         }
     }
@@ -65,8 +68,7 @@ class SqlChatRepositoryTest {
     void register_shouldInsertChat() {
         long id = 1001L;
         repo.register(id);
-        Boolean exists = jdbc.queryForObject(
-            "SELECT EXISTS (SELECT 1 FROM chat WHERE id=?)", Boolean.class, id);
+        Boolean exists = jdbc.queryForObject("SELECT EXISTS (SELECT 1 FROM chat WHERE id=?)", Boolean.class, id);
         assertEquals(Boolean.TRUE, exists);
     }
 
@@ -75,8 +77,7 @@ class SqlChatRepositoryTest {
         long id = 2002L;
         jdbc.update("INSERT INTO chat(id, created_at) VALUES (?, now())", id);
         repo.delete(id);
-        Boolean exists = jdbc.queryForObject(
-            "SELECT EXISTS (SELECT 1 FROM chat WHERE id=?)", Boolean.class, id);
+        Boolean exists = jdbc.queryForObject("SELECT EXISTS (SELECT 1 FROM chat WHERE id=?)", Boolean.class, id);
         assertNotEquals(Boolean.TRUE, exists);
     }
 
@@ -96,8 +97,8 @@ class SqlChatRepositoryTest {
 
         jdbc.update("INSERT INTO chat(id, created_at) VALUES (?, now()), (?, now())", chatId1, chatId2);
         jdbc.update("INSERT INTO link(id, url, last_checked_at) VALUES (?, ?, now())", linkId, "https://link.com");
-        jdbc.update("INSERT INTO subscription(chat_id, link_id) VALUES (?, ?), (?, ?)",
-            chatId1, linkId, chatId2, linkId);
+        jdbc.update(
+                "INSERT INTO subscription(chat_id, link_id) VALUES (?, ?), (?, ?)", chatId1, linkId, chatId2, linkId);
 
         List<Long> result = repo.findChatIdsByLinkId(linkId);
         assertEquals(2, result.size());

@@ -16,11 +16,13 @@ public class SqlChatRepository implements ChatRepository {
 
     @Override
     public void register(long id) {
-        jdbc.update("""
+        jdbc.update(
+                """
             INSERT INTO chat(id, created_at)
             VALUES (?, now())
             ON CONFLICT DO NOTHING
-            """, id);
+            """,
+                id);
     }
 
     @Override
@@ -33,19 +35,25 @@ public class SqlChatRepository implements ChatRepository {
 
     @Override
     public boolean exists(long id) {
-        return Boolean.TRUE.equals(jdbc.queryForObject("""
+        return Boolean.TRUE.equals(jdbc.queryForObject(
+                """
             SELECT EXISTS (
                 SELECT 1 FROM chat WHERE id = ?
             )
-            """, Boolean.class, id));
+            """,
+                Boolean.class,
+                id));
     }
 
     @Override
     public List<Long> findChatIdsByLinkId(long linkId) {
-        return jdbc.queryForList("""
+        return jdbc.queryForList(
+                """
             SELECT chat_id
               FROM subscription
              WHERE link_id = ?
-            """, Long.class, linkId);
+            """,
+                Long.class,
+                linkId);
     }
 }

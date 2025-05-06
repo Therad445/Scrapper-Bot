@@ -10,7 +10,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ChatJpaRepository extends JpaRepository<ChatEntity, Long> {
 
-    @Query("""
+    @Query(
+            """
             select c.id
               from ChatEntity         c
               join c.subscriptions    s

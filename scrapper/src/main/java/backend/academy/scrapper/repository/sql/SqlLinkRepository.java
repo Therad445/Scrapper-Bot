@@ -26,53 +26,67 @@ public class SqlLinkRepository implements LinkRepository {
     }
 
     private Long resolveTagId(String name) {
-        return jdbc.queryForObject("""
+        return jdbc.queryForObject(
+                """
             INSERT INTO tag(name)
             VALUES (?)
             ON CONFLICT(name) DO UPDATE SET name = EXCLUDED.name
             RETURNING id
-            """, Long.class, name);
+            """,
+                Long.class,
+                name);
     }
 
     private void upsertSubscriptionTag(long chat, long link, long tag) {
-        jdbc.update("""
+        jdbc.update(
+                """
             INSERT INTO subscription_tag(tag_id, chat_id, link_id)
             VALUES (?,?,?) ON CONFLICT DO NOTHING
-            """, tag, chat, link);
+            """,
+                tag,
+                chat,
+                link);
     }
 
     private Long resolveFilterId(String name) {
-        return jdbc.queryForObject("""
+        return jdbc.queryForObject(
+                """
             INSERT INTO filter(name)
             VALUES (?)
             ON CONFLICT(name) DO UPDATE SET name = EXCLUDED.name
             RETURNING id
-            """, Long.class, name);
+            """,
+                Long.class,
+                name);
     }
 
     private void upsertSubscriptionFilter(long chat, long link, long filter) {
-        jdbc.update("""
+        jdbc.update(
+                """
             INSERT INTO subscription_filter(filter_id, chat_id, link_id)
             VALUES (?,?,?) ON CONFLICT DO NOTHING
-            """, filter, chat, link);
+            """,
+                filter,
+                chat,
+                link);
     }
 
     @Override
-    public void add(long chatId, String url,
-                    Set<String> tags, Set<String> filters) {
+    public void add(long chatId, String url, Set<String> tags, Set<String> filters) {
 
         Long linkId = getOrCreateLink(url);
 
-        jdbc.update("""
+        jdbc.update(
+                """
             INSERT INTO subscription(chat_id, link_id)
             VALUES (?, ?) ON CONFLICT DO NOTHING
-            """, chatId, linkId);
+            """,
+                chatId,
+                linkId);
 
-        tags.forEach(t -> upsertSubscriptionTag(
-            chatId, linkId, resolveTagId(t)));
+        tags.forEach(t -> upsertSubscriptionTag(chatId, linkId, resolveTagId(t)));
 
-        filters.forEach(f -> upsertSubscriptionFilter(
-            chatId, linkId, resolveFilterId(f)));
+        filters.forEach(f -> upsertSubscriptionFilter(chatId, linkId, resolveFilterId(f)));
     }
 
     @Override
@@ -82,11 +96,15 @@ public class SqlLinkRepository implements LinkRepository {
 
     @Override
     public void removeTag(long chat, long link, String tag) {
-        jdbc.update("""
+        jdbc.update(
+                """
             DELETE FROM subscription_tag
             WHERE chat_id=? AND link_id=? AND tag_id=(
                  SELECT id FROM tag WHERE name=?)
-            """, chat, link, tag);
+            """,
+                chat,
+                link,
+                tag);
     }
 
     @Override
@@ -96,94 +114,111 @@ public class SqlLinkRepository implements LinkRepository {
 
     @Override
     public void removeFilter(long chat, long link, String filter) {
-        jdbc.update("""
+        jdbc.update(
+                """
             DELETE FROM subscription_filter
             WHERE chat_id=? AND link_id=? AND filter_id=(
                  SELECT id FROM filter WHERE name=?)
-            """, chat, link, filter);
+            """,
+                chat,
+                link,
+                filter);
     }
 
     @Override
     public Optional<LinkInfo> remove(long chatId, String url) {
-        Long linkId = jdbc.query("""
+        Long linkId = jdbc.query(
+                """
             SELECT id FROM link WHERE url = ?
-            """, rs -> rs.next() ? rs.getLong(1) : null, url);
+            """,
+                rs -> rs.next() ? rs.getLong(1) : null,
+                url);
 
         if (linkId == null) return Optional.empty();
 
-        int rows = jdbc.update("""
+        int rows = jdbc.update(
+                """
             DELETE FROM subscription
             WHERE chat_id=? AND link_id=?""", chatId, linkId);
 
-        return rows > 0 ? Optional.of(
-            new LinkInfo(linkId, url, null, null, Set.of(), Set.of()))
-            : Optional.empty();
+        return rows > 0 ? Optional.of(new LinkInfo(linkId, url, null, null, Set.of(), Set.of())) : Optional.empty();
     }
 
     @Override
     public Page<LinkInfo> findLinksForCheck(Instant th, Pageable p) {
-        List<LinkInfo> list = jdbc.query("""
+        List<LinkInfo> list = jdbc.query(
+                """
                 SELECT id, url, last_checked_at, last_updated_at
                   FROM link
                  WHERE last_checked_at < ?
                  ORDER BY last_checked_at
                  LIMIT ? OFFSET ?""",
-            (rs, i) -> new LinkInfo(
-                rs.getLong("id"),
-                rs.getString("url"),
-                rs.getTimestamp("last_checked_at").toInstant(),
-                rs.getTimestamp("last_updated_at") == null
-                    ? null : rs.getTimestamp("last_updated_at").toInstant(),
-                Set.of(), Set.of()),
-            Timestamp.from(th), p.getPageSize(), p.getOffset() // <--- добавлено
-        );
+                (rs, i) -> new LinkInfo(
+                        rs.getLong("id"),
+                        rs.getString("url"),
+                        rs.getTimestamp("last_checked_at").toInstant(),
+                        rs.getTimestamp("last_updated_at") == null
+                                ? null
+                                : rs.getTimestamp("last_updated_at").toInstant(),
+                        Set.of(),
+                        Set.of()),
+                Timestamp.from(th),
+                p.getPageSize(),
+                p.getOffset() // <--- добавлено
+                );
 
-        Integer total = jdbc.queryForObject("""
+        Integer total = jdbc.queryForObject(
+                """
                 SELECT count(*) FROM link WHERE last_checked_at < ?""",
-            Integer.class, Timestamp.from(th));
+                Integer.class,
+                Timestamp.from(th));
 
         return new PageImpl<>(list, p, total == null ? 0 : total);
     }
 
-
     @Override
     public void updateCheckTime(long linkId, Instant check, Instant upd) {
-        jdbc.update("""
+        jdbc.update(
+                """
                 UPDATE link
                 SET last_checked_at=?, last_updated_at=?
                 WHERE id = ?""",
-            Timestamp.from(check),
-            upd == null ? null : Timestamp.from(upd),
-            linkId);
+                Timestamp.from(check),
+                upd == null ? null : Timestamp.from(upd),
+                linkId);
     }
 
     @Override
     public List<LinkInfo> findAllByChat(long chatId) {
-        return jdbc.query("""
+        return jdbc.query(
+                """
                 SELECT l.id, l.url, l.last_checked_at, l.last_updated_at
                   FROM link l
                   JOIN subscription s ON s.link_id = l.id
                  WHERE s.chat_id=?""",
-            (rs, i) -> new LinkInfo(
-                rs.getLong("id"),
-                rs.getString("url"),
-                rs.getTimestamp("last_checked_at").toInstant(),
-                rs.getTimestamp("last_updated_at") == null ? null
-                    : rs.getTimestamp("last_updated_at").toInstant(),
-                Set.of(), Set.of()),
-            chatId
-        );
+                (rs, i) -> new LinkInfo(
+                        rs.getLong("id"),
+                        rs.getString("url"),
+                        rs.getTimestamp("last_checked_at").toInstant(),
+                        rs.getTimestamp("last_updated_at") == null
+                                ? null
+                                : rs.getTimestamp("last_updated_at").toInstant(),
+                        Set.of(),
+                        Set.of()),
+                chatId);
     }
 
     private Long getOrCreateLink(String url) {
         try {
-            return jdbc.queryForObject(
-                "SELECT id FROM link WHERE url=?", Long.class, url);
+            return jdbc.queryForObject("SELECT id FROM link WHERE url=?", Long.class, url);
         } catch (EmptyResultDataAccessException e) {
-            return jdbc.queryForObject("""
+            return jdbc.queryForObject(
+                    """
                     INSERT INTO link(url,last_checked_at)
                     VALUES (?,?) RETURNING id""",
-                Long.class, url, Timestamp.from(Instant.EPOCH));
+                    Long.class,
+                    url,
+                    Timestamp.from(Instant.EPOCH));
         }
     }
 }

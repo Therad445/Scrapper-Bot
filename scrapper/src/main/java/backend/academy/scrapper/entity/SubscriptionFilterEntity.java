@@ -38,11 +38,8 @@ public class SubscriptionFilterEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumns({
-        @JoinColumn(name = "chat_id", referencedColumnName = "chat_id",
-            insertable = false, updatable = false),
-        @JoinColumn(name = "link_id", referencedColumnName = "link_id",
-            insertable = false, updatable = false)
+        @JoinColumn(name = "chat_id", referencedColumnName = "chat_id", insertable = false, updatable = false),
+        @JoinColumn(name = "link_id", referencedColumnName = "link_id", insertable = false, updatable = false)
     })
     private SubscriptionEntity subscription;
 }
-
