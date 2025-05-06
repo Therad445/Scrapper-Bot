@@ -71,18 +71,16 @@ public class LinkScraperScheduler {
 
     private void processSingle(LinkInfo link) {
         List<Long> chatIds = chatRepo.findChatIdsByLinkId(link.id());
-        if (chatIds.isEmpty()) return;
 
         checkers.stream()
             .filter(ch -> ch.supports(link))
             .findFirst()
             .ifPresent(ch -> {
-                if (ch.hasUpdates(link)) {
+                if (ch.hasUpdates(link) && !chatIds.isEmpty()) {
                     notifier.notify(new LinkUpdate(
                         link.id(), link.url(), ch.preview(), Set.copyOf(chatIds)));
                 }
-                linkRepo.updateCheckTime(
-                    link.id(), Instant.now(), ch.remoteUpdatedAt());
+                linkRepo.updateCheckTime(link.id(), Instant.now(), ch.remoteUpdatedAt());
             });
     }
 }
