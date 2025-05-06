@@ -67,15 +67,11 @@ class StackOverflowChecker implements LinkChecker {
             }
         }
 
-        preview =
-                """
-            Stack Overflow: %s
-            Автор: %s
-            Создано: %s
-            %s
-            """
-                        .formatted(title, author, remoteUpdated.toString().substring(0, 10), body)
-                        .strip();
+        preview = String.format(
+                        "Stack Overflow: %s%nАвтор: %s%nСоздано: %s%n%s",
+                        title, author, remoteUpdated.toString().substring(0, 10), body)
+                .strip();
+
         return true;
     }
 

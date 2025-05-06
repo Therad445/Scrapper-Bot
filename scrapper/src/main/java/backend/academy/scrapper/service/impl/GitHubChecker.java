@@ -64,13 +64,9 @@ public class GitHubChecker implements LinkChecker {
     private String buildPreview(GitHubIssue resp) {
         String body = resp.body() == null ? "" : resp.body();
         if (body.length() > 200) body = body.substring(0, 200) + "…";
-        return """
-            GitHub: %s
-            Автор: %s
-            Создано: %s
-            %s
-            """
-                .formatted(resp.title(), resp.user().login(), resp.created_at().substring(0, 10), body)
+        return String.format(
+                        "GitHub: %s%nАвтор: %s%nСоздано: %s%n%s",
+                        resp.title(), resp.user().login(), resp.created_at().substring(0, 10), body)
                 .strip();
     }
 
