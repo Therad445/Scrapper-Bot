@@ -1,4 +1,6 @@
 package backend.academy.scrapper.model;
 
-public record LinkInfo(long id, String url) {
+import java.util.Set;
+
+public record LinkInfo(long id, String url, Set<String> tags, Set<String> filters) {
 }
