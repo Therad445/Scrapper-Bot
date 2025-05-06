@@ -30,7 +30,8 @@ public record ScrapperConfig(
         boolean enable,
         Duration interval,
         Duration forceCheckDelay,
-        int batchSize
+        int batchSize,
+        int threadCount
     ) {
     }
 }

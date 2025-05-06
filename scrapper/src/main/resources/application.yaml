@@ -8,10 +8,10 @@ app:
     interval: 30s
     force-check-delay: 15m
     batch-size: 100
-notification:
-  type: http
-
-access-type: ORM
+    thread-count: 4
+  notification:
+    type: http
+  access-type: ORM
 
 spring:
   application:

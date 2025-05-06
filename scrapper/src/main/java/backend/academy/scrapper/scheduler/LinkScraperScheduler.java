@@ -8,8 +8,11 @@ import backend.academy.scrapper.repository.ChatRepository;
 import backend.academy.scrapper.repository.LinkRepository;
 import backend.academy.scrapper.service.LinkChecker;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -22,39 +25,64 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @ConditionalOnProperty(name = "app.scheduler.enable", havingValue = "true")
 public class LinkScraperScheduler {
-    private final ScrapperConfig config;
-    private final LinkRepository linkRepository;
-    private final ChatRepository chatRepository;
+
+    private final ScrapperConfig cfg;
+    private final LinkRepository linkRepo;
+    private final ChatRepository chatRepo;
     private final List<LinkChecker> checkers;
     private final NotificationService notifier;
+    private final ExecutorService linkCheckerPool;   // ← инжектируем
 
     @Scheduled(fixedDelayString = "${app.scheduler.interval}")
     public void run() {
-        var sch = config.scheduler();
+        var sch = cfg.scheduler();
         Instant threshold = Instant.now().minus(sch.forceCheckDelay());
 
-        List<LinkInfo> links = linkRepository
+        List<LinkInfo> batch = linkRepo
             .findLinksForCheck(threshold, PageRequest.of(0, sch.batchSize()))
             .getContent();
+        if (batch.isEmpty()) return;
 
-        for (LinkInfo link : links) {
-            List<Long> chatIds = chatRepository.findChatIdsByLinkId(link.id());
-            if (chatIds.isEmpty()) continue;
+        int chunk = (int) Math.ceil((double) batch.size() / sch.threadCount());
+        List<List<LinkInfo>> partitions = new ArrayList<>();
+        for (int i = 0; i < batch.size(); i += chunk)
+            partitions.add(batch.subList(i, Math.min(i + chunk, batch.size())));
 
-            checkers.stream()
-                .filter(ch -> ch.supports(link))
-                .findFirst()
-                .ifPresent(ch -> {
-                    if (ch.hasUpdates(link)) {
-                        notifier.notify(new LinkUpdate(
-                            link.id(), link.url(), ch.preview(), Set.copyOf(chatIds)));
-                    }
-                    linkRepository.updateCheckTime(
-                        link.id(),
-                        Instant.now(),
-                        ch.remoteUpdatedAt());
-                });
+        CountDownLatch latch = new CountDownLatch(partitions.size());
+
+        for (List<LinkInfo> part : partitions) {
+            linkCheckerPool.submit(() -> {
+                try {
+                    part.forEach(this::processSingle);
+                } finally {
+                    latch.countDown();
+                }
+            });
         }
-        log.info("Scheduler закончил проверку {} ссылок", links.size());
+
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        log.info("Scheduler проверил {} ссылок в {} поток(ах)",
+            batch.size(), sch.threadCount());
+    }
+
+    private void processSingle(LinkInfo link) {
+        List<Long> chatIds = chatRepo.findChatIdsByLinkId(link.id());
+        if (chatIds.isEmpty()) return;
+
+        checkers.stream()
+            .filter(ch -> ch.supports(link))
+            .findFirst()
+            .ifPresent(ch -> {
+                if (ch.hasUpdates(link)) {
+                    notifier.notify(new LinkUpdate(
+                        link.id(), link.url(), ch.preview(), Set.copyOf(chatIds)));
+                }
+                linkRepo.updateCheckTime(
+                    link.id(), Instant.now(), ch.remoteUpdatedAt());
+            });
     }
 }
