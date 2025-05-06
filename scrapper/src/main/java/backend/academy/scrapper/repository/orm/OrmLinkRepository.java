@@ -23,7 +23,7 @@ import static java.util.stream.Collectors.toSet;
 
 @Repository
 @RequiredArgsConstructor
-@ConditionalOnProperty(name = "access-type", havingValue = "ORM")
+@ConditionalOnProperty(prefix = "app", name = "access-type", havingValue = "ORM")
 public class OrmLinkRepository implements LinkRepository {
 
     private final LinkJpaRepository linkJpa;

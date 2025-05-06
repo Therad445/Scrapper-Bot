@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
-@ConditionalOnProperty(name = "access-type", havingValue = "ORM")
+@ConditionalOnProperty(prefix = "app", name = "access-type", havingValue = "ORM")
 public class OrmChatRepository implements ChatRepository {
 
     private final ChatJpaRepository jpa;

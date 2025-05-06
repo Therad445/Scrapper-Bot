@@ -16,7 +16,9 @@ import org.springframework.web.client.RestTemplate;
 public record ScrapperConfig(
     @NotEmpty String githubToken,
     StackOverflowCredentials stackOverflow,
-    Scheduler scheduler
+    Scheduler scheduler,
+    String accessType,
+    Notification notification
 ) {
     @Bean
     public RestTemplate restTemplate() {
@@ -33,5 +35,8 @@ public record ScrapperConfig(
         int batchSize,
         int threadCount
     ) {
+    }
+
+    public record Notification(String type) {
     }
 }
