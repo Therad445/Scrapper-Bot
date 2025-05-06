@@ -99,7 +99,7 @@ class ScrapperClientTest {
         // Arrange
         Long chatId = 100L;
         String url = "https://example.com";
-        URI uri = URI.create("http://scrapper:8081:8081/links");
+        URI uri = URI.create("http://scrapper:8081/links");
 
         when(restTemplate.exchange(eq(uri), eq(HttpMethod.DELETE), any(HttpEntity.class), eq(LinkResponse.class)))
             .thenReturn(new ResponseEntity<>(HttpStatus.OK));
