@@ -1,6 +1,11 @@
 package backend.academy.scrapper.config;
 
 import jakarta.annotation.PostConstruct;
+import java.io.File;
+import java.nio.file.Path;
+import java.sql.Connection;
+import java.util.List;
+import javax.sql.DataSource;
 import liquibase.Contexts;
 import liquibase.LabelExpression;
 import liquibase.Liquibase;
@@ -12,11 +17,6 @@ import liquibase.resource.DirectoryResourceAccessor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
-import javax.sql.DataSource;
-import java.io.File;
-import java.nio.file.Path;
-import java.sql.Connection;
-import java.util.List;
 
 @Configuration
 @RequiredArgsConstructor
