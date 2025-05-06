@@ -116,7 +116,7 @@ public class SqlLinkRepository implements LinkRepository {
             WHERE chat_id=? AND link_id=?""", chatId, linkId);
 
         return rows > 0 ? Optional.of(
-            new LinkInfo(linkId, url, Set.of(), Set.of()))
+            new LinkInfo(linkId, url, null, null, Set.of(), Set.of()))
             : Optional.empty();
     }
 
@@ -124,15 +124,18 @@ public class SqlLinkRepository implements LinkRepository {
     public Page<LinkInfo> findLinksForCheck(Instant th, Pageable p) {
 
         List<LinkInfo> list = jdbc.query("""
-                SELECT id, url FROM link
+                SELECT id, url, last_checked_at, last_updated_at
+                  FROM link
                  WHERE last_checked_at < ?
                  ORDER BY last_checked_at
                  LIMIT ? OFFSET ?""",
             (rs, i) -> new LinkInfo(
                 rs.getLong("id"),
                 rs.getString("url"),
-                Set.of(), Set.of()),
-            Timestamp.from(th), p.getPageSize(), p.getOffset());
+                rs.getTimestamp("last_checked_at").toInstant(),
+                rs.getTimestamp("last_updated_at") == null
+                    ? null : rs.getTimestamp("last_updated_at").toInstant(),
+                Set.of(), Set.of()));
 
         Integer total = jdbc.queryForObject("""
                 SELECT count(*) FROM link WHERE last_checked_at < ?""",
@@ -155,14 +158,17 @@ public class SqlLinkRepository implements LinkRepository {
     @Override
     public List<LinkInfo> findAllByChat(long chatId) {
         return jdbc.query("""
-                SELECT l.id, l.url
+                SELECT l.id, l.url, l.last_checked_at, l.last_updated_at
                   FROM link l
                   JOIN subscription s ON s.link_id = l.id
                  WHERE s.chat_id=?""",
             (rs, i) -> new LinkInfo(
                 rs.getLong("id"),
                 rs.getString("url"),
-                Set.of(), Set.of()), chatId);
+                rs.getTimestamp("last_checked_at").toInstant(),
+                rs.getTimestamp("last_updated_at") == null ? null
+                    : rs.getTimestamp("last_updated_at").toInstant(),
+                Set.of(), Set.of()));
     }
 
     private Long getOrCreateLink(String url) {

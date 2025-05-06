@@ -154,16 +154,21 @@ public class OrmLinkRepository implements LinkRepository {
         boolean deleted = chat.subscriptions()
             .removeIf(s -> s.link().equals(link));
 
-        return deleted ? Optional.of(
-            new LinkInfo(link.id(), link.url(),
-                Set.of(), Set.of()))
+        return deleted
+            ? Optional.of(new LinkInfo(
+            link.id(), link.url(),
+            link.lastCheckedAt(), link.lastUpdatedAt(),
+            Set.of(), Set.of()))
             : Optional.empty();
+
     }
 
     @Override
     public Page<LinkInfo> findLinksForCheck(Instant th, Pageable p) {
         return linkJpa.findOldLinks(th, p)
-            .map(l -> new LinkInfo(l.id(), l.url(),
+            .map(l -> new LinkInfo(
+                l.id(), l.url(),
+                l.lastCheckedAt(), l.lastUpdatedAt(),
                 Set.of(), Set.of()));
     }
 
@@ -189,12 +194,9 @@ public class OrmLinkRepository implements LinkRepository {
         return new LinkInfo(
             s.link().id(),
             s.link().url(),
-            s.tags().stream()
-                .map(st -> st.tag().name())
-                .collect(toSet()),
-            s.filters().stream()
-                .map(sf -> sf.filter().name())
-                .collect(toSet()));
+            s.link().lastCheckedAt(), s.link().lastUpdatedAt(),
+            s.tags().stream().map(st -> st.tag().name()).collect(toSet()),
+            s.filters().stream().map(sf -> sf.filter().name()).collect(toSet()));
     }
 
     private String getUrl(long linkId) {
