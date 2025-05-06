@@ -122,7 +122,6 @@ public class SqlLinkRepository implements LinkRepository {
 
     @Override
     public Page<LinkInfo> findLinksForCheck(Instant th, Pageable p) {
-
         List<LinkInfo> list = jdbc.query("""
                 SELECT id, url, last_checked_at, last_updated_at
                   FROM link
@@ -135,7 +134,9 @@ public class SqlLinkRepository implements LinkRepository {
                 rs.getTimestamp("last_checked_at").toInstant(),
                 rs.getTimestamp("last_updated_at") == null
                     ? null : rs.getTimestamp("last_updated_at").toInstant(),
-                Set.of(), Set.of()));
+                Set.of(), Set.of()),
+            Timestamp.from(th), p.getPageSize(), p.getOffset() // <--- добавлено
+        );
 
         Integer total = jdbc.queryForObject("""
                 SELECT count(*) FROM link WHERE last_checked_at < ?""",
@@ -143,6 +144,7 @@ public class SqlLinkRepository implements LinkRepository {
 
         return new PageImpl<>(list, p, total == null ? 0 : total);
     }
+
 
     @Override
     public void updateCheckTime(long linkId, Instant check, Instant upd) {
@@ -168,7 +170,9 @@ public class SqlLinkRepository implements LinkRepository {
                 rs.getTimestamp("last_checked_at").toInstant(),
                 rs.getTimestamp("last_updated_at") == null ? null
                     : rs.getTimestamp("last_updated_at").toInstant(),
-                Set.of(), Set.of()));
+                Set.of(), Set.of()),
+            chatId
+        );
     }
 
     private Long getOrCreateLink(String url) {

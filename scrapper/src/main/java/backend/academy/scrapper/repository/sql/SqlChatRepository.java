@@ -11,26 +11,41 @@ import org.springframework.stereotype.Repository;
 @ConditionalOnProperty(prefix = "app", name = "access-type", havingValue = "SQL")
 @RequiredArgsConstructor
 public class SqlChatRepository implements ChatRepository {
+
     private final JdbcTemplate jdbc;
 
     @Override
     public void register(long id) {
-        jdbc.update("insert into chat(id,created_at) values (?,now()) on conflict do nothing", id);
+        jdbc.update("""
+            INSERT INTO chat(id, created_at)
+            VALUES (?, now())
+            ON CONFLICT DO NOTHING
+            """, id);
     }
 
     @Override
     public void delete(long id) {
-        jdbc.update("delete from chat where id=?", id);
+        jdbc.update("""
+            DELETE FROM chat
+            WHERE id = ?
+            """, id);
     }
 
     @Override
     public boolean exists(long id) {
-        return Boolean.TRUE.equals(
-            jdbc.queryForObject("select exists(select 1 from chat where id=?)", Boolean.class, id));
+        return Boolean.TRUE.equals(jdbc.queryForObject("""
+            SELECT EXISTS (
+                SELECT 1 FROM chat WHERE id = ?
+            )
+            """, Boolean.class, id));
     }
 
     @Override
     public List<Long> findChatIdsByLinkId(long linkId) {
-        return jdbc.queryForList("select chat_id from subscription where link_id=?", Long.class, linkId);
+        return jdbc.queryForList("""
+            SELECT chat_id
+              FROM subscription
+             WHERE link_id = ?
+            """, Long.class, linkId);
     }
 }
