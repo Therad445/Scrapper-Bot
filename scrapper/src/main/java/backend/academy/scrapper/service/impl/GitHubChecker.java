@@ -65,7 +65,7 @@ public class GitHubChecker implements LinkChecker {
         String body = resp.body() == null ? "" : resp.body();
         if (body.length() > 200) body = body.substring(0, 200) + "…";
         return """
-            🔔 GitHub: %s
+            GitHub: %s
             Автор: %s
             Создано: %s
             %s

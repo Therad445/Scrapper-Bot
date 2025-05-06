@@ -68,7 +68,7 @@ class StackOverflowChecker implements LinkChecker {
         }
 
         preview = """
-            ❓ Stack Overflow: %s
+            Stack Overflow: %s
             Автор: %s
             Создано: %s
             %s
