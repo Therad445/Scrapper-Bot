@@ -1,26 +1,28 @@
 package backend.academy.bot.dto;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
 public class AddLinkRequest {
-    private String link;
+    private URI link;
     private List<String> tags = new ArrayList<>();
     private List<String> filters = new ArrayList<>();
 
-    public AddLinkRequest() {}
+    public AddLinkRequest() {
+    }
 
-    public AddLinkRequest(String link, List<String> tags, List<String> filters) {
+    public AddLinkRequest(URI link, List<String> tags, List<String> filters) {
         this.link = link;
         this.tags = tags;
         this.filters = filters;
     }
 
-    public String getLink() {
+    public URI getLink() {
         return link;
     }
 
-    public void setLink(String link) {
+    public void setLink(URI link) {
         this.link = link;
     }
 
