@@ -177,6 +177,8 @@ export TELEGRAM_TOKEN=<your_telegram_token>
 ---
 
 ## Сборка и запуск
+> ⚠️ **Важно!** Перед сборкой убедитесь, что Docker daemon запущен.  
+> Проект полагается на контейнер PostgreSQL; без него сборка/запуск упадут.
 
 ```bash
 mvn clean package -DskipTests
