@@ -23,44 +23,44 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class ScrapperClient {
 
     private final RestTemplate restTemplate;
-    private final String scrapperBaseUrl;
+    private final URI scrapperBaseUrl;
 
     public ScrapperClient(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
-        this.scrapperBaseUrl = "http://scrapper:8081/";
+        this.scrapperBaseUrl = URI.create("http://scrapper:8081/");
     }
 
     public void registerUser(Long chatId) {
-        URI uri = UriComponentsBuilder.fromHttpUrl(scrapperBaseUrl)
-                .path("/tg-chat/" + chatId)
-                .build()
-                .toUri();
+        URI uri = UriComponentsBuilder.fromUri(scrapperBaseUrl)
+            .path("/tg-chat/" + chatId)
+            .build()
+            .toUri();
         restTemplate.postForEntity(uri, null, Void.class);
     }
 
     public ListLinksResponse getLinks(Long chatId) {
-        URI uri = UriComponentsBuilder.fromHttpUrl(scrapperBaseUrl)
-                .path("/links")
-                .build()
-                .toUri();
+        URI uri = UriComponentsBuilder.fromUri(scrapperBaseUrl)
+            .path("/links")
+            .build()
+            .toUri();
         HttpHeaders headers = new HttpHeaders();
         headers.set("Tg-chat-id", chatId.toString());
         HttpEntity<?> entity = new HttpEntity<>(headers);
         ResponseEntity<ListLinksResponse> response =
-                restTemplate.exchange(uri, HttpMethod.GET, entity, ListLinksResponse.class);
+            restTemplate.exchange(uri, HttpMethod.GET, entity, ListLinksResponse.class);
         return response.getBody();
     }
 
-    public LinkResponse trackLink(Long chatId, String url, List<String> tags, List<String> filters) {
+    public LinkResponse trackLink(Long chatId, URI url, List<String> tags, List<String> filters) {
         AddLinkRequest requestBody = new AddLinkRequest();
         requestBody.setLink(url);
         requestBody.setTags(tags);
         requestBody.setFilters(filters);
 
-        URI uri = UriComponentsBuilder.fromHttpUrl(scrapperBaseUrl)
-                .path("/links")
-                .build()
-                .toUri();
+        URI uri = UriComponentsBuilder.fromUri(scrapperBaseUrl)
+            .path("/links")
+            .build()
+            .toUri();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Tg-chat-id", chatId.toString());
@@ -68,30 +68,36 @@ public class ScrapperClient {
         HttpEntity<AddLinkRequest> entity = new HttpEntity<>(requestBody, headers);
         ResponseEntity<LinkResponse> response = restTemplate.postForEntity(uri, entity, LinkResponse.class);
         log.info(
-                "ScrapperClient: отправили запрос на Scrapper с URL {}, тэгами {} и фильтрами {}. Scrapper ответил: {}",
-                url,
-                tags,
-                filters,
-                Objects.requireNonNull(response.getBody()).getLink());
+            "ScrapperClient: отправили запрос на Scrapper с URL {}, тэгами {} и фильтрами {}. Scrapper ответил: {}",
+            url,
+            tags,
+            filters,
+            Objects.requireNonNull(response.getBody()).getLink());
         return response.getBody();
     }
 
-    public LinkResponse trackLink(Long chatId, String url) {
+    public LinkResponse trackLink(Long chatId, URI url) {
         return trackLink(chatId, url, Collections.emptyList(), Collections.emptyList());
     }
 
-    public void untrackLink(Long chatId, String url) {
-        RemoveLinkRequest requestBody = new RemoveLinkRequest();
-        requestBody.setLink(url);
 
-        URI uri = UriComponentsBuilder.fromHttpUrl(scrapperBaseUrl)
-                .path("/links")
-                .build()
-                .toUri();
+    public LinkResponse untrackLink(Long chatId, URI url) {
+        RemoveLinkRequest body = new RemoveLinkRequest();
+        body.setLink(url);
+
+        URI uri = UriComponentsBuilder.fromUri(scrapperBaseUrl)
+            .path("/links")
+            .build()
+            .toUri();
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Tg-chat-id", chatId.toString());
-        HttpEntity<RemoveLinkRequest> entity = new HttpEntity<>(requestBody, headers);
-        restTemplate.exchange(uri, HttpMethod.DELETE, entity, LinkResponse.class);
+
+        HttpEntity<RemoveLinkRequest> entity = new HttpEntity<>(body, headers);
+        return restTemplate.exchange(uri, HttpMethod.DELETE, entity, LinkResponse.class)
+            .getBody();
     }
+
+
 }
