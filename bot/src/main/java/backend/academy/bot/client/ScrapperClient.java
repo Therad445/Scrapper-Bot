@@ -35,7 +35,7 @@ public class ScrapperClient {
         try {
             restTemplate.postForEntity(uri, null, Void.class);
         } catch (RestClientException e) {
-            log.error("Ошибка при регистрации пользователя {}: {}", chatId, e.getMessage(), e);
+            log.error("Ошибка при регистрации пользователя {}", chatId, e);
             throw e;
         }
     }
@@ -52,7 +52,7 @@ public class ScrapperClient {
             }
             return body;
         } catch (RestClientException e) {
-            log.error("Ошибка при получении ссылок пользователя {}: {}", chatId, e.getMessage(), e);
+            log.error("Ошибка при получении ссылок пользователя {}", chatId, e);
             throw e;
         }
     }
@@ -79,7 +79,7 @@ public class ScrapperClient {
                     body.getLink());
             return body;
         } catch (RestClientException e) {
-            log.error("Ошибка при добавлении ссылки {}: {}", url, e.getMessage(), e);
+            log.error("Ошибка при добавлении ссылки {}", url, e);
             throw e;
         }
     }
@@ -103,7 +103,7 @@ public class ScrapperClient {
             }
             return resBody;
         } catch (RestClientException e) {
-            log.error("Ошибка при удалении ссылки {}: {}", url, e.getMessage(), e);
+            log.error("Ошибка при удалении ссылки {}", url, e);
             throw e;
         }
     }
