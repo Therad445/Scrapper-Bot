@@ -15,6 +15,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -31,73 +32,88 @@ public class ScrapperClient {
     }
 
     public void registerUser(Long chatId) {
-        URI uri = UriComponentsBuilder.fromUri(scrapperBaseUrl)
-            .path("/tg-chat/" + chatId)
-            .build()
-            .toUri();
-        restTemplate.postForEntity(uri, null, Void.class);
+        URI uri = buildPath("/tg-chat/" + chatId);
+        try {
+            restTemplate.postForEntity(uri, null, Void.class);
+        } catch (RestClientException e) {
+            log.error("Ошибка при регистрации пользователя {}: {}", chatId, e.getMessage(), e);
+            throw e;
+        }
     }
 
     public ListLinksResponse getLinks(Long chatId) {
-        URI uri = UriComponentsBuilder.fromUri(scrapperBaseUrl)
-            .path("/links")
-            .build()
-            .toUri();
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Tg-chat-id", chatId.toString());
-        HttpEntity<?> entity = new HttpEntity<>(headers);
-        ResponseEntity<ListLinksResponse> response =
-            restTemplate.exchange(uri, HttpMethod.GET, entity, ListLinksResponse.class);
-        return response.getBody();
+        URI uri = buildPath("/links");
+        try {
+            HttpEntity<?> entity = new HttpEntity<>(headers(chatId));
+            ResponseEntity<ListLinksResponse> response =
+                restTemplate.exchange(uri, HttpMethod.GET, entity, ListLinksResponse.class);
+            ListLinksResponse body = response.getBody();
+            if (body == null) {
+                throw new IllegalStateException("Scrapper вернул пустой ответ при получении ссылок");
+            }
+            return body;
+        } catch (RestClientException e) {
+            log.error("Ошибка при получении ссылок пользователя {}: {}", chatId, e.getMessage(), e);
+            throw e;
+        }
     }
 
     public LinkResponse trackLink(Long chatId, URI url, List<String> tags, List<String> filters) {
+        URI uri = buildPath("/links");
         AddLinkRequest requestBody = new AddLinkRequest();
         requestBody.setLink(url);
         requestBody.setTags(tags);
         requestBody.setFilters(filters);
 
-        URI uri = UriComponentsBuilder.fromUri(scrapperBaseUrl)
-            .path("/links")
-            .build()
-            .toUri();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Tg-chat-id", chatId.toString());
-
-        HttpEntity<AddLinkRequest> entity = new HttpEntity<>(requestBody, headers);
-        ResponseEntity<LinkResponse> response = restTemplate.postForEntity(uri, entity, LinkResponse.class);
-        log.info(
-            "ScrapperClient: отправили запрос на Scrapper с URL {}, тэгами {} и фильтрами {}. Scrapper ответил: {}",
-            url,
-            tags,
-            filters,
-            Objects.requireNonNull(response.getBody()).getLink());
-        return response.getBody();
+        try {
+            HttpEntity<AddLinkRequest> entity = new HttpEntity<>(requestBody, headers(chatId));
+            ResponseEntity<LinkResponse> response = restTemplate.postForEntity(uri, entity, LinkResponse.class);
+            LinkResponse body = response.getBody();
+            if (body == null) {
+                throw new IllegalStateException("Scrapper вернул пустой ответ при добавлении ссылки");
+            }
+            log.info(
+                "ScrapperClient: отправили запрос на Scrapper с URL {}, тэгами {} и фильтрами {}. Ответ: {}",
+                url, tags, filters, body.getLink());
+            return body;
+        } catch (RestClientException e) {
+            log.error("Ошибка при добавлении ссылки {}: {}", url, e.getMessage(), e);
+            throw e;
+        }
     }
 
     public LinkResponse trackLink(Long chatId, URI url) {
         return trackLink(chatId, url, Collections.emptyList(), Collections.emptyList());
     }
 
-
     public LinkResponse untrackLink(Long chatId, URI url) {
+        URI uri = buildPath("/links");
         RemoveLinkRequest body = new RemoveLinkRequest();
         body.setLink(url);
 
-        URI uri = UriComponentsBuilder.fromUri(scrapperBaseUrl)
-            .path("/links")
-            .build()
-            .toUri();
+        try {
+            HttpEntity<RemoveLinkRequest> entity = new HttpEntity<>(body, headers(chatId));
+            ResponseEntity<LinkResponse> response =
+                restTemplate.exchange(uri, HttpMethod.DELETE, entity, LinkResponse.class);
+            LinkResponse resBody = response.getBody();
+            if (resBody == null) {
+                throw new IllegalStateException("Scrapper вернул пустой ответ при удалении ссылки");
+            }
+            return resBody;
+        } catch (RestClientException e) {
+            log.error("Ошибка при удалении ссылки {}: {}", url, e.getMessage(), e);
+            throw e;
+        }
+    }
 
+    private URI buildPath(String path) {
+        return UriComponentsBuilder.fromUri(scrapperBaseUrl).path(path).build().toUri();
+    }
+
+    private HttpHeaders headers(Long chatId) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Tg-chat-id", chatId.toString());
-
-        HttpEntity<RemoveLinkRequest> entity = new HttpEntity<>(body, headers);
-        return restTemplate.exchange(uri, HttpMethod.DELETE, entity, LinkResponse.class)
-            .getBody();
+        return headers;
     }
-
-
 }
