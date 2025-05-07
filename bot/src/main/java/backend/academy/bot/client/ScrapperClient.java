@@ -7,7 +7,6 @@ import backend.academy.bot.dto.RemoveLinkRequest;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -46,7 +45,7 @@ public class ScrapperClient {
         try {
             HttpEntity<?> entity = new HttpEntity<>(headers(chatId));
             ResponseEntity<ListLinksResponse> response =
-                restTemplate.exchange(uri, HttpMethod.GET, entity, ListLinksResponse.class);
+                    restTemplate.exchange(uri, HttpMethod.GET, entity, ListLinksResponse.class);
             ListLinksResponse body = response.getBody();
             if (body == null) {
                 throw new IllegalStateException("Scrapper вернул пустой ответ при получении ссылок");
@@ -73,8 +72,11 @@ public class ScrapperClient {
                 throw new IllegalStateException("Scrapper вернул пустой ответ при добавлении ссылки");
             }
             log.info(
-                "ScrapperClient: отправили запрос на Scrapper с URL {}, тэгами {} и фильтрами {}. Ответ: {}",
-                url, tags, filters, body.getLink());
+                    "ScrapperClient: отправили запрос на Scrapper с URL {}, тэгами {} и фильтрами {}. Ответ: {}",
+                    url,
+                    tags,
+                    filters,
+                    body.getLink());
             return body;
         } catch (RestClientException e) {
             log.error("Ошибка при добавлении ссылки {}: {}", url, e.getMessage(), e);
@@ -94,7 +96,7 @@ public class ScrapperClient {
         try {
             HttpEntity<RemoveLinkRequest> entity = new HttpEntity<>(body, headers(chatId));
             ResponseEntity<LinkResponse> response =
-                restTemplate.exchange(uri, HttpMethod.DELETE, entity, LinkResponse.class);
+                    restTemplate.exchange(uri, HttpMethod.DELETE, entity, LinkResponse.class);
             LinkResponse resBody = response.getBody();
             if (resBody == null) {
                 throw new IllegalStateException("Scrapper вернул пустой ответ при удалении ссылки");

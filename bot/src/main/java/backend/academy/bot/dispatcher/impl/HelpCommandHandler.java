@@ -10,14 +10,15 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class HelpCommandHandler implements CommandHandler {
 
-    private static final String HELP_TEXT = """
-        Доступные команды:
-        /start   — регистрация бота
-        /help    — помощь
-        /track   <url> — начать отслеживание
-        /untrack <url> — прекратить отслеживание
-        /list    — показать все ваши ссылки
-        """;
+    private static final String HELP_TEXT =
+            """
+            Доступные команды:
+            /start   — регистрация бота
+            /help    — помощь
+            /track   <url> — начать отслеживание
+            /untrack <url> — прекратить отслеживание
+            /list    — показать все ваши ссылки
+            """;
     private final MessageSenderService sender;
 
     @Override

@@ -18,10 +18,10 @@ public class SqlChatRepository implements ChatRepository {
     public void register(long id) {
         jdbc.update(
                 """
-            INSERT INTO chat(id, created_at)
-            VALUES (?, now())
-            ON CONFLICT DO NOTHING
-            """,
+                INSERT INTO chat(id, created_at)
+                VALUES (?, now())
+                ON CONFLICT DO NOTHING
+                """,
                 id);
     }
 
@@ -37,10 +37,10 @@ public class SqlChatRepository implements ChatRepository {
     public boolean exists(long id) {
         return Boolean.TRUE.equals(jdbc.queryForObject(
                 """
-            SELECT EXISTS (
-                SELECT 1 FROM chat WHERE id = ?
-            )
-            """,
+                SELECT EXISTS (
+                    SELECT 1 FROM chat WHERE id = ?
+                )
+                """,
                 Boolean.class,
                 id));
     }
@@ -49,10 +49,10 @@ public class SqlChatRepository implements ChatRepository {
     public List<Long> findChatIdsByLinkId(long linkId) {
         return jdbc.queryForList(
                 """
-            SELECT chat_id
-              FROM subscription
-             WHERE link_id = ?
-            """,
+                SELECT chat_id
+                  FROM subscription
+                 WHERE link_id = ?
+                """,
                 Long.class,
                 linkId);
     }

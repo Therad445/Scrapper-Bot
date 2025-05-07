@@ -16,9 +16,9 @@ public interface LinkJpaRepository extends JpaRepository<LinkEntity, Long> {
 
     @Query(
             """
-        SELECT l FROM LinkEntity l
-         WHERE l.lastCheckedAt < :threshold
-         ORDER BY l.lastCheckedAt
-        """)
+            SELECT l FROM LinkEntity l
+             WHERE l.lastCheckedAt < :threshold
+             ORDER BY l.lastCheckedAt
+            """)
     Page<LinkEntity> findOldLinks(Instant threshold, Pageable pageable);
 }

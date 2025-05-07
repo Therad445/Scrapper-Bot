@@ -14,5 +14,4 @@ public class MessageSenderService {
     public void send(Long chatId, String text) {
         bot.execute(new SendMessage(chatId, text));
     }
-
 }

@@ -50,22 +50,22 @@ class StackOverflowCheckerTest {
 
         String answerJson =
                 """
-            {
-              "items":[{
-                "question_id":999,
-                "creation_date":1700000000,
-                "body_markdown":"Test body",
-                "owner":{"display_name":"User123"}
-              }]
-            }""";
+                {
+                  "items":[{
+                    "question_id":999,
+                    "creation_date":1700000000,
+                    "body_markdown":"Test body",
+                    "owner":{"display_name":"User123"}
+                  }]
+                }""";
 
         String questionJson =
                 """
-            {
-              "items":[{
-                "title":"Example Question"
-              }]
-            }""";
+                {
+                  "items":[{
+                    "title":"Example Question"
+                  }]
+                }""";
 
         mockServer
                 .expect(requestTo("https://api.stackexchange.com/2.3/answers/12345?site=stackoverflow&filter=withbody"))

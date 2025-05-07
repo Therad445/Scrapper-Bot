@@ -22,8 +22,6 @@ public class UnknownCommandHandler implements CommandHandler {
     @Override
     public void handle(Update u) {
         sender.send(
-            u.message().chat().id(),
-            "Неизвестная команда. Введите /help, чтобы увидеть список доступных команд."
-        );
+                u.message().chat().id(), "Неизвестная команда. Введите /help, чтобы увидеть список доступных команд.");
     }
 }

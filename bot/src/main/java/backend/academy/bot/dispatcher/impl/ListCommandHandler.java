@@ -32,9 +32,7 @@ public class ListCommandHandler implements CommandHandler {
             return;
         }
 
-        String body = links.stream()
-            .map(l -> l.getLink().toString())
-            .collect(Collectors.joining("\n"));
+        String body = links.stream().map(l -> l.getLink().toString()).collect(Collectors.joining("\n"));
 
         sender.send(chatId, "Ваши подписки:\n" + body);
     }

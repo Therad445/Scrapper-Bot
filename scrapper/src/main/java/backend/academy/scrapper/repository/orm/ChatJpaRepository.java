@@ -12,10 +12,10 @@ public interface ChatJpaRepository extends JpaRepository<ChatEntity, Long> {
 
     @Query(
             """
-            select c.id
-              from ChatEntity         c
-              join c.subscriptions    s
-             where s.link.id = :linkId
-        """)
+                select c.id
+                  from ChatEntity         c
+                  join c.subscriptions    s
+                 where s.link.id = :linkId
+            """)
     List<Long> findChatIdsByLinkId(@Param("linkId") long linkId);
 }

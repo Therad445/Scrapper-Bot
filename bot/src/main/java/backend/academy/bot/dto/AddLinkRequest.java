@@ -9,8 +9,7 @@ public class AddLinkRequest {
     private List<String> tags = new ArrayList<>();
     private List<String> filters = new ArrayList<>();
 
-    public AddLinkRequest() {
-    }
+    public AddLinkRequest() {}
 
     public AddLinkRequest(URI link, List<String> tags, List<String> filters) {
         this.link = link;

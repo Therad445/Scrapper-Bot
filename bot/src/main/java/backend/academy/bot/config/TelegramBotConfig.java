@@ -13,4 +13,3 @@ public class TelegramBotConfig {
         return new TelegramBot(token);
     }
 }
-

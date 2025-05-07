@@ -47,11 +47,10 @@ public class SessionInputHandler implements CommandHandler {
         } else if (session.state() == BotState.WAITING_FOR_FILTERS) {
             session.pendingFilters(text.isBlank() ? null : text);
             List<String> tags = session.pendingTags() != null
-                ? Arrays.asList(session.pendingTags().split("\\s+"))
-                : Collections.emptyList();
-            List<String> filters = session.pendingFilters() != null
-                ? Arrays.asList(text.split("\\s+"))
-                : Collections.emptyList();
+                    ? Arrays.asList(session.pendingTags().split("\\s+"))
+                    : Collections.emptyList();
+            List<String> filters =
+                    session.pendingFilters() != null ? Arrays.asList(text.split("\\s+")) : Collections.emptyList();
             linkService.track(chatId, URI.create(session.pendingUrl()), tags, filters);
             sender.send(chatId, "Ссылка добавлена с тэгами и фильтрами ✅");
             session.reset();

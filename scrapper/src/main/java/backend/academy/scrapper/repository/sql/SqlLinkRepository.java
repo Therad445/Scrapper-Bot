@@ -28,11 +28,11 @@ public class SqlLinkRepository implements LinkRepository {
     private Long resolveTagId(String name) {
         return jdbc.queryForObject(
                 """
-            INSERT INTO tag(name)
-            VALUES (?)
-            ON CONFLICT(name) DO UPDATE SET name = EXCLUDED.name
-            RETURNING id
-            """,
+                INSERT INTO tag(name)
+                VALUES (?)
+                ON CONFLICT(name) DO UPDATE SET name = EXCLUDED.name
+                RETURNING id
+                """,
                 Long.class,
                 name);
     }
@@ -40,9 +40,9 @@ public class SqlLinkRepository implements LinkRepository {
     private void upsertSubscriptionTag(long chat, long link, long tag) {
         jdbc.update(
                 """
-            INSERT INTO subscription_tag(tag_id, chat_id, link_id)
-            VALUES (?,?,?) ON CONFLICT DO NOTHING
-            """,
+                INSERT INTO subscription_tag(tag_id, chat_id, link_id)
+                VALUES (?,?,?) ON CONFLICT DO NOTHING
+                """,
                 tag,
                 chat,
                 link);
@@ -51,11 +51,11 @@ public class SqlLinkRepository implements LinkRepository {
     private Long resolveFilterId(String name) {
         return jdbc.queryForObject(
                 """
-            INSERT INTO filter(name)
-            VALUES (?)
-            ON CONFLICT(name) DO UPDATE SET name = EXCLUDED.name
-            RETURNING id
-            """,
+                INSERT INTO filter(name)
+                VALUES (?)
+                ON CONFLICT(name) DO UPDATE SET name = EXCLUDED.name
+                RETURNING id
+                """,
                 Long.class,
                 name);
     }
@@ -63,9 +63,9 @@ public class SqlLinkRepository implements LinkRepository {
     private void upsertSubscriptionFilter(long chat, long link, long filter) {
         jdbc.update(
                 """
-            INSERT INTO subscription_filter(filter_id, chat_id, link_id)
-            VALUES (?,?,?) ON CONFLICT DO NOTHING
-            """,
+                INSERT INTO subscription_filter(filter_id, chat_id, link_id)
+                VALUES (?,?,?) ON CONFLICT DO NOTHING
+                """,
                 filter,
                 chat,
                 link);
@@ -78,9 +78,9 @@ public class SqlLinkRepository implements LinkRepository {
 
         jdbc.update(
                 """
-            INSERT INTO subscription(chat_id, link_id)
-            VALUES (?, ?) ON CONFLICT DO NOTHING
-            """,
+                INSERT INTO subscription(chat_id, link_id)
+                VALUES (?, ?) ON CONFLICT DO NOTHING
+                """,
                 chatId,
                 linkId);
 
@@ -98,10 +98,10 @@ public class SqlLinkRepository implements LinkRepository {
     public void removeTag(long chat, long link, String tag) {
         jdbc.update(
                 """
-            DELETE FROM subscription_tag
-            WHERE chat_id=? AND link_id=? AND tag_id=(
-                 SELECT id FROM tag WHERE name=?)
-            """,
+                DELETE FROM subscription_tag
+                WHERE chat_id=? AND link_id=? AND tag_id=(
+                     SELECT id FROM tag WHERE name=?)
+                """,
                 chat,
                 link,
                 tag);
@@ -116,10 +116,10 @@ public class SqlLinkRepository implements LinkRepository {
     public void removeFilter(long chat, long link, String filter) {
         jdbc.update(
                 """
-            DELETE FROM subscription_filter
-            WHERE chat_id=? AND link_id=? AND filter_id=(
-                 SELECT id FROM filter WHERE name=?)
-            """,
+                DELETE FROM subscription_filter
+                WHERE chat_id=? AND link_id=? AND filter_id=(
+                     SELECT id FROM filter WHERE name=?)
+                """,
                 chat,
                 link,
                 filter);
@@ -129,8 +129,8 @@ public class SqlLinkRepository implements LinkRepository {
     public Optional<LinkInfo> remove(long chatId, String url) {
         Long linkId = jdbc.query(
                 """
-            SELECT id FROM link WHERE url = ?
-            """,
+                SELECT id FROM link WHERE url = ?
+                """,
                 rs -> {
                     if (rs.next()) {
                         return rs.getLong(1);
@@ -143,8 +143,10 @@ public class SqlLinkRepository implements LinkRepository {
 
         int rows = jdbc.update(
                 """
-            DELETE FROM subscription
-            WHERE chat_id=? AND link_id=?""", chatId, linkId);
+                DELETE FROM subscription
+                WHERE chat_id=? AND link_id=?""",
+                chatId,
+                linkId);
 
         return rows > 0 ? Optional.of(new LinkInfo(linkId, url, null, null, Set.of(), Set.of())) : Optional.empty();
     }

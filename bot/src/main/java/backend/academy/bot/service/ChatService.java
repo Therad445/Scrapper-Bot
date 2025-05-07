@@ -1,6 +1,5 @@
 package backend.academy.bot.service;
 
-
 import backend.academy.bot.client.ScrapperClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

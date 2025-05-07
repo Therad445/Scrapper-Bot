@@ -13,9 +13,9 @@ public class CommandDispatcher {
 
     public void dispatch(Update update) {
         handlers.stream()
-            .filter(h -> h.supports(update))
-            .findFirst()
-            .orElseThrow(() -> new IllegalStateException("Unknown command"))
-            .handle(update);
+                .filter(h -> h.supports(update))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("Unknown command"))
+                .handle(update);
     }
 }

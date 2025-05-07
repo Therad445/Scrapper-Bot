@@ -23,11 +23,9 @@ public class BotController {
 
     @PostMapping("/updates")
     public ResponseEntity<?> sendNotification(@RequestBody @Valid LinkUpdate upd) {
-        String message = "Обновилась ссылка: " + upd.getUrl() + "\n" +
-            "Описание: " + upd.getDescription();
+        String message = "Обновилась ссылка: " + upd.getUrl() + "\n" + "Описание: " + upd.getDescription();
         upd.getTgChatIds().forEach(id -> sender.send(id, message));
         log.info("Обновление обработано");
         return ResponseEntity.ok("Обновление обработано");
     }
 }
-

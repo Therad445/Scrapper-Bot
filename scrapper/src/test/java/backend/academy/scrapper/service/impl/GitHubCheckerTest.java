@@ -57,14 +57,14 @@ class GitHubCheckerTest {
 
         String githubResponse =
                 """
-            {
-              "title": "Test issue",
-              "user": { "login": "octocat" },
-              "created_at": "2020-01-01T00:00:00Z",
-              "updated_at": "2024-01-01T12:00:00Z",
-              "body": "This is a test issue body"
-            }
-            """;
+                {
+                  "title": "Test issue",
+                  "user": { "login": "octocat" },
+                  "created_at": "2020-01-01T00:00:00Z",
+                  "updated_at": "2024-01-01T12:00:00Z",
+                  "body": "This is a test issue body"
+                }
+                """;
 
         mockServer
                 .expect(requestTo("https://api.github.com/repos/user/repo/issues/1"))
@@ -85,14 +85,14 @@ class GitHubCheckerTest {
 
         String json =
                 """
-            {
-              "title": "Issue title",
-              "user": { "login": "user123" },
-              "created_at": "2024-04-30T12:00:00Z",
-              "updated_at": "2024-04-30T12:00:00Z",
-              "body": "Some body text"
-            }
-            """;
+                {
+                  "title": "Issue title",
+                  "user": { "login": "user123" },
+                  "created_at": "2024-04-30T12:00:00Z",
+                  "updated_at": "2024-04-30T12:00:00Z",
+                  "body": "Some body text"
+                }
+                """;
 
         mockServer
                 .expect(requestTo("https://api.github.com/repos/owner/repo/issues/123"))
