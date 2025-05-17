@@ -75,6 +75,7 @@ Scrapper подождёт доступности БД, а bot — готовно
 | `SO_TOKEN_KEY`    | scrapper       | StackOverflow API key      |
 | `SO_ACCESS_TOKEN` | scrapper       | StackOverflow access token |
 | `TELEGRAM_TOKEN`  | bot            | Telegram Bot API token     |
+| `SCRAPPER_URL`    | bot            | URL access Scrapper        |
 
 ---
 
@@ -146,6 +147,7 @@ export SO_ACCESS_TOKEN=<your_so_token>
 ```yaml
 app:
     telegram-token: ${TELEGRAM_TOKEN}
+    scrapper-url: ${SCRAPPER_URL}
 
 spring:
     application:
@@ -167,11 +169,13 @@ springdoc:
 ```
 
 </details>
+Переменная `SCRAPPER_URL` указывает на адрес сервиса Scrapper, с которым бот будет взаимодействовать по HTTP (по умолчанию: `http://localhost:8081`).
 
 Перед запуском бота необходимо задать переменную окружения:
 
 ```bash
 export TELEGRAM_TOKEN=<your_telegram_token>
+export SCRAPPER_URL=http://localhost:8081   # или другой URL Scrapper‑сервиса
 ```
 
 ---

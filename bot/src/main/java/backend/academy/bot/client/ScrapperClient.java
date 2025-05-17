@@ -1,5 +1,6 @@
 package backend.academy.bot.client;
 
+import backend.academy.bot.BotConfig;
 import backend.academy.bot.dto.AddLinkRequest;
 import backend.academy.bot.dto.LinkResponse;
 import backend.academy.bot.dto.ListLinksResponse;
@@ -25,9 +26,9 @@ public class ScrapperClient {
     private final RestTemplate restTemplate;
     private final URI scrapperBaseUrl;
 
-    public ScrapperClient(RestTemplate restTemplate) {
+    public ScrapperClient(RestTemplate restTemplate, BotConfig config) {
         this.restTemplate = restTemplate;
-        this.scrapperBaseUrl = URI.create("http://scrapper:8081/");
+        this.scrapperBaseUrl = URI.create(config.scrapperUrl());
     }
 
     public void registerUser(Long chatId) {
