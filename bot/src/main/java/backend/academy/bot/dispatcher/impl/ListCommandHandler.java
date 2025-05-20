@@ -1,5 +1,6 @@
 package backend.academy.bot.dispatcher.impl;
 
+import backend.academy.bot.dispatcher.BotCommand;
 import backend.academy.bot.dispatcher.CommandHandler;
 import backend.academy.bot.dto.LinkResponse;
 import backend.academy.bot.service.LinkService;
@@ -8,10 +9,9 @@ import com.pengrad.telegrambot.model.Update;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 
-@Component
 @RequiredArgsConstructor
+@BotCommand
 public class ListCommandHandler implements CommandHandler {
 
     private final LinkService linkService;

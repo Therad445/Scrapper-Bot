@@ -1,12 +1,11 @@
 package backend.academy.bot.dispatcher;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import backend.academy.bot.dispatcher.impl.UnknownCommandHandler;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
@@ -18,13 +17,15 @@ class CommandDispatcherTest {
 
     CommandHandler handler1;
     CommandHandler handler2;
+    UnknownCommandHandler unknown;
     CommandDispatcher dispatcher;
 
     @BeforeEach
     void setUp() {
         handler1 = mock(CommandHandler.class);
         handler2 = mock(CommandHandler.class);
-        dispatcher = new CommandDispatcher(List.of(handler1, handler2));
+        unknown = mock(UnknownCommandHandler.class);
+        dispatcher = new CommandDispatcher(List.of(handler1, handler2), unknown);
     }
 
     @Test
@@ -47,9 +48,11 @@ class CommandDispatcherTest {
         when(handler1.supports(update)).thenReturn(false);
         when(handler2.supports(update)).thenReturn(false);
 
-        IllegalStateException ex = assertThrows(IllegalStateException.class, () -> dispatcher.dispatch(update));
+        dispatcher.dispatch(update);
 
-        assertEquals("Unknown command", ex.getMessage());
+        verify(unknown).handle(update);
+        verify(handler1, never()).handle(update);
+        verify(handler2, never()).handle(update);
     }
 
     private Update buildUpdate(String text) {

@@ -4,11 +4,12 @@ import backend.academy.bot.dispatcher.CommandHandler;
 import backend.academy.bot.service.MessageSenderService;
 import com.pengrad.telegrambot.model.Update;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
-@Order(Integer.MAX_VALUE)
+@Order(Ordered.LOWEST_PRECEDENCE)
 @RequiredArgsConstructor
 public class UnknownCommandHandler implements CommandHandler {
 

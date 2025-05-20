@@ -1,13 +1,13 @@
 package backend.academy.bot.dispatcher.impl;
 
+import backend.academy.bot.dispatcher.BotCommand;
 import backend.academy.bot.dispatcher.CommandHandler;
 import backend.academy.bot.service.MessageSenderService;
 import com.pengrad.telegrambot.model.Update;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 
-@Component
 @RequiredArgsConstructor
+@BotCommand
 public class HelpCommandHandler implements CommandHandler {
 
     private static final String HELP_TEXT =

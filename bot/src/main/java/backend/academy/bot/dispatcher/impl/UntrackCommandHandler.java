@@ -1,15 +1,15 @@
 package backend.academy.bot.dispatcher.impl;
 
+import backend.academy.bot.dispatcher.BotCommand;
 import backend.academy.bot.dispatcher.CommandHandler;
 import backend.academy.bot.service.LinkService;
 import backend.academy.bot.service.MessageSenderService;
 import com.pengrad.telegrambot.model.Update;
 import java.net.URI;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 
-@Component
 @RequiredArgsConstructor
+@BotCommand
 public class UntrackCommandHandler implements CommandHandler {
 
     private final LinkService linkService;
