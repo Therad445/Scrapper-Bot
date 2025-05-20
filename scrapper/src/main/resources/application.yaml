@@ -3,6 +3,7 @@ app:
   stackoverflow:
     key: ${SO_TOKEN_KEY}
     access-token: ${SO_ACCESS_TOKEN}
+  bot-url: ${BOT_URL}
   scheduler:
     enable: true
     interval: 30s

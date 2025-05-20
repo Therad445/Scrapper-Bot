@@ -1,6 +1,7 @@
 package backend.academy.scrapper.config;
 
 import jakarta.validation.constraints.NotEmpty;
+import java.net.URI;
 import java.time.Duration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -16,6 +17,7 @@ import org.springframework.web.client.RestTemplate;
 public record ScrapperConfig(
         @NotEmpty String githubToken,
         StackOverflowCredentials stackOverflow,
+        URI botUrl,
         Scheduler scheduler,
         String accessType,
         Notification notification) {
