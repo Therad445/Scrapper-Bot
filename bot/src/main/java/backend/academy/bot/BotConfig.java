@@ -8,7 +8,7 @@ import org.springframework.web.client.RestTemplate;
 
 @Validated
 @ConfigurationProperties(prefix = "app", ignoreUnknownFields = false)
-public record BotConfig(@NotEmpty String telegramToken) {
+public record BotConfig(@NotEmpty String telegramToken, @NotEmpty String scrapperUrl) {
     @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate();

@@ -1,13 +1,15 @@
 package backend.academy.bot.dto;
 
-public class RemoveLinkRequest {
-    private String link;
+import java.net.URI;
 
-    public String getLink() {
+public class RemoveLinkRequest {
+    private URI link;
+
+    public URI getLink() {
         return link;
     }
 
-    public void setLink(String link) {
+    public void setLink(URI link) {
         this.link = link;
     }
 }

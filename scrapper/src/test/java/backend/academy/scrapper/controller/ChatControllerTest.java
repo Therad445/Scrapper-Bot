@@ -1,78 +1,73 @@
 package backend.academy.scrapper.controller;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import backend.academy.scrapper.service.ChatService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpStatus;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.server.ResponseStatusException;
 
+@WebMvcTest(ChatController.class)
+@Import(ChatControllerTest.MockConfig.class)
 class ChatControllerTest {
 
-    private final ChatService chatService = mock(ChatService.class);
-    private final ChatController chatController = new ChatController(chatService);
-    private final MockMvc mockMvc =
-            MockMvcBuilders.standaloneSetup(chatController).build();
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ChatService chatService;
+
+    @BeforeEach
+    void resetMocks() {
+        Mockito.reset(chatService);
+    }
 
     @Test
-    void shouldRegisterChat() throws Exception {
-        // Arrange
-        Long chatId = 12345L;
-        doNothing().when(chatService).register(chatId);
-
-        // Act & Assert
+    @DisplayName("POST /tg-chat/{id} - valid ID")
+    void registerChat_validId_shouldReturnOk() throws Exception {
+        long chatId = 123;
         mockMvc.perform(post("/tg-chat/{id}", chatId)).andExpect(status().isOk());
 
-        verify(chatService, times(1)).register(chatId);
+        verify(chatService).register(chatId);
     }
 
     @Test
-    void shouldThrowExceptionWhenChatAlreadyRegistered() throws Exception {
-        // Arrange
-        Long chatId = 12345L;
-        doThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, ""))
-                .when(chatService)
-                .register(chatId);
-
-        // Act & Assert
-        mockMvc.perform(post("/tg-chat/{id}", chatId))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(""));
-
-        verify(chatService, times(1)).register(chatId);
-    }
-
-    @Test
-    void shouldDeleteChat() throws Exception {
-        // Arrange
-        Long chatId = 12345L;
-        doNothing().when(chatService).delete(chatId);
-
-        // Act & Assert
+    @DisplayName("DELETE /tg-chat/{id} - valid ID")
+    void deleteChat_validId_shouldReturnOk() throws Exception {
+        long chatId = 456;
         mockMvc.perform(delete("/tg-chat/{id}", chatId)).andExpect(status().isOk());
 
-        verify(chatService, times(1)).delete(chatId);
+        verify(chatService).delete(chatId);
     }
 
     @Test
-    void shouldThrowExceptionWhenChatDoesNotExistOnDelete() throws Exception {
-        // Arrange
-        Long chatId = 12345L;
-        doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, ""))
-                .when(chatService)
-                .delete(chatId);
+    @DisplayName("POST /tg-chat/{id} - invalid (negative) ID")
+    void registerChat_invalidId_shouldReturnBadRequest() throws Exception {
+        mockMvc.perform(post("/tg-chat/{id}", -1)).andExpect(status().isBadRequest());
+    }
 
-        // Act & Assert
-        mockMvc.perform(delete("/tg-chat/{id}", chatId))
-                .andExpect(status().isNotFound())
-                .andExpect(content().string(""));
+    @Test
+    @DisplayName("DELETE /tg-chat/{id} - invalid (zero) ID")
+    void deleteChat_zeroId_shouldReturnBadRequest() throws Exception {
+        mockMvc.perform(delete("/tg-chat/{id}", 0)).andExpect(status().isBadRequest());
+    }
 
-        verify(chatService, times(1)).delete(chatId);
+    @TestConfiguration
+    static class MockConfig {
+        @Bean
+        public ChatService chatService() {
+            return mock(ChatService.class);
+        }
     }
 }

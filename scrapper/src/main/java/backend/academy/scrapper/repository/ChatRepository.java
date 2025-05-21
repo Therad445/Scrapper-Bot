@@ -1,22 +1,13 @@
 package backend.academy.scrapper.repository;
 
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import org.springframework.stereotype.Repository;
+import java.util.List;
 
-@Repository
-public class ChatRepository {
-    private final Set<Long> chats = ConcurrentHashMap.newKeySet();
+public interface ChatRepository {
+    void register(long chatId);
 
-    public void register(Long chatId) {
-        chats.add(chatId);
-    }
+    void delete(long chatId);
 
-    public void delete(Long chatId) {
-        chats.remove(chatId);
-    }
+    boolean exists(long chatId);
 
-    public boolean exists(Long chatId) {
-        return chats.contains(chatId);
-    }
+    List<Long> findChatIdsByLinkId(long linkId);
 }

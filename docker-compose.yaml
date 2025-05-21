@@ -1,0 +1,51 @@
+version: '3.8'
+services:
+  postgresql:
+    image: postgres:17.4-alpine
+    environment:
+      POSTGRES_DB: scrapper
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - backend
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  scrapper:
+    build:
+      context: .
+      dockerfile: scrapper/Dockerfile
+    depends_on:
+      - postgresql
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgresql:5432/scrapper
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - SO_TOKEN_KEY=${SO_TOKEN_KEY}
+      - SO_ACCESS_TOKEN=${SO_ACCESS_TOKEN}
+    ports:
+      - "8081:8081"
+    networks:
+      - backend
+
+  bot:
+    build: ./bot
+    depends_on:
+      scrapper:
+        condition: service_healthy
+    environment:
+      - TELEGRAM_TOKEN=${TELEGRAM_TOKEN}
+    ports:
+      - "8080:8080"
+    networks:
+      - backend
+
+volumes:
+  postgres-data:
+
+networks:
+  backend:

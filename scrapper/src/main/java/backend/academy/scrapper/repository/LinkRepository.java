@@ -1,57 +1,29 @@
 package backend.academy.scrapper.repository;
 
-import backend.academy.scrapper.dto.LinkInfo;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
+import backend.academy.scrapper.model.LinkInfo;
+import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
-@Repository
-@Slf4j
-public class LinkRepository {
-    private final Map<Long, Set<LinkInfo>> dataBase = new ConcurrentHashMap<>();
+public interface LinkRepository {
+    void add(long chatId, String url, Set<String> tags, Set<String> filters);
 
-    public List<LinkInfo> getLinks(Long chatId) {
-        return new ArrayList<>(dataBase.getOrDefault(chatId, Collections.emptySet()));
-    }
+    void addTag(long chatId, long linkId, String tag);
 
-    public void addLink(Long chatId, LinkInfo linkInfo) {
-        Set<LinkInfo> links = dataBase.computeIfAbsent(chatId, k -> new HashSet<>());
+    void removeTag(long chatId, long linkId, String tag);
 
-        if (links.contains(linkInfo)) {
-            log.info("Ссылка уже отслеживается: {}", linkInfo.getLink());
-            return;
-        }
-        links.add(linkInfo);
-    }
+    void addFilter(long chatId, long linkId, String filter);
 
-    public Optional<LinkInfo> removeLink(Long chatId, String link) {
-        Set<LinkInfo> links = dataBase.get(chatId);
-        if (links == null) {
-            return Optional.empty();
-        }
-        Optional<LinkInfo> removedLink = links.stream()
-                .filter(linkInfo -> linkInfo.getLink().equals(link))
-                .findFirst();
-        removedLink.ifPresent(linkInfo -> {
-            links.remove(linkInfo);
-            if (links.isEmpty()) {
-                dataBase.remove(chatId);
-            }
-        });
-        return removedLink;
-    }
+    void removeFilter(long chatId, long linkId, String filter);
 
-    public Map<Long, List<LinkInfo>> getAllLinks() {
-        Map<Long, List<LinkInfo>> copy = new HashMap<>();
-        dataBase.forEach((chatId, links) -> copy.put(chatId, new ArrayList<>(links)));
-        return Collections.unmodifiableMap(copy);
-    }
+    Optional<LinkInfo> remove(long chatId, String url);
+
+    Page<LinkInfo> findLinksForCheck(Instant threshold, Pageable pageable);
+
+    void updateCheckTime(long linkId, Instant checkedAt, Instant updatedAt);
+
+    List<LinkInfo> findAllByChat(long chatId);
 }

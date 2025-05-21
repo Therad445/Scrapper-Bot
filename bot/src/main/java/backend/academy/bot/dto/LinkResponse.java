@@ -1,17 +1,16 @@
 package backend.academy.bot.dto;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
 public class LinkResponse {
-    private Long id;
-    private String link;
+    private final Long id;
+    private final URI link;
     private List<String> tags = new ArrayList<>();
     private List<String> filters = new ArrayList<>();
 
-    public LinkResponse() {}
-
-    public LinkResponse(Long id, String link, List<String> tags, List<String> filters) {
+    public LinkResponse(Long id, URI link, List<String> tags, List<String> filters) {
         this.id = id;
         this.link = link;
         this.tags = tags;
@@ -22,7 +21,7 @@ public class LinkResponse {
         return id;
     }
 
-    public String getLink() {
+    public URI getLink() {
         return link;
     }
 

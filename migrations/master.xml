@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xsi:schemaLocation="
+         http://www.liquibase.org/xml/ns/dbchangelog
+         https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <changeSet id="1-init-schema-with-tags" author="Radmir">
+
+        <createTable tableName="chat">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="created_at" type="TIMESTAMPTZ">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="link">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="url" type="TEXT">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="last_updated_at" type="TIMESTAMPTZ"/>
+            <column name="last_checked_at" type="TIMESTAMPTZ" defaultValueComputed="NOW()"/>
+        </createTable>
+
+        <!-- Связь M-M между chat и link -->
+        <createTable tableName="subscription">
+            <column name="chat_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="link_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey tableName="subscription"
+                       columnNames="chat_id, link_id"
+                       constraintName="pk_subscription"/>
+
+        <addForeignKeyConstraint constraintName="fk_subscription_chat"
+                                 baseTableName="subscription" baseColumnNames="chat_id"
+                                 referencedTableName="chat" referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint constraintName="fk_subscription_link"
+                                 baseTableName="subscription" baseColumnNames="link_id"
+                                 referencedTableName="link" referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+        <createTable tableName="tag">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" type="TEXT">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+
+        <!-- M-M между тегами и подписками -->
+        <createTable tableName="subscription_tag">
+            <column name="tag_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="chat_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="link_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey tableName="subscription_tag"
+                       columnNames="tag_id, chat_id, link_id"
+                       constraintName="pk_subscription_tag"/>
+
+        <addForeignKeyConstraint constraintName="fk_tag"
+                                 baseTableName="subscription_tag"
+                                 baseColumnNames="tag_id"
+                                 referencedTableName="tag"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint constraintName="fk_subscription_tag_chat"
+                                 baseTableName="subscription_tag"
+                                 baseColumnNames="chat_id"
+                                 referencedTableName="chat"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint constraintName="fk_subscription_tag_link"
+                                 baseTableName="subscription_tag"
+                                 baseColumnNames="link_id"
+                                 referencedTableName="link"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint constraintName="fk_subscription_tag_to_subscription"
+                                 baseTableName="subscription_tag"
+                                 baseColumnNames="chat_id, link_id"
+                                 referencedTableName="subscription"
+                                 referencedColumnNames="chat_id, link_id"
+                                 onDelete="CASCADE"/>
+
+        <!-- Индекс для планировщика -->
+        <createIndex indexName="idx_link_last_checked" tableName="link">
+            <column name="last_checked_at"/>
+        </createIndex>
+
+        <createTable tableName="filter">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" type="TEXT">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="subscription_filter">
+            <column name="filter_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="chat_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="link_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey tableName="subscription_filter"
+                       columnNames="filter_id, chat_id, link_id"
+                       constraintName="pk_subscription_filter"/>
+
+        <addForeignKeyConstraint baseTableName="subscription_filter"
+                                 baseColumnNames="filter_id"
+                                 referencedTableName="filter"
+                                 referencedColumnNames="id"
+                                 constraintName="fk_filter"
+                                 onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint baseTableName="subscription_filter"
+                                 baseColumnNames="chat_id"
+                                 referencedTableName="chat"
+                                 referencedColumnNames="id"
+                                 constraintName="fk_subscription_filter_chat"
+                                 onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint baseTableName="subscription_filter"
+                                 baseColumnNames="link_id"
+                                 referencedTableName="link"
+                                 referencedColumnNames="id"
+                                 constraintName="fk_subscription_filter_link"
+                                 onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint baseTableName="subscription_filter"
+                                 baseColumnNames="chat_id, link_id"
+                                 referencedTableName="subscription"
+                                 referencedColumnNames="chat_id, link_id"
+                                 constraintName="fk_subscription_filter_to_subscription"
+                                 onDelete="CASCADE"/>
+
+    </changeSet>
+
+</databaseChangeLog>

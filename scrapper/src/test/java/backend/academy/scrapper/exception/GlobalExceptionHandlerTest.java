@@ -36,11 +36,11 @@ public class GlobalExceptionHandlerTest {
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         ApiErrorResponse body = response.getBody();
         assert body != null;
-        assertEquals("Некорректные параметры запроса", body.getDescription());
-        assertEquals("400", body.getCode());
-        assertFalse(body.getStacktrace().isEmpty());
-        assertTrue(body.getExceptionName().contains("ConstraintViolationException"));
-        assertEquals(exceptionMessage, body.getExceptionMessage());
+        assertEquals("Некорректные параметры запроса", body.description());
+        assertEquals("400", body.code());
+        assertFalse(body.stacktrace().isEmpty());
+        assertTrue(body.exceptionName().contains("ConstraintViolationException"));
+        assertEquals(exceptionMessage, body.exceptionMessage());
     }
 
     @Test
@@ -56,10 +56,10 @@ public class GlobalExceptionHandlerTest {
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         ApiErrorResponse body = response.getBody();
         assert body != null;
-        assertEquals("Ресурс не существует", body.getDescription());
-        assertEquals("404", body.getCode());
-        assertFalse(body.getStacktrace().isEmpty());
-        assertTrue(body.getExceptionName().contains("IllegalArgumentException"));
-        assertEquals(exceptionMessage, body.getExceptionMessage());
+        assertEquals("Ресурс не существует", body.description());
+        assertEquals("404", body.code());
+        assertFalse(body.stacktrace().isEmpty());
+        assertTrue(body.exceptionName().contains("IllegalArgumentException"));
+        assertEquals(exceptionMessage, body.exceptionMessage());
     }
 }
