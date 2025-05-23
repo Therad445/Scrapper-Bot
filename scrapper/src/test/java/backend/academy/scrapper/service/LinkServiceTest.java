@@ -1,146 +1,120 @@
 package backend.academy.scrapper.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import backend.academy.scrapper.dto.LinkInfo;
 import backend.academy.scrapper.model.AddLinkRequest;
+import backend.academy.scrapper.model.LinkInfo;
 import backend.academy.scrapper.model.LinkResponse;
-import backend.academy.scrapper.model.ListLinksResponse;
 import backend.academy.scrapper.model.RemoveLinkRequest;
+import backend.academy.scrapper.repository.ChatRepository;
 import backend.academy.scrapper.repository.LinkRepository;
-import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class LinkServiceTest {
+class LinkServiceTest {
 
-    private LinkRepository linkRepository;
-    private LinkService linkService;
+    ChatRepository chatRepository;
+    LinkRepository linkRepository;
+    LinkService service;
 
     @BeforeEach
     void setUp() {
-        linkRepository = new LinkRepository();
-        linkService = new LinkService(linkRepository);
+        chatRepository = mock(ChatRepository.class);
+        linkRepository = mock(LinkRepository.class);
+        service = new LinkService(chatRepository, linkRepository);
     }
 
     @Test
-    void shouldReturnListLinksResponseWhenGetLinksMethodIsCalled() {
-        // Arrange
-        Long chatId = 123L;
-        Set<String> tags = new HashSet<>();
-        tags.add("tag1");
-        Set<String> filters = new HashSet<>();
-        filters.add("filter1");
+    void testAddLink_shouldRegisterChatAndSave() {
+        long chatId = 1L;
+        String url = "https://example.com";
+        Set<String> tags = Set.of("tag1");
+        Set<String> filters = Set.of("user:bob");
 
-        LinkInfo linkInfo = new LinkInfo("http://example.com", tags, filters);
-        linkRepository.addLink(chatId, linkInfo);
+        AddLinkRequest request = new AddLinkRequest(url, tags, filters);
 
-        // Act
-        ListLinksResponse response = linkService.getLinks(chatId);
+        LinkResponse result = service.addLink(chatId, request);
 
-        // Assert
-        assertNotNull(response);
-        assertEquals(1, response.getSize());
-        assertEquals("http://example.com", response.getLinks().get(0).getLink());
-        assertEquals(tags, response.getLinks().get(0).getTags());
-        assertEquals(filters, response.getLinks().get(0).getFilters());
+        verify(chatRepository).register(chatId);
+        verify(linkRepository).add(chatId, url, tags, filters);
+        assertEquals(url, result.link());
+        assertEquals(tags, result.tags());
+        assertEquals(filters, result.filters());
     }
 
     @Test
-    void shouldAddLinkAndReturnLinkResponseWhenAddLinkMethodIsCalled() {
-        // Arrange
-        Long chatId = 123L;
-        Set<String> tags = new HashSet<>();
-        tags.add("tag1");
-        Set<String> filters = new HashSet<>();
-        filters.add("filter1");
+    void testGetLinks_shouldReturnMappedResponse() {
+        long chatId = 42L;
+        String url = "https://site.com";
+        var linkEntity = new LinkInfo(99L, url, null, null, Set.of("a"), Set.of("filter"));
 
-        AddLinkRequest addLinkRequest = new AddLinkRequest("http://example.com", tags, filters);
-        LinkInfo linkInfo = new LinkInfo("http://example.com", tags, filters);
+        when(linkRepository.findAllByChat(chatId)).thenReturn(List.of(linkEntity));
 
-        // Act
-        LinkResponse response = linkService.addLink(chatId, addLinkRequest);
+        var result = service.getLinks(chatId);
 
-        // Assert
-        assertNotNull(response);
-        assertEquals(chatId, response.getId());
-        assertEquals("http://example.com", response.getLink());
-        assertEquals(tags, response.getTags());
-        assertEquals(filters, response.getFilters());
+        assertEquals(1, result.size());
+        assertEquals(url, result.links().getFirst().link());
+        assertEquals(Set.of("a"), result.links().getFirst().tags());
+        assertEquals(Set.of("filter"), result.links().getFirst().filters());
     }
 
     @Test
-    void shouldRemoveLinkAndReturnLinkResponseWhenRemoveLinksMethodIsCalled() {
-        // Arrange
-        Long chatId = 123L;
-        Set<String> tags = new HashSet<>();
-        tags.add("tag1");
-        Set<String> filters = new HashSet<>();
-        filters.add("filter1");
+    void testRemoveLinks_shouldRemoveIfExists() {
+        long chatId = 1L;
+        String url = "https://remove.com";
+        RemoveLinkRequest request = new RemoveLinkRequest(url);
 
-        LinkInfo linkInfo = new LinkInfo("http://example.com", tags, filters);
-        linkRepository.addLink(chatId, linkInfo);
-        RemoveLinkRequest removeLinkRequest = new RemoveLinkRequest("http://example.com");
+        var linkInfo = new LinkInfo(1L, url, null, null, Set.of(), Set.of());
 
-        // Act
-        LinkResponse response = linkService.removeLinks(chatId, removeLinkRequest);
+        when(linkRepository.remove(chatId, url)).thenReturn(Optional.of(linkInfo));
 
-        // Assert
-        assertNotNull(response);
-        assertEquals(chatId, response.getId());
-        assertEquals("http://example.com", response.getLink());
-        assertEquals(tags, response.getTags());
-        assertEquals(filters, response.getFilters());
+        LinkResponse result = service.removeLinks(chatId, request);
+
+        assertEquals(url, result.link());
+        assertEquals(Set.of(), result.tags());
+        assertEquals(Set.of(), result.filters());
     }
 
     @Test
-    void shouldThrowExceptionWhenRemoveLinksLinkNotFound() {
-        // Arrange
-        Long chatId = 123L;
-        RemoveLinkRequest removeLinkRequest = new RemoveLinkRequest("http://nonexistent.com");
+    void testRemoveLinks_shouldThrowIfNotExists() {
+        long chatId = 1L;
+        String url = "https://notfound.com";
+        RemoveLinkRequest request = new RemoveLinkRequest(url);
 
-        // Act & Assert
-        IllegalArgumentException exception =
-                assertThrows(IllegalArgumentException.class, () -> linkService.removeLinks(chatId, removeLinkRequest));
-        assertEquals("Ссылка не найдена!", exception.getMessage());
+        when(linkRepository.remove(chatId, url)).thenReturn(Optional.empty());
+
+        var ex = assertThrows(IllegalArgumentException.class, () -> service.removeLinks(chatId, request));
+        assertEquals("Ссылка не найдена!", ex.getMessage());
     }
 
     @Test
-    void shouldLogWhenAddingLink() {
-        // Arrange
-        Long chatId = 123L;
-        Set<String> tags = new HashSet<>();
-        tags.add("tag1");
-        Set<String> filters = new HashSet<>();
-        filters.add("filter1");
-
-        AddLinkRequest addLinkRequest = new AddLinkRequest("http://example.com", tags, filters);
-
-        // Act
-        linkService.addLink(chatId, addLinkRequest);
-
-        // Assert
-        assertEquals(1, linkRepository.getLinks(chatId).size());
-        assertEquals(
-                "http://example.com", linkRepository.getLinks(chatId).get(0).getLink());
+    void testAddTag_shouldCallRepo() {
+        service.addTag(1L, 2L, "tag");
+        verify(linkRepository).addTag(1L, 2L, "tag");
     }
 
     @Test
-    public void testDuplicateLinkNotAdded() {
-        // Arrange
-        Long chatId = 100L;
-        AddLinkRequest request = new AddLinkRequest("https://example.com", Set.of("tag"), Set.of("filter"));
+    void testDeleteTag_shouldCallRepo() {
+        service.deleteTag(1L, 2L, "tag");
+        verify(linkRepository).removeTag(1L, 2L, "tag");
+    }
 
-        // Act
-        LinkResponse firstResponse = linkService.addLink(chatId, request);
-        LinkResponse duplicateResponse = linkService.addLink(chatId, request);
+    @Test
+    void testAddFilter_shouldCallRepo() {
+        service.addFilter(1L, 2L, "f");
+        verify(linkRepository).addFilter(1L, 2L, "f");
+    }
 
-        // Assert
-        assertNotNull(firstResponse, "Первая ссылка должна быть добавлена");
-        assertNull(duplicateResponse, "Дублирующая ссылка не должна добавляться");
-        var links = linkRepository.getLinks(chatId);
-        assertEquals(1, links.size());
+    @Test
+    void testRemoveFilter_shouldCallRepo() {
+        service.removeFilter(1L, 2L, "f");
+        verify(linkRepository).removeFilter(1L, 2L, "f");
     }
 }

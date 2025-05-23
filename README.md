@@ -1,62 +1,225 @@
 # Scrapper Bot
 
-Scrapper Bot — это сервис для мониторинга изменений на веб-ресурсах с отправкой уведомлений через Telegram.
+**Scrapper & Bot** — двух‑сервисное приложение, которое
+
+1. периодически проверяет подписанные ссылки (GitHub PR/Issue, Stack Overflow Answer/Comment) и обнаруживает обновления;
+2. отправляет превью изменений в Telegram‑чат.
+
+Scrapper хранит все данные в PostgreSQL и умеет работать **как «голым» SQL, так и через ORM (Spring Data JPA)** — выбор
+задаётся конфигурацией.
+
+---
 
 ## Требования
 
 Перед запуском убедитесь, что у вас установлены:
+
 - **Java 23**
 - **Maven 3.9.9**
+- **Docker + Docker Compose (для локальной БД)**
 
-## Установка и запуск
+## Содержимое репозитория
 
-### 1. Клонирование репозитория
+```
+java‑Therad445Clear/
+├── bot/                 – REST‑API + Telegram‑bot
+├── scrapper/            – планировщик, сервис доступа к БД
+├── migrations/          – Liquibase‑схема БД (master.xml)
+├── docker‑compose.yaml  – Postgres + оба сервиса
+└── pom.xml              – multimodule Maven‑build
+```
 
-```sh
-git clone https://github.com/central-university-dev/java-Therad445
+---
+
+## 📦 Быстрый старт (через Docker Compose)
+
+### 1. Клонируйте репозиторий
+
+```bash
+git clone https://github.com/central-university-dev/java-Therad445.git
 cd java-Therad445
 ```
 
-### 2. Настройка переменных окружения
+### 2. Установите переменные окружения
 
-Создайте файлы конфигурации для scrapper и бота:
+```bash
+export GITHUB_TOKEN=your_github_token
+export SO_TOKEN_KEY=your_stackoverflow_key
+export SO_ACCESS_TOKEN=your_stackoverflow_access_token
+export TELEGRAM_TOKEN=your_telegram_bot_token
+```
 
-#### scrapper/src/main/resources/application-secrets.yaml
+> Эти переменные автоматически попадут в контейнеры через `docker-compose.yaml`.
+
+### 3. Соберите и запустите все сервисы
+
+```bash
+docker compose up --build
+```
+
+Запустятся:
+
+- `postgresql` (порт 5432)
+- `scrapper` (порт 8081, проверяет обновления и шлёт их боту)
+- `bot` (порт 8080, REST API и Telegram-интеграция)
+
+Scrapper подождёт доступности БД, а bot — готовности scrapper (через HEALTHCHECK).
+
+---
+
+## 🔧 Переменные окружения
+
+|    переменная     | используется в |         назначение         |
+|-------------------|----------------|----------------------------|
+| `GITHUB_TOKEN`    | scrapper       | GitHub API access          |
+| `SO_TOKEN_KEY`    | scrapper       | StackOverflow API key      |
+| `SO_ACCESS_TOKEN` | scrapper       | StackOverflow access token |
+| `TELEGRAM_TOKEN`  | bot            | Telegram Bot API token     |
+| `SCRAPPER_URL`    | bot            | URL access Scrapper        |
+
+---
+
+## Конфигурация scrapper
+
+Параметры задаются через переменные окружения и `application.yaml`.
+
+<details>
+<summary><code>scrapper/src/main/resources/application.yaml</code></summary>
 
 ```yaml
 app:
-  githubToken: "ваш_github_токен"
-  stackOverflow:
-    key: "ваш_stackoverflow_ключ"
-    accessToken: "ваш_stackoverflow_токен"
+    github-token: ${GITHUB_TOKEN}
+    stackoverflow:
+        key: ${SO_TOKEN_KEY}
+        access-token: ${SO_ACCESS_TOKEN}
+    scheduler:
+        enable: true
+        interval: 30s
+        force-check-delay: 15m
+        batch-size: 100
+        thread-count: 4
+    notification:
+        type: http
+    access-type: SQL    # или ORM
+
+spring:
+    application:
+        name: Scrapper
+    datasource:
+        url: jdbc:postgresql://postgres:5432/scrapper
+        username: postgres
+        password: postgres
+    liquibase:
+        enabled: false     # включите true, если хотите авто-миграции
+    jpa:
+        hibernate:
+            ddl-auto: none
+        open-in-view: false
+
+server:
+    port: 8081
+
+springdoc:
+    swagger-ui:
+        enabled: true
+        path: /swagger-ui
 ```
 
-#### bot/src/main/resources/application-secrets.yaml
+</details>
+
+Перед запуском задайте переменные окружения:
+
+```bash
+export GITHUB_TOKEN=<your_github_token>
+export SO_TOKEN_KEY=<your_so_key>
+export SO_ACCESS_TOKEN=<your_so_token>
+```
+
+---
+
+## Конфигурация бота
+
+Файл конфигурации бота `bot/src/main/resources/application.yaml`:
+
+<details>
+<summary><code>bot/src/main/resources/application.yaml</code></summary>
 
 ```yaml
 app:
-  telegramToken: "ваш_telegram_токен"
+    telegram-token: ${TELEGRAM_TOKEN}
+    scrapper-url: ${SCRAPPER_URL}
+
+spring:
+    application:
+        name: Bot
+    liquibase:
+        enabled: false
+    jpa:
+        hibernate:
+            ddl-auto: validate
+        open-in-view: false
+
+server:
+    port: 8080
+
+springdoc:
+    swagger-ui:
+        enabled: true
+        path: /swagger-ui
 ```
 
-### 3. Сборка и запуск
+</details>
+Переменная `SCRAPPER_URL` указывает на адрес сервиса Scrapper, с которым бот будет взаимодействовать по HTTP (по умолчанию: `http://localhost:8081`).
 
-#### Сборка проекта
+Перед запуском бота необходимо задать переменную окружения:
 
-```sh
-mvn clean install
+```bash
+export TELEGRAM_TOKEN=<your_telegram_token>
+export SCRAPPER_URL=http://localhost:8081   # или другой URL Scrapper‑сервиса
 ```
 
-#### Запуск Scrapper
+---
 
-```sh
-java -jar scrapper/target/scrapper.jar
+## Сборка и запуск
+
+> ⚠️ **Важно!** Перед сборкой убедитесь, что Docker daemon запущен.  
+> Проект полагается на контейнер PostgreSQL; без него сборка/запуск упадут.
+
+```bash
+mvn clean package -DskipTests
+java -jar scrapper/target/scrapper.jar   # планировщик + HTTP API
+java -jar bot/target/bot.jar            # Telegram‑bot
 ```
 
-#### Запуск бота
+> Оба приложения запускаются «из IDE» одной кнопкой – главное, чтобы контейнер Postgres уже был запущен.
 
-```sh
-java -jar bot/target/bot.jar
+---
+
+## Конфигурация планировщика
+
+|             ключ             | по умолчанию |               описание               |
+|------------------------------|--------------|--------------------------------------|
+| `app.scheduler.interval`     | `30s`        | частота проверки ссылок              |
+| `app.scheduler.batch-size`   | `100`        | сколько ссылок сканировать за проход |
+| `app.scheduler.thread-count` | `4`          | параллельных потоков внутри батча    |
+
+---
+
+## Запуск тестов
+
+Интеграционные тесты поднимают **Testcontainers Postgres 15**:
+
+```bash
+mvn verify
 ```
+
+Проверяется:
+
+* CRUD‑операции репозиториев (SQL и ORM);
+* корректный выбор имплементации по `access-type`;
+* формирование превью для GitHub / Stack Overflow.
+
+---
 
 ## Использование
 
@@ -78,8 +241,4 @@ curl --location 'http://localhost:8081/links' \
   ]
 }'
 ```
-
-## Лицензия
-
-MIT License.
 

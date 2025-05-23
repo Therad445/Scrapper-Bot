@@ -1,6 +1,8 @@
+app:
+  telegram-token: ${TELEGRAM_TOKEN} # env variable
+  scrapper-url: ${SCRAPPER_URL}
+
 spring:
-  config:
-    import: application-secrets.yaml
   application:
     name: Bot
   liquibase:

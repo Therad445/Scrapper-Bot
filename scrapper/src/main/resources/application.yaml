@@ -1,13 +1,31 @@
+app:
+  github-token: ${GITHUB_TOKEN} # env variable
+  stackoverflow:
+    key: ${SO_TOKEN_KEY}
+    access-token: ${SO_ACCESS_TOKEN}
+  bot-url: ${BOT_URL}
+  scheduler:
+    enable: true
+    interval: 30s
+    force-check-delay: 15m
+    batch-size: 100
+    thread-count: 4
+  notification:
+    type: http
+  access-type: ORM
+
 spring:
-  config:
-    import: application-secrets.yaml
   application:
     name: Scrapper
+  datasource:
+    url: jdbc:postgresql://postgres:5432/scrapper
+    username: postgres
+    password: postgres
   liquibase:
     enabled: false
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: none
     open-in-view: false
 
 server:

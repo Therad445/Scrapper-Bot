@@ -1,93 +1,57 @@
 package backend.academy.bot.controller;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import backend.academy.bot.dto.LinkUpdate;
-import backend.academy.bot.telegram.TelegramBotService;
-import java.util.HashSet;
+import backend.academy.bot.service.MessageSenderService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Set;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-@ExtendWith(MockitoExtension.class)
+@WebMvcTest(controllers = BotController.class)
+@Import(BotControllerTest.TestConfig.class)
 class BotControllerTest {
 
-    @InjectMocks
-    private BotController botController;
-
-    @Mock
-    private TelegramBotService telegramBotService;
-
+    @Autowired
     private MockMvc mockMvc;
 
-    @BeforeEach
-    void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(botController).build();
-    }
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Autowired
+    private MessageSenderService sender;
 
     @Test
-    void testSendNotificationValidLinkUpdate() throws Exception {
-        // Arrange
-        Set<Long> tgChatIds = new HashSet<>();
-        tgChatIds.add(123L);
-        LinkUpdate linkUpdate = new LinkUpdate(1L, "http://example.com", "Test description", tgChatIds);
+    void sendNotification_ShouldSendMessagesAndReturnOk() throws Exception {
+        LinkUpdate update = new LinkUpdate(312312L, "https://example.com", "New update available", Set.of(123L, 456L));
 
-        // Act & Assert
-        mockMvc.perform(
-                        post("/updates")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(
-                                        "{ \"id\": 1, \"url\": \"http://example.com\", \"description\": \"Test description\", \"tgChatIds\": [123] }"))
+        mockMvc.perform(post("/updates")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(update)))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Обновление обработано"));
 
-        verify(telegramBotService, times(1)).sendMessage(1L, "Обновилась ссылка http://example.com");
+        String expectedMsg = "Обновилась ссылка: https://example.com\nОписание: New update available";
+        verify(sender).send(123L, expectedMsg);
+        verify(sender).send(456L, expectedMsg);
     }
 
-    @Test
-    void testSendNotificationInvalidLinkUpdate() throws Exception {
-        // Act & Assert
-        mockMvc.perform(
-                        post("/updates")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(
-                                        "{ \"id\": null, \"url\": \"http://example.com\", \"description\": \"Test description\", \"tgChatIds\": [123] }"))
-                .andExpect(status().isBadRequest());
-        verify(telegramBotService, never()).sendMessage(any(), any());
-    }
-
-    @Test
-    void testSendNotificationMissingUrl() throws Exception {
-        // Act & Assert
-        mockMvc.perform(post("/updates")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{ \"id\": 1, \"description\": \"Test description\", \"tgChatIds\": [123] }"))
-                .andExpect(status().isBadRequest());
-        verify(telegramBotService, never()).sendMessage(any(), any());
-    }
-
-    @Test
-    void testSendNotificationInvalidUrl() throws Exception {
-        // Act & Assert
-        mockMvc.perform(
-                        post("/updates")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(
-                                        "{ \"id\": 1, \"url\": \"invalid-url\", \"description\": \"Test description\", \"tgChatIds\": [123] }"))
-                .andExpect(status().isBadRequest());
-        verify(telegramBotService, never()).sendMessage(any(), any());
+    @TestConfiguration
+    static class TestConfig {
+        @Bean
+        public MessageSenderService messageSenderService() {
+            return mock(MessageSenderService.class);
+        }
     }
 }

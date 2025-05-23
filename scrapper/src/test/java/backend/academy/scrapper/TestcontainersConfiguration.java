@@ -9,7 +9,6 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.kafka.KafkaContainer;
 import org.testcontainers.utility.DockerImageName;
 
-// isolated from the "bot" module's containers!
 @TestConfiguration(proxyBeanMethods = false)
 class TestcontainersConfiguration {
 

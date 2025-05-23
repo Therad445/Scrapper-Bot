@@ -7,17 +7,17 @@ import org.hibernate.validator.constraints.URL;
 
 public class LinkUpdate {
     @NotNull
-    private Long id;
+    private final Long id;
 
     @URL
     @NotNull
-    private String url;
+    private final String url;
 
     @NotNull
-    private String description;
+    private final String description;
 
     @NotNull
-    private Set<Long> tgChatIds;
+    private final Set<Long> tgChatIds;
 
     public LinkUpdate(Long id, String url, String description, Set<Long> tgChatIds) {
         this.id = id;

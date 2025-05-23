@@ -1,255 +1,162 @@
 package backend.academy.scrapper.controller;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import backend.academy.scrapper.model.AddLinkRequest;
 import backend.academy.scrapper.model.LinkResponse;
 import backend.academy.scrapper.model.ListLinksResponse;
 import backend.academy.scrapper.model.RemoveLinkRequest;
 import backend.academy.scrapper.service.LinkService;
-import java.util.HashSet;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.ResponseEntity;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.support.AbstractPlatformTransactionManager;
+import org.springframework.transaction.support.DefaultTransactionStatus;
 
-@ExtendWith(MockitoExtension.class)
-public class LinksControllerTest {
+@WebMvcTest(LinksController.class)
+@Import(LinksControllerTest.MockConfig.class)
+class LinksControllerTest {
 
-    @Mock
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
     private LinkService linkService;
 
-    @InjectMocks
-    private LinksController linksController;
-
-    private Long chatId;
-    private AddLinkRequest addLinkRequest;
-    private RemoveLinkRequest removeLinkRequest;
-    private LinkResponse linkResponse;
-    private ListLinksResponse listLinksResponse;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @BeforeEach
-    public void setUp() {
-        chatId = 123L;
-
-        Set<String> tags = new HashSet<>();
-        tags.add("tag1");
-
-        addLinkRequest = new AddLinkRequest("http://example.com", tags, tags);
-        removeLinkRequest = new RemoveLinkRequest("http://example.com");
-
-        linkResponse = new LinkResponse(123L, "http://example.com", tags, tags);
-
-        List<LinkResponse> links = List.of(linkResponse);
-        listLinksResponse = new ListLinksResponse(links, links.size());
+    void resetMocks() {
+        Mockito.reset(linkService);
     }
 
     @Test
-    public void testGetLinks() {
-        // Arrange
-        when(linkService.getLinks(chatId)).thenReturn(listLinksResponse);
+    @DisplayName("GET /links - valid")
+    void getLinks_shouldReturnList() throws Exception {
+        List<LinkResponse> links = List.of(new LinkResponse(1L, "https://example.com", Set.of("a"), Set.of("f")));
+        when(linkService.getLinks(123L)).thenReturn(new ListLinksResponse(links, links.size()));
 
-        // Act
-        ResponseEntity<?> response = linksController.getLinks(chatId);
-
-        // Assert
-        assertEquals(200, response.getStatusCode().value());
-        assertEquals(listLinksResponse, response.getBody());
-        verify(linkService, times(1)).getLinks(chatId);
+        mockMvc.perform(get("/links").header("Tg-chat-id", 123))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size").value(1))
+                .andExpect(jsonPath("$.links[0].link").value("https://example.com"));
     }
 
     @Test
-    public void testAddLink() {
-        // Arrange
-        when(linkService.addLink(chatId, addLinkRequest)).thenReturn(linkResponse);
+    @DisplayName("POST /links - add new link")
+    void addLink_shouldReturnLink() throws Exception {
+        AddLinkRequest request = new AddLinkRequest("https://foo.bar", Set.of("dev"), Set.of("user:bob"));
+        LinkResponse response = new LinkResponse(1L, request.link(), request.tags(), request.filters());
 
-        // Act
-        ResponseEntity<?> response = linksController.addLink(chatId, addLinkRequest);
+        when(linkService.addLink(123L, request)).thenReturn(response);
 
-        // Assert
-        assertEquals(200, response.getStatusCode().value());
-        assertEquals(linkResponse, response.getBody());
-        verify(linkService, times(1)).addLink(chatId, addLinkRequest);
+        mockMvc.perform(post("/links")
+                        .header("Tg-chat-id", 123)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.link").value("https://foo.bar"))
+                .andExpect(jsonPath("$.tags[0]").value("dev"));
     }
 
     @Test
-    public void testDeleteLink() {
-        // Arrange
-        when(linkService.removeLinks(chatId, removeLinkRequest)).thenReturn(linkResponse);
+    @DisplayName("DELETE /links - remove link")
+    void deleteLink_shouldReturnLink() throws Exception {
+        RemoveLinkRequest request = new RemoveLinkRequest("https://foo.bar");
+        LinkResponse response = new LinkResponse(1L, request.link(), Set.of(), Set.of());
 
-        // Act
-        ResponseEntity<?> response = linksController.deleteLink(chatId, removeLinkRequest);
+        when(linkService.removeLinks(123L, request)).thenReturn(response);
 
-        // Assert
-        assertEquals(200, response.getStatusCode().value());
-        assertEquals(linkResponse, response.getBody());
-        verify(linkService, times(1)).removeLinks(chatId, removeLinkRequest);
+        mockMvc.perform(delete("/links")
+                        .header("Tg-chat-id", 123)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.link").value("https://foo.bar"));
+    }
+
+    @Test
+    @DisplayName("POST /links/{id}/tags - add tag")
+    void addTag_shouldCallService() throws Exception {
+        mockMvc.perform(post("/links/10/tags").header("Tg-chat-id", 321).param("tag", "java"))
+                .andExpect(status().isOk());
+
+        verify(linkService).addTag(321L, 10L, "java");
+    }
+
+    @Test
+    @DisplayName("DELETE /links/{id}/tags/{tag} - delete tag")
+    void deleteTag_shouldCallService() throws Exception {
+        mockMvc.perform(delete("/links/20/tags/spring").header("Tg-chat-id", 555))
+                .andExpect(status().isOk());
+
+        verify(linkService).deleteTag(555L, 20L, "spring");
+    }
+
+    @Test
+    @DisplayName("POST /links/{id}/filters - add filter")
+    void addFilter_shouldCallService() throws Exception {
+        mockMvc.perform(post("/links/5/filters").header("Tg-chat-id", 777).param("filter", "user:foo"))
+                .andExpect(status().isOk());
+
+        verify(linkService).addFilter(777L, 5L, "user:foo");
+    }
+
+    @Test
+    @DisplayName("DELETE /links/{id}/filters/{filter} - delete filter")
+    void deleteFilter_shouldCallService() throws Exception {
+        mockMvc.perform(delete("/links/8/filters/user:bar").header("Tg-chat-id", 999))
+                .andExpect(status().isOk());
+
+        verify(linkService).removeFilter(999L, 8L, "user:bar");
+    }
+
+    @TestConfiguration
+    static class MockConfig {
+
+        @Bean
+        public LinkService linkService() {
+            return mock(LinkService.class);
+        }
+
+        @Bean
+        public PlatformTransactionManager transactionManager() {
+            return new AbstractPlatformTransactionManager() {
+                @Override
+                protected Object doGetTransaction() {
+                    return new Object();
+                }
+
+                @Override
+                protected void doBegin(Object transaction, TransactionDefinition definition) {}
+
+                @Override
+                protected void doCommit(DefaultTransactionStatus status) {}
+
+                @Override
+                protected void doRollback(DefaultTransactionStatus status) {}
+            };
+        }
     }
 }
-
-// package backend.academy.scrapper.controller;
-//
-// import backend.academy.scrapper.model.AddLinkRequest;
-// import backend.academy.scrapper.model.LinkResponse;
-// import backend.academy.scrapper.model.ListLinksResponse;
-// import backend.academy.scrapper.model.RemoveLinkRequest;
-// import backend.academy.scrapper.service.LinkService;
-// import jakarta.validation.ConstraintViolationException;
-// import org.junit.jupiter.api.BeforeEach;
-// import org.junit.jupiter.api.Test;
-// import org.mockito.InjectMocks;
-// import org.mockito.Mock;
-// import org.mockito.junit.jupiter.MockitoExtension;
-// import org.springframework.http.HttpStatus;
-// import org.springframework.http.ResponseEntity;
-// import org.springframework.test.context.junit.jupiter.SpringExtension;
-//
-// import java.util.HashSet;
-// import java.util.List;
-// import java.util.Set;
-//
-// import static org.junit.jupiter.api.Assertions.*;
-//    import static org.mockito.Mockito.*;
-//
-// @ExtendWith(MockitoExtension.class)
-// public class LinksControllerTest {
-//
-//    @Mock
-//    private LinkService linkService;
-//
-//    @InjectMocks
-//    private LinksController linksController;
-//
-//    private Long chatId;
-//    private AddLinkRequest addLinkRequest;
-//    private RemoveLinkRequest removeLinkRequest;
-//    private LinkResponse linkResponse;
-//    private ListLinksResponse listLinksResponse;
-//
-//    @BeforeEach
-//    public void setUp() {
-//        chatId = 123L;
-//
-//        // Создаем коллекции для AddLinkRequest и LinkResponse
-//        Set<String> tags = new HashSet<>();
-//        tags.add("tag1");
-//
-//        addLinkRequest = new AddLinkRequest("http://example.com", tags, tags);
-//        removeLinkRequest = new RemoveLinkRequest("http://example.com");
-//
-//        linkResponse = new LinkResponse(123L, "http://example.com", tags, tags);
-//
-//        List<LinkResponse> links = List.of(linkResponse);
-//        listLinksResponse = new ListLinksResponse(links, links.size());
-//    }
-//
-//    // Тест для получения ссылок
-//    @Test
-//    public void testGetLinks() {
-//        // Arrange
-//        when(linkService.getLinks(chatId)).thenReturn(listLinksResponse);
-//
-//        // Act
-//        ResponseEntity<?> response = linksController.getLinks(chatId);
-//
-//        // Assert
-//        assertEquals(200, response.getStatusCode().value());  // Используем getStatusCode().value() вместо
-// getStatusCodeValue()
-//        assertEquals(listLinksResponse, response.getBody());
-//        verify(linkService, times(1)).getLinks(chatId);
-//    }
-//
-//    // Тест для добавления ссылки
-//    @Test
-//    public void testAddLink() {
-//        // Arrange
-//        when(linkService.addLink(chatId, addLinkRequest)).thenReturn(linkResponse);
-//
-//        // Act
-//        ResponseEntity<?> response = linksController.addLink(chatId, addLinkRequest);
-//
-//        // Assert
-//        assertEquals(200, response.getStatusCode().value());
-//        assertEquals(linkResponse, response.getBody());
-//        verify(linkService, times(1)).addLink(chatId, addLinkRequest);
-//    }
-//
-//    // Тест для удаления ссылки
-//    @Test
-//    public void testDeleteLink() {
-//        // Arrange
-//        when(linkService.removeLinks(chatId, removeLinkRequest)).thenReturn(linkResponse);
-//
-//        // Act
-//        ResponseEntity<?> response = linksController.deleteLink(chatId, removeLinkRequest);
-//
-//        // Assert
-//        assertEquals(200, response.getStatusCode().value());
-//        assertEquals(linkResponse, response.getBody());
-//        verify(linkService, times(1)).removeLinks(chatId, removeLinkRequest);
-//    }
-//
-//    // Тест для невалидного chatId (отсутствует или отрицательное значение)
-//    @Test
-//    public void testInvalidChatId() {
-//        Long invalidChatId = -1L;
-//
-//        // Act
-//        ResponseEntity<?> response = linksController.getLinks(invalidChatId);
-//
-//        // Assert
-//        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-//    }
-//
-//    // Тест для обработки ошибки сервиса при добавлении ссылки
-//    @Test
-//    public void testAddLinkServiceError() {
-//        // Arrange
-//        when(linkService.addLink(chatId, addLinkRequest)).thenThrow(new RuntimeException("Ошибка при добавлении
-// ссылки"));
-//
-//        // Act
-//        ResponseEntity<?> response = linksController.addLink(chatId, addLinkRequest);
-//
-//        // Assert
-//        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-//        verify(linkService, times(1)).addLink(chatId, addLinkRequest);
-//    }
-//
-//    // Тест для обработки ошибки сервиса при удалении ссылки
-//    @Test
-//    public void testDeleteLinkServiceError() {
-//        // Arrange
-//        when(linkService.removeLinks(chatId, removeLinkRequest)).thenThrow(new RuntimeException("Ошибка при удалении
-// ссылки"));
-//
-//        // Act
-//        ResponseEntity<?> response = linksController.deleteLink(chatId, removeLinkRequest);
-//
-//        // Assert
-//        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-//        verify(linkService, times(1)).removeLinks(chatId, removeLinkRequest);
-//    }
-//
-//    // Тест для проверки валидации AddLinkRequest (невалидный URL)
-//    @Test
-//    public void testAddLinkInvalidRequest() {
-//        // Arrange
-//        Set<String> tags = new HashSet<>();
-//        tags.add("tag1");
-//
-//        // Создаем невалидный URL
-//        AddLinkRequest invalidAddLinkRequest = new AddLinkRequest("invalid-url", tags, tags);
-//
-//        // Act & Assert
-//        assertThrows(ConstraintViolationException.class, () -> {
-//            linksController.addLink(chatId, invalidAddLinkRequest);
-//        });
-//    }
-// }

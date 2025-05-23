@@ -1,76 +1,68 @@
 package backend.academy.scrapper.service;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import backend.academy.scrapper.repository.ChatRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 class ChatServiceTest {
 
-    @Test
-    void shouldRegisterChatWhenNotExists() {
-        // Arrange
-        ChatRepository chatRepository = mock(ChatRepository.class);
-        ChatService chatService = new ChatService(chatRepository);
-        Long chatId = 12345L;
+    private ChatRepository chatRepository;
+    private ChatService chatService;
 
+    @BeforeEach
+    void setUp() {
+        chatRepository = mock(ChatRepository.class);
+        chatService = new ChatService(chatRepository);
+    }
+
+    @Test
+    void register_shouldCallRegister_whenChatDoesNotExist() {
+        long chatId = 123L;
         when(chatRepository.exists(chatId)).thenReturn(false);
 
-        // Act
         chatService.register(chatId);
 
-        // Assert
-        verify(chatRepository, times(1)).register(chatId);
+        verify(chatRepository).register(chatId);
     }
 
     @Test
-    void shouldThrowExceptionWhenChatAlreadyRegistered() {
-        // Arrange
-        ChatRepository chatRepository = mock(ChatRepository.class);
-        ChatService chatService = new ChatService(chatRepository);
-        Long chatId = 12345L;
-
+    void register_shouldDoNothing_whenChatExists() {
+        long chatId = 456L;
         when(chatRepository.exists(chatId)).thenReturn(true);
 
-        // Act
         chatService.register(chatId);
 
-        // Assert
-        verify(chatRepository, times(0)).register(chatId);
+        verify(chatRepository, never()).register(anyLong());
     }
 
     @Test
-    void shouldDeleteChatWhenExists() {
-        // Arrange
-        ChatRepository chatRepository = mock(ChatRepository.class);
-        ChatService chatService = new ChatService(chatRepository);
-        Long chatId = 12345L;
-
+    void delete_shouldCallDelete_whenChatExists() {
+        long chatId = 789L;
         when(chatRepository.exists(chatId)).thenReturn(true);
 
-        // Act
         chatService.delete(chatId);
 
-        // Assert
-        verify(chatRepository, times(1)).delete(chatId);
+        verify(chatRepository).delete(chatId);
     }
 
     @Test
-    void shouldThrowExceptionWhenChatDoesNotExist() {
-        // Arrange
-        ChatRepository chatRepository = mock(ChatRepository.class);
-        ChatService chatService = new ChatService(chatRepository);
-        Long chatId = 12345L;
-
+    void delete_shouldThrow404_whenChatDoesNotExist() {
+        long chatId = 999L;
         when(chatRepository.exists(chatId)).thenReturn(false);
 
-        // Act & Assert
-        assertThatThrownBy(() -> chatService.delete(chatId))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("Чат не существует")
-                .hasFieldOrPropertyWithValue("status", HttpStatus.NOT_FOUND);
+        var ex = assertThrows(ResponseStatusException.class, () -> chatService.delete(chatId));
+
+        assertEquals(404, ex.getStatusCode().value());
+        assertTrue(ex.getReason().contains("Чат не существует"));
     }
 }
