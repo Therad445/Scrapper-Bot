@@ -27,6 +27,7 @@ services:
       - GITHUB_TOKEN=${GITHUB_TOKEN}
       - SO_TOKEN_KEY=${SO_TOKEN_KEY}
       - SO_ACCESS_TOKEN=${SO_ACCESS_TOKEN}
+      - BOT_URL=${BOT_URL}
     ports:
       - "8081:8081"
     networks:
@@ -39,6 +40,7 @@ services:
         condition: service_healthy
     environment:
       - TELEGRAM_TOKEN=${TELEGRAM_TOKEN}
+      - SCRAPPER_URL=${SCRAPPER_URL}
     ports:
       - "8080:8080"
     networks:
