@@ -11,8 +11,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import backend.academy.scrapper.config.ScrapperConfig;
-import backend.academy.scrapper.config.ScrapperConfig.Scheduler;
+import backend.academy.scrapper.config.ScrapperProperties;
+import backend.academy.scrapper.config.ScrapperProperties.Scheduler;
 import backend.academy.scrapper.model.LinkInfo;
 import backend.academy.scrapper.model.LinkUpdate;
 import backend.academy.scrapper.notification.NotificationService;
@@ -51,11 +51,11 @@ public class LinkScraperSchedulerTest {
         when(schedulerProps.forceCheckDelay()).thenReturn(Duration.ofMinutes(10));
         when(schedulerProps.batchSize()).thenReturn(10);
 
-        ScrapperConfig scrapperConfig = mock(ScrapperConfig.class);
-        when(scrapperConfig.scheduler()).thenReturn(schedulerProps);
+        ScrapperProperties scrapperProperties = mock(ScrapperProperties.class);
+        when(scrapperProperties.scheduler()).thenReturn(schedulerProps);
 
         scheduler =
-                new LinkScraperScheduler(scrapperConfig, linkRepository, chatRepository, checkers, notifier, executor);
+                new LinkScraperScheduler(scrapperProperties, linkRepository, chatRepository, checkers, notifier, executor);
     }
 
     @Test
