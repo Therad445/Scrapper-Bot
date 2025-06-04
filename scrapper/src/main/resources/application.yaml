@@ -10,9 +10,11 @@ app:
     force-check-delay: 15m
     batch-size: 100
     thread-count: 4
-  notification:
-    type: http
   access-type: ORM
+  message-transport: kafka
+  kafka:
+    topic: link-updates
+    dlq-topic: link-updates-dlq
 
 spring:
   application:

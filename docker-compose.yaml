@@ -63,6 +63,7 @@ services:
       - SO_ACCESS_TOKEN=${SO_ACCESS_TOKEN}
       - BOT_URL=${BOT_URL}
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - MESSAGE_TRANSPORT=${MESSAGE_TRANSPORT}
     ports:
       - "8081:8081"
     networks:

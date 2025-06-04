@@ -15,7 +15,7 @@ import org.springframework.web.client.RestTemplate;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@ConditionalOnProperty(prefix = "app", name = "notification.type", havingValue = "http", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "app", name = "message-transport", havingValue = "http", matchIfMissing = true)
 public class HttpNotificationService implements NotificationService {
 
     private final RestTemplate restTemplate;
