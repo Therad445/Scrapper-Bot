@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.9'
 services:
   postgresql:
     image: postgres:17.4-alpine
@@ -13,12 +13,46 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
 
+  zookeeper:
+    image: bitnami/zookeeper:latest
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    ports:
+      - "2181:2181"
+    networks:
+      - backend
+
+  kafka:
+    image: bitnami/kafka:latest
+    depends_on:
+      - zookeeper
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://0.0.0.0:9092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_CFG_AUTHORIZER_CLASS_NAME=
+    ports:
+      - "9092:9092"
+    networks:
+      - backend
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    ports:
+      - "6379:6379"
+    networks:
+      - backend
+
   scrapper:
     build:
       context: .
       dockerfile: scrapper/Dockerfile
     depends_on:
       - postgresql
+      - kafka
+      - redis
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgresql:5432/scrapper
@@ -28,6 +62,7 @@ services:
       - SO_TOKEN_KEY=${SO_TOKEN_KEY}
       - SO_ACCESS_TOKEN=${SO_ACCESS_TOKEN}
       - BOT_URL=${BOT_URL}
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
     ports:
       - "8081:8081"
     networks:
@@ -38,9 +73,16 @@ services:
     depends_on:
       scrapper:
         condition: service_healthy
+      redis:
+        condition: service_started
+      kafka:
+        condition: service_started
     environment:
       - TELEGRAM_TOKEN=${TELEGRAM_TOKEN}
       - SCRAPPER_URL=${SCRAPPER_URL}
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
     ports:
       - "8080:8080"
     networks:
