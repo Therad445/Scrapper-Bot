@@ -1,35 +1,25 @@
 package backend.academy.scrapper.config;
 
-import jakarta.validation.constraints.NotEmpty;
-import java.net.URI;
-import java.time.Duration;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.client.RestTemplate;
 
-@Validated
-@ConfigurationProperties(prefix = "app", ignoreUnknownFields = false)
+/**
+ * Конфигурационный класс: здесь регистрируем бины, включаем аннотации @EnableScheduling и т.п.
+ * Также «подключаем» ScrapperProperties для заполнения из application.yaml.
+ */
+@Configuration
 @EnableScheduling
 @EnableTransactionManagement
-public record ScrapperConfig(
-        @NotEmpty String githubToken,
-        StackOverflowCredentials stackOverflow,
-        URI botUrl,
-        Scheduler scheduler,
-        String accessType,
-        Notification notification) {
+@EnableConfigurationProperties(ScrapperProperties.class)
+public class ScrapperConfig {
+
     @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate();
     }
 
-    public record StackOverflowCredentials(@NotEmpty String key, @NotEmpty String accessToken) {}
-
-    public record Scheduler(
-            boolean enable, Duration interval, Duration forceCheckDelay, int batchSize, int threadCount) {}
-
-    public record Notification(String type) {}
 }

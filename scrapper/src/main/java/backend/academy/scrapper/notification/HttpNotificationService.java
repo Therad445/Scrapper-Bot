@@ -1,6 +1,6 @@
 package backend.academy.scrapper.notification;
 
-import backend.academy.scrapper.config.ScrapperConfig;
+import backend.academy.scrapper.config.ScrapperProperties;
 import backend.academy.scrapper.model.LinkUpdate;
 import java.net.URI;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,7 @@ import org.springframework.web.client.RestTemplate;
 public class HttpNotificationService implements NotificationService {
 
     private final RestTemplate restTemplate;
-    private final ScrapperConfig scrapperConfig;
+    private final ScrapperProperties scrapperProperties;
 
     @Override
     public void notify(LinkUpdate update) {
@@ -28,7 +28,7 @@ public class HttpNotificationService implements NotificationService {
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<LinkUpdate> request = new HttpEntity<>(update, headers);
 
-            URI botBaseUrl = scrapperConfig.botUrl();
+            URI botBaseUrl = scrapperProperties.botUrl();
             restTemplate.postForEntity(botBaseUrl + "/updates", request, Void.class);
 
             log.info("Отправлено уведомление о ссылке id={}, url={}", update.id(), update.url());

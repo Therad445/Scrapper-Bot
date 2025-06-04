@@ -1,6 +1,6 @@
 package backend.academy.scrapper.scheduler;
 
-import backend.academy.scrapper.config.ScrapperConfig;
+import backend.academy.scrapper.config.ScrapperProperties;
 import backend.academy.scrapper.model.LinkInfo;
 import backend.academy.scrapper.model.LinkUpdate;
 import backend.academy.scrapper.notification.NotificationService;
@@ -26,7 +26,7 @@ import org.springframework.stereotype.Component;
 @ConditionalOnProperty(name = "app.scheduler.enable", havingValue = "true")
 public class LinkScraperScheduler {
 
-    private final ScrapperConfig cfg;
+    private final ScrapperProperties scrapperProperties;
     private final LinkRepository linkRepo;
     private final ChatRepository chatRepo;
     private final List<LinkChecker> checkers;
@@ -35,7 +35,7 @@ public class LinkScraperScheduler {
 
     @Scheduled(fixedDelayString = "${app.scheduler.interval}")
     public void run() {
-        var sch = cfg.scheduler();
+        var sch = scrapperProperties.scheduler();
         Instant threshold = Instant.now().minus(sch.forceCheckDelay());
 
         List<LinkInfo> batch = linkRepo.findLinksForCheck(threshold, PageRequest.of(0, sch.batchSize()))
