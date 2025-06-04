@@ -14,7 +14,7 @@ services:
       - postgres-data:/var/lib/postgresql/data
 
   zookeeper:
-    image: bitnami/zookeeper:latest
+    image: bitnami/zookeeper:3.8
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
     ports:
@@ -23,7 +23,7 @@ services:
       - backend
 
   kafka:
-    image: bitnami/kafka:latest
+    image: bitnami/kafka:3.8
     depends_on:
       - zookeeper
     environment:
