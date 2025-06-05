@@ -31,7 +31,8 @@ public class SessionInputHandler implements CommandHandler {
     @Override
     public boolean supports(Update u) {
         Long chatId = u.message().chat().id();
-        return sessionService.getSession(chatId).state() != BotState.NONE;
+        UserSession session = sessionService.getSession(chatId);
+        return session.getState() != BotState.NONE;
     }
 
     @Override
@@ -40,20 +41,27 @@ public class SessionInputHandler implements CommandHandler {
         String text = u.message().text().trim();
         UserSession session = sessionService.getSession(chatId);
 
-        if (session.state() == BotState.WAITING_FOR_TAGS) {
-            session.pendingTags(text.isBlank() ? null : text);
-            session.state(BotState.WAITING_FOR_FILTERS);
+        if (session.getState() == BotState.WAITING_FOR_TAGS) {
+            session.setPendingTags(text.isBlank() ? null : text);
+            session.setState(BotState.WAITING_FOR_FILTERS);
+            sessionService.saveSession(chatId, session);  // ← сохраняем в Redis
             sender.send(chatId, "Введите фильтры (опционально):");
-        } else if (session.state() == BotState.WAITING_FOR_FILTERS) {
-            session.pendingFilters(text.isBlank() ? null : text);
-            List<String> tags = session.pendingTags() != null
-                    ? Arrays.asList(session.pendingTags().split("\\s+"))
-                    : Collections.emptyList();
+
+        } else if (session.getState() == BotState.WAITING_FOR_FILTERS) {
+            session.setPendingFilters(text.isBlank() ? null : text);
+
+            List<String> tags = session.getPendingTags() != null
+                ? Arrays.asList(session.getPendingTags().split("\\s+"))
+                : Collections.emptyList();
             List<String> filters =
-                    session.pendingFilters() != null ? Arrays.asList(text.split("\\s+")) : Collections.emptyList();
-            linkService.track(chatId, URI.create(session.pendingUrl()), tags, filters);
+                session.getPendingFilters() != null ? Arrays.asList(text.split("\\s+")) : Collections.emptyList();
+
+            linkService.track(chatId, URI.create(session.getPendingUrl()), tags, filters);
+
             sender.send(chatId, "Ссылка добавлена с тэгами и фильтрами ✅");
+
             session.reset();
+            sessionService.deleteSession(chatId);
         }
     }
 }

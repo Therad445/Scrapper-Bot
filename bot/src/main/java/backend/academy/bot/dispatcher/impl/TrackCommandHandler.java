@@ -37,8 +37,10 @@ public class TrackCommandHandler implements CommandHandler {
         }
 
         UserSession session = sessionService.getSession(chatId);
-        session.pendingUrl(url);
-        session.state(BotState.WAITING_FOR_TAGS);
+        session.setPendingUrl(url);
+        session.setState(BotState.WAITING_FOR_TAGS);
+        sessionService.saveSession(chatId, session);
+
         sender.send(chatId, "Введите тэги (опционально):");
     }
 }
