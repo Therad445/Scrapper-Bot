@@ -15,7 +15,8 @@ app:
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
     topic: ${KAFKA_TOPIC:test-topic}
-    dlq-topic: ${KAFKA_DLQ_TOPIC:test-dlq}
+    dlq-topic: ${KAFKA_BOT_TO_SCRAPPER_DLQ:bot-to-scrapper-dlq}
+    bot-to-scrapper-topic: ${KAFKA_BOT_TO_SCRAPPER_TOPIC:bot-to-scrapper}
 
 spring:
   application:
