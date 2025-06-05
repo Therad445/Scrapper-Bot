@@ -13,9 +13,9 @@ app:
   access-type: ORM
   message-transport: kafka
   kafka:
-    bootstrap-servers: localhost:9092
-    topic: test-topic
-    dlq-topic: test-dlq
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
+    topic: ${KAFKA_TOPIC:test-topic}
+    dlq-topic: ${KAFKA_DLQ_TOPIC:test-dlq}
 
 spring:
   application:
