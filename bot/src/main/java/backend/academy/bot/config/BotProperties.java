@@ -1,8 +1,10 @@
 package backend.academy.bot.config;
 
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
+import java.time.Duration;
 
 
 @Validated
@@ -14,6 +16,9 @@ public class BotProperties {
 
     @NotEmpty
     private String scrapperUrl;
+
+    @NotNull
+    private Duration cacheTtl;
 
     private Kafka kafka = new Kafka();
 
@@ -39,6 +44,14 @@ public class BotProperties {
 
     public void setKafka(Kafka kafka) {
         this.kafka = kafka;
+    }
+
+    public Duration getCacheTtl() {
+        return cacheTtl;
+    }
+
+    public void setCacheTtl(Duration cacheTtl) {
+        this.cacheTtl = cacheTtl;
     }
 
     public static class Kafka {

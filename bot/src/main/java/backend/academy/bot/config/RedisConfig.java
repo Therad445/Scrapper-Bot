@@ -1,13 +1,16 @@
 package backend.academy.bot.config;
 
 import backend.academy.bot.state.UserSession;
+import backend.academy.bot.dto.LinkResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.data.redis.serializer.*;
+
+import java.util.List;
 
 @Configuration
 public class RedisConfig {
@@ -20,13 +23,37 @@ public class RedisConfig {
         StringRedisSerializer stringSerializer = new StringRedisSerializer();
         template.setKeySerializer(stringSerializer);
         template.setHashKeySerializer(stringSerializer);
+        Jackson2JsonRedisSerializer<UserSession> valueSerializer =
+            new Jackson2JsonRedisSerializer<>(UserSession.class);
+        template.setValueSerializer(valueSerializer);
+        template.setHashValueSerializer(valueSerializer);
 
+        template.afterPropertiesSet();
+        return template;
+    }
+
+    @Bean
+    public RedisTemplate<String, List<LinkResponse>> linkListRedisTemplate(RedisConnectionFactory connectionFactory) {
+        RedisTemplate<String, List<LinkResponse>> template = new RedisTemplate<>();
+        template.setConnectionFactory(connectionFactory);
+
+        StringRedisSerializer stringSerializer = new StringRedisSerializer();
+        template.setKeySerializer(stringSerializer);
+        template.setHashKeySerializer(stringSerializer);
         ObjectMapper mapper = new ObjectMapper();
-        Jackson2JsonRedisSerializer<UserSession> serializer =
-            new Jackson2JsonRedisSerializer<>(mapper, UserSession.class);
+        mapper.activateDefaultTyping(
+            BasicPolymorphicTypeValidator.builder()
+                .allowIfSubType(LinkResponse.class)
+                .build(),
+            ObjectMapper.DefaultTyping.NON_FINAL
+        );
 
-        template.setValueSerializer(serializer);
-        template.setHashValueSerializer(serializer);
+        @SuppressWarnings("unchecked")
+        Jackson2JsonRedisSerializer<List<LinkResponse>> jsonSerializer =
+            new Jackson2JsonRedisSerializer<>(mapper, (Class<List<LinkResponse>>) (Class<?>) List.class);
+
+        template.setValueSerializer(jsonSerializer);
+        template.setHashValueSerializer(jsonSerializer);
 
         template.afterPropertiesSet();
         return template;
