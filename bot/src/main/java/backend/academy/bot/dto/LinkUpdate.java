@@ -1,23 +1,27 @@
 package backend.academy.bot.dto;
 
 import jakarta.validation.constraints.NotNull;
+import org.hibernate.validator.constraints.URL;
+
 import java.util.Collections;
 import java.util.Set;
-import org.hibernate.validator.constraints.URL;
 
 public class LinkUpdate {
     @NotNull
-    private final Long id;
+    private Long id;
 
     @URL
     @NotNull
-    private final String url;
+    private String url;
 
     @NotNull
-    private final String description;
+    private String description;
 
     @NotNull
-    private final Set<Long> tgChatIds;
+    private Set<Long> tgChatIds;
+
+    public LinkUpdate() {
+    }
 
     public LinkUpdate(Long id, String url, String description, Set<Long> tgChatIds) {
         this.id = id;
@@ -30,15 +34,31 @@ public class LinkUpdate {
         return id;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public String getUrl() {
         return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     public String getDescription() {
         return description;
     }
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public Set<Long> getTgChatIds() {
         return tgChatIds;
+    }
+
+    public void setTgChatIds(Set<Long> tgChatIds) {
+        this.tgChatIds = tgChatIds;
     }
 }
