@@ -54,6 +54,13 @@ public class BotProperties {
         @NotEmpty
         private String dlqTopic;
 
+        @NotEmpty
+        private String commandsTopic;
+
+        public String getCommandsTopic() { return commandsTopic; }
+
+        public void setCommandsTopic(String commandsTopic) { this.commandsTopic = commandsTopic; }
+
         public String getBootstrapServers() {
             return bootstrapServers;
         }

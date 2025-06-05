@@ -1,24 +1,23 @@
+// File: bot/src/main/java/backend/academy/bot/dispatcher/impl/TrackCommandHandler.java
 package backend.academy.bot.dispatcher.impl;
 
-import backend.academy.bot.dispatcher.BotCommand;
+import backend.academy.bot.config.BotProperties;
+import backend.academy.bot.dto.command.TrackCommand;
+import backend.academy.bot.dto.command.BotCommandMessage;
 import backend.academy.bot.dispatcher.CommandHandler;
-import backend.academy.bot.dto.LinkResponse;
-import backend.academy.bot.service.LinkService;
 import backend.academy.bot.service.MessageSenderService;
-import backend.academy.bot.service.SessionService;
-import backend.academy.bot.state.BotState;
-import backend.academy.bot.state.UserSession;
 import com.pengrad.telegrambot.model.Update;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.kafka.core.KafkaTemplate;
+
+import java.net.URI;
 
 @RequiredArgsConstructor
-@BotCommand
 public class TrackCommandHandler implements CommandHandler {
 
-    private final LinkService linkService;
+    private final KafkaTemplate<String, BotCommandMessage> kafkaTemplate;
+    private final BotProperties botProps;
     private final MessageSenderService sender;
-    private final SessionService sessionService;
 
     @Override
     public boolean supports(Update u) {
@@ -30,17 +29,8 @@ public class TrackCommandHandler implements CommandHandler {
         Long chatId = u.message().chat().id();
         String url = u.message().text().substring(7).trim();
 
-        List<LinkResponse> existing = linkService.list(chatId);
-        if (existing.stream().anyMatch(l -> l.getLink().toString().equals(url))) {
-            sender.send(chatId, "Ссылка уже отслеживается ✅");
-            return;
-        }
-
-        UserSession session = sessionService.getSession(chatId);
-        session.setPendingUrl(url);
-        session.setState(BotState.WAITING_FOR_TAGS);
-        sessionService.saveSession(chatId, session);
-
-        sender.send(chatId, "Введите тэги (опционально):");
+        TrackCommand cmd = new TrackCommand(chatId, URI.create(url), java.util.List.of(), java.util.List.of());
+        kafkaTemplate.send(botProps.getKafka().getCommandsTopic(), cmd);
+        sender.send(chatId, "Команда отправлена на сервер, ожидайте подтверждения...");
     }
 }

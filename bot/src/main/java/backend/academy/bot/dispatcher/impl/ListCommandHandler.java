@@ -1,20 +1,20 @@
+// File: bot/src/main/java/backend/academy/bot/dispatcher/impl/ListCommandHandler.java
 package backend.academy.bot.dispatcher.impl;
 
-import backend.academy.bot.dispatcher.BotCommand;
+import backend.academy.bot.config.BotProperties;
+import backend.academy.bot.dto.command.ListCommand;
+import backend.academy.bot.dto.command.BotCommandMessage;
 import backend.academy.bot.dispatcher.CommandHandler;
-import backend.academy.bot.dto.LinkResponse;
-import backend.academy.bot.service.LinkService;
 import backend.academy.bot.service.MessageSenderService;
 import com.pengrad.telegrambot.model.Update;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.kafka.core.KafkaTemplate;
 
 @RequiredArgsConstructor
-@BotCommand
 public class ListCommandHandler implements CommandHandler {
 
-    private final LinkService linkService;
+    private final KafkaTemplate<String, BotCommandMessage> kafkaTemplate;
+    private final BotProperties botProps;
     private final MessageSenderService sender;
 
     @Override
@@ -25,15 +25,9 @@ public class ListCommandHandler implements CommandHandler {
     @Override
     public void handle(Update u) {
         Long chatId = u.message().chat().id();
-        List<LinkResponse> links = linkService.list(chatId);
 
-        if (links.isEmpty()) {
-            sender.send(chatId, "Вы ничего не отслеживаете 🤷‍♂️");
-            return;
-        }
-
-        String body = links.stream().map(l -> l.getLink().toString()).collect(Collectors.joining("\n"));
-
-        sender.send(chatId, "Ваши подписки:\n" + body);
+        ListCommand cmd = new ListCommand(chatId);
+        kafkaTemplate.send(botProps.getKafka().getCommandsTopic(), cmd);
+        sender.send(chatId, "Команда отправлена на сервер, ожидайте подтверждения...");
     }
 }

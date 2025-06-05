@@ -1,18 +1,22 @@
+// File: bot/src/main/java/backend/academy/bot/dispatcher/impl/UntrackCommandHandler.java
 package backend.academy.bot.dispatcher.impl;
 
-import backend.academy.bot.dispatcher.BotCommand;
+import backend.academy.bot.config.BotProperties;
+import backend.academy.bot.dto.command.UntrackCommand;
+import backend.academy.bot.dto.command.BotCommandMessage;
 import backend.academy.bot.dispatcher.CommandHandler;
-import backend.academy.bot.service.LinkService;
 import backend.academy.bot.service.MessageSenderService;
 import com.pengrad.telegrambot.model.Update;
-import java.net.URI;
 import lombok.RequiredArgsConstructor;
+import org.springframework.kafka.core.KafkaTemplate;
+
+import java.net.URI;
 
 @RequiredArgsConstructor
-@BotCommand
 public class UntrackCommandHandler implements CommandHandler {
 
-    private final LinkService linkService;
+    private final KafkaTemplate<String, BotCommandMessage> kafkaTemplate;
+    private final BotProperties botProps;
     private final MessageSenderService sender;
 
     @Override
@@ -25,11 +29,8 @@ public class UntrackCommandHandler implements CommandHandler {
         Long chatId = u.message().chat().id();
         String url = u.message().text().substring(9).trim();
 
-        try {
-            linkService.untrack(chatId, URI.create(url));
-            sender.send(chatId, "Ссылка больше не отслеживается");
-        } catch (Exception ex) {
-            sender.send(chatId, "Не удалось удалить ссылку: " + ex.getMessage());
-        }
+        UntrackCommand cmd = new UntrackCommand(chatId, URI.create(url));
+        kafkaTemplate.send(botProps.getKafka().getCommandsTopic(), cmd);
+        sender.send(chatId, "Команда отправлена на сервер, ожидайте подтверждения...");
     }
 }
