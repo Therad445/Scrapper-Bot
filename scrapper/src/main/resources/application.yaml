@@ -13,8 +13,9 @@ app:
   access-type: ORM
   message-transport: kafka
   kafka:
-    topic: link-updates
-    dlq-topic: link-updates-dlq
+    bootstrap-servers: localhost:9092
+    topic: test-topic
+    dlq-topic: test-dlq
 
 spring:
   application:
