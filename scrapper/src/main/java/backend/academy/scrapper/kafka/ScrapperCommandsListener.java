@@ -1,25 +1,20 @@
 package backend.academy.scrapper.kafka;
 
-
-import java.util.Set;
-
+import backend.academy.scrapper.kafka.command.ListCommand;
 import backend.academy.scrapper.kafka.command.TrackCommand;
 import backend.academy.scrapper.kafka.command.UntrackCommand;
-import backend.academy.scrapper.kafka.command.ListCommand;
 import backend.academy.scrapper.model.AddLinkRequest;
-import backend.academy.scrapper.model.RemoveLinkRequest;
 import backend.academy.scrapper.model.ListLinksResponse;
-import backend.academy.scrapper.service.LinkService;
+import backend.academy.scrapper.model.RemoveLinkRequest;
 import backend.academy.scrapper.service.ChatService;
-
+import backend.academy.scrapper.service.LinkService;
+import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 
 @Component
 @ConditionalOnProperty(prefix = "app", name = "message-transport", havingValue = "KAFKA")
@@ -41,12 +36,10 @@ public class ScrapperCommandsListener {
         this.chatService = chatService;
     }
 
-
     @KafkaListener(
-        topics = "${app.kafka.bot-to-scrapper-topic}",
-        groupId = "scrapper-group",
-        containerFactory = "kafkaListenerContainerFactory"
-    )
+            topics = "${app.kafka.bot-to-scrapper-topic}",
+            groupId = "scrapper-group",
+            containerFactory = "kafkaListenerContainerFactory")
     public void onTrackCommand(TrackCommand cmd) {
         try {
             log.info("Получена команда TrackCommand: {}", cmd);
@@ -54,10 +47,9 @@ public class ScrapperCommandsListener {
             chatService.register(cmd.getChatId());
 
             AddLinkRequest req = new AddLinkRequest(
-                cmd.getLink().toString(),
-                cmd.getTags() != null ? Set.copyOf(cmd.getTags()) : Set.of(),
-                cmd.getFilters() != null ? Set.copyOf(cmd.getFilters()) : Set.of()
-            );
+                    cmd.getLink().toString(),
+                    cmd.getTags() != null ? Set.copyOf(cmd.getTags()) : Set.of(),
+                    cmd.getFilters() != null ? Set.copyOf(cmd.getFilters()) : Set.of());
 
             linkService.addLink(cmd.getChatId(), req);
 
@@ -69,10 +61,9 @@ public class ScrapperCommandsListener {
     }
 
     @KafkaListener(
-        topics = "${app.kafka.bot-to-scrapper-topic}",
-        groupId = "scrapper-group",
-        containerFactory = "kafkaListenerContainerFactory"
-    )
+            topics = "${app.kafka.bot-to-scrapper-topic}",
+            groupId = "scrapper-group",
+            containerFactory = "kafkaListenerContainerFactory")
     public void onUntrackCommand(UntrackCommand cmd) {
         try {
             log.info("Получена команда UntrackCommand: {}", cmd);
@@ -88,20 +79,16 @@ public class ScrapperCommandsListener {
     }
 
     @KafkaListener(
-        topics = "${app.kafka.bot-to-scrapper-topic}",
-        groupId = "scrapper-group",
-        containerFactory = "kafkaListenerContainerFactory"
-    )
+            topics = "${app.kafka.bot-to-scrapper-topic}",
+            groupId = "scrapper-group",
+            containerFactory = "kafkaListenerContainerFactory")
     public void onListCommand(ListCommand cmd) {
         try {
             log.info("Получена команда ListCommand: {}", cmd);
 
             ListLinksResponse response = linkService.getLinks(cmd.getChatId());
 
-            log.info("Список ссылок для chatId={} (size={}): {}",
-                cmd.getChatId(),
-                response.size(),
-                response.links());
+            log.info("Список ссылок для chatId={} (size={}): {}", cmd.getChatId(), response.size(), response.links());
 
         } catch (Exception e) {
             log.error("Ошибка при обработке ListCommand: {}", e.getMessage(), e);

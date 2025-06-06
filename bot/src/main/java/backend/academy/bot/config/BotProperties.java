@@ -2,10 +2,9 @@ package backend.academy.bot.config;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import java.time.Duration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
-import java.time.Duration;
-
 
 @Validated
 @ConfigurationProperties(prefix = "app", ignoreUnknownFields = false)
@@ -70,9 +69,13 @@ public class BotProperties {
         @NotEmpty
         private String commandsTopic;
 
-        public String getCommandsTopic() { return commandsTopic; }
+        public String getCommandsTopic() {
+            return commandsTopic;
+        }
 
-        public void setCommandsTopic(String commandsTopic) { this.commandsTopic = commandsTopic; }
+        public void setCommandsTopic(String commandsTopic) {
+            this.commandsTopic = commandsTopic;
+        }
 
         public String getBootstrapServers() {
             return bootstrapServers;

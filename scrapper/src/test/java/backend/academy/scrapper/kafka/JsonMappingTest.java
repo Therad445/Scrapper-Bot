@@ -1,17 +1,16 @@
 package backend.academy.scrapper.kafka;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import backend.academy.scrapper.kafka.command.ListCommand;
 import backend.academy.scrapper.kafka.command.TrackCommand;
 import backend.academy.scrapper.kafka.command.UntrackCommand;
 import backend.academy.scrapper.model.LinkUpdate;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.Test;
-
 import java.net.URI;
 import java.util.List;
 import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 class JsonMappingTest {
 
@@ -19,7 +18,8 @@ class JsonMappingTest {
 
     @Test
     void trackCommand_deserializesFromJson() throws Exception {
-        String json = """
+        String json =
+                """
             {
               "chatId": 123,
               "link": "https://example.com/foo",
@@ -37,7 +37,8 @@ class JsonMappingTest {
 
     @Test
     void untrackCommand_deserializesFromJson() throws Exception {
-        String json = """
+        String json =
+                """
             {
               "chatId": 456,
               "link": "https://example.com/bar"
@@ -63,7 +64,8 @@ class JsonMappingTest {
 
     @Test
     void linkUpdate_deserializesFromJson() throws Exception {
-        String json = """
+        String json =
+                """
             {
               "id": 42,
               "url": "https://example.org/item",
@@ -81,12 +83,8 @@ class JsonMappingTest {
 
     @Test
     void roundTrip_trackCommand_serializationAndDeserialization() throws Exception {
-        TrackCommand original = new TrackCommand(
-            321L,
-            new URI("https://foo.bar/baz"),
-            List.of("x", "y"),
-            List.of("filter1")
-        );
+        TrackCommand original =
+                new TrackCommand(321L, new URI("https://foo.bar/baz"), List.of("x", "y"), List.of("filter1"));
         String json = mapper.writeValueAsString(original);
         TrackCommand parsed = mapper.readValue(json, TrackCommand.class);
 
@@ -98,12 +96,7 @@ class JsonMappingTest {
 
     @Test
     void roundTrip_linkUpdate_serializationAndDeserialization() throws Exception {
-        LinkUpdate original = new LinkUpdate(
-            555L,
-            "https://foo.test/qux",
-            "Check this out",
-            Set.of(200L, 300L)
-        );
+        LinkUpdate original = new LinkUpdate(555L, "https://foo.test/qux", "Check this out", Set.of(200L, 300L));
         String json = mapper.writeValueAsString(original);
         LinkUpdate parsed = mapper.readValue(json, LinkUpdate.class);
 

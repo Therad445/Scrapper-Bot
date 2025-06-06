@@ -4,10 +4,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import backend.academy.bot.config.BotProperties;
 import backend.academy.bot.dto.LinkResponse;
 import backend.academy.bot.service.LinkService;
 import backend.academy.bot.service.MessageSenderService;
-import backend.academy.bot.config.BotProperties;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
@@ -28,10 +28,13 @@ class ListCommandHandlerTest {
     private MessageSenderService sender;
     private KafkaTemplate<String, Object> kafkaTemplate;
     private BotProperties botProps;
+
     @SuppressWarnings("unchecked")
     private RedisTemplate<String, List<LinkResponse>> redisTemplate;
+
     @SuppressWarnings("unchecked")
     private ValueOperations<String, List<LinkResponse>> valueOps;
+
     private ListCommandHandler handler;
 
     @BeforeEach
@@ -46,13 +49,7 @@ class ListCommandHandlerTest {
         when(redisTemplate.opsForValue()).thenReturn(valueOps);
         when(botProps.getCacheTtl()).thenReturn(Duration.ofSeconds(60));
 
-        handler = new ListCommandHandler(
-            linkService,
-            sender,
-            kafkaTemplate,
-            botProps,
-            redisTemplate
-        );
+        handler = new ListCommandHandler(linkService, sender, kafkaTemplate, botProps, redisTemplate);
     }
 
     private Update createUpdate(Long chatId, String text) {
@@ -102,17 +99,13 @@ class ListCommandHandlerTest {
         String redisKey = "bot:list:" + chatId;
 
         List<LinkResponse> cachedLinks = List.of(
-            new LinkResponse(1L, URI.create("https://example.com/1"), List.of(), List.of()),
-            new LinkResponse(2L, URI.create("https://example.com/2"), List.of(), List.of())
-        );
+                new LinkResponse(1L, URI.create("https://example.com/1"), List.of(), List.of()),
+                new LinkResponse(2L, URI.create("https://example.com/2"), List.of(), List.of()));
         when(valueOps.get(redisKey)).thenReturn(cachedLinks);
 
         handler.handle(update);
 
-        verify(sender).send(
-            chatId,
-            "Ваши подписки:\nhttps://example.com/1\nhttps://example.com/2 (из кеша)"
-        );
+        verify(sender).send(chatId, "Ваши подписки:\nhttps://example.com/1\nhttps://example.com/2 (из кеша)");
     }
 
     @Test
@@ -139,17 +132,13 @@ class ListCommandHandlerTest {
         when(valueOps.get(redisKey)).thenReturn(null);
 
         List<LinkResponse> freshLinks = List.of(
-            new LinkResponse(3L, URI.create("https://example.com/3"), List.of(), List.of()),
-            new LinkResponse(4L, URI.create("https://example.com/4"), List.of(), List.of())
-        );
+                new LinkResponse(3L, URI.create("https://example.com/3"), List.of(), List.of()),
+                new LinkResponse(4L, URI.create("https://example.com/4"), List.of(), List.of()));
         when(linkService.list(chatId)).thenReturn(freshLinks);
 
         handler.handle(update);
 
         verify(valueOps).set(redisKey, freshLinks, 60L, TimeUnit.SECONDS);
-        verify(sender).send(
-            chatId,
-            "Ваши подписки:\nhttps://example.com/3\nhttps://example.com/4"
-        );
+        verify(sender).send(chatId, "Ваши подписки:\nhttps://example.com/3\nhttps://example.com/4");
     }
 }

@@ -1,11 +1,14 @@
 package backend.academy.scrapper.integration;
 
-import static org.awaitility.Awaitility.await;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 
+import backend.academy.scrapper.ScrapperApplication;
+import backend.academy.scrapper.kafka.command.TrackCommand;
+import backend.academy.scrapper.repository.LinkRepository;
+import backend.academy.scrapper.repository.orm.LinkJpaRepository;
 import java.net.URI;
 import java.time.Duration;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,26 +20,18 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-
-import backend.academy.scrapper.ScrapperApplication;
-import backend.academy.scrapper.kafka.command.TrackCommand;
-import backend.academy.scrapper.repository.LinkRepository;
-import backend.academy.scrapper.repository.orm.LinkJpaRepository;
 import org.testcontainers.utility.DockerImageName;
 
 @Testcontainers
 @SpringBootTest(
-    classes = ScrapperApplication.class,
-    properties = {
-        "app.message-transport=KAFKA"
-    }
-)
+        classes = ScrapperApplication.class,
+        properties = {"app.message-transport=KAFKA"})
 @ActiveProfiles("test")
 public class ScrapperKafkaIntegrationTest {
 
     @Container
     private static final KafkaContainer kafkaContainer =
-        new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:8.1.3"));
+            new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:8.1.3"));
 
     @DynamicPropertySource
     static void overrideKafkaBootstrapServers(DynamicPropertyRegistry registry) {
@@ -59,21 +54,12 @@ public class ScrapperKafkaIntegrationTest {
 
     @Test
     void whenValidTrackCommandSent_thenLinkIsPersisted() {
-        TrackCommand cmd = new TrackCommand(
-            123L,
-            URI.create("https://example.org/page"),
-            null,
-            null
-        );
+        TrackCommand cmd = new TrackCommand(123L, URI.create("https://example.org/page"), null, null);
 
         kafkaTemplate.send("bot-to-scrapper", cmd);
 
-        await()
-            .atMost(Duration.ofSeconds(5))
-            .untilAsserted(() ->
-                assertThat(linkRepository.findAllByChat(123L))
-                    .isNotEmpty()
-                    .allMatch(link -> link.url().toString().equals("https://example.org/page"))
-            );
+        await().atMost(Duration.ofSeconds(5)).untilAsserted(() -> assertThat(linkRepository.findAllByChat(123L))
+                .isNotEmpty()
+                .allMatch(link -> link.url().toString().equals("https://example.org/page")));
     }
 }

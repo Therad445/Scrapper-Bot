@@ -48,23 +48,23 @@ public class HttpNotificationServiceTest {
     @Test
     void notify_shouldSendPostRequestSuccessfully() {
         when(restTemplate.postForEntity(eq("http://bot:8080/updates"), any(HttpEntity.class), eq(Void.class)))
-            .thenReturn(ResponseEntity.ok().build());
+                .thenReturn(ResponseEntity.ok().build());
 
         notificationService.notify(linkUpdate);
 
         verify(restTemplate, times(1))
-            .postForEntity(eq("http://bot:8080/updates"), any(HttpEntity.class), eq(Void.class));
+                .postForEntity(eq("http://bot:8080/updates"), any(HttpEntity.class), eq(Void.class));
     }
 
     @Test
     void notify_shouldThrowExceptionOnFailure() {
         when(restTemplate.postForEntity(eq("http://bot:8080/updates"), any(HttpEntity.class), eq(Void.class)))
-            .thenThrow(new RuntimeException("Connection error"));
+                .thenThrow(new RuntimeException("Connection error"));
 
         assertThrows(IllegalStateException.class, () -> notificationService.notify(linkUpdate));
 
         verify(restTemplate, times(1))
-            .postForEntity(eq("http://bot:8080/updates"), any(HttpEntity.class), eq(Void.class));
+                .postForEntity(eq("http://bot:8080/updates"), any(HttpEntity.class), eq(Void.class));
     }
 
     @Test
@@ -72,7 +72,7 @@ public class HttpNotificationServiceTest {
         ArgumentCaptor<HttpEntity<LinkUpdate>> captor = ArgumentCaptor.forClass(HttpEntity.class);
 
         when(restTemplate.postForEntity(eq("http://bot:8080/updates"), any(HttpEntity.class), eq(Void.class)))
-            .thenReturn(ResponseEntity.ok().build());
+                .thenReturn(ResponseEntity.ok().build());
 
         notificationService.notify(linkUpdate);
 

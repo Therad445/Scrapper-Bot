@@ -2,11 +2,10 @@ package backend.academy.scrapper.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import backend.academy.scrapper.ScrapperApplication;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
-
-import backend.academy.scrapper.ScrapperApplication;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -22,13 +21,12 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Testcontainers
 @SpringBootTest(
-    classes = ScrapperApplication.class,
-    properties = {
-        "app.message-transport=kafka",
-        "spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}",
-        "app.kafka.dlq-topic=scrapper-dlq"
-    }
-)
+        classes = ScrapperApplication.class,
+        properties = {
+            "app.message-transport=kafka",
+            "spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}",
+            "app.kafka.dlq-topic=scrapper-dlq"
+        })
 @ActiveProfiles("test")
 public class ScrapperDlqIntegrationTest {
 
@@ -40,12 +38,16 @@ public class ScrapperDlqIntegrationTest {
     @BeforeAll
     static void setupConsumer() {
         Map<String, Object> props = Map.of(
-            ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, System.getProperty("spring.kafka.bootstrap-servers"),
-            ConsumerConfig.GROUP_ID_CONFIG, "scrapper-dlq-test-group",
-            ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest",
-            ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class,
-            ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class
-        );
+                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
+                System.getProperty("spring.kafka.bootstrap-servers"),
+                ConsumerConfig.GROUP_ID_CONFIG,
+                "scrapper-dlq-test-group",
+                ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
+                "earliest",
+                ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+                StringDeserializer.class,
+                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+                StringDeserializer.class);
         consumer = new KafkaConsumer<>(props);
         consumer.subscribe(Collections.singletonList("scrapper-dlq"));
     }
@@ -76,8 +78,8 @@ public class ScrapperDlqIntegrationTest {
         }
 
         assertThat(found)
-            .as("Ожидали, что невалидный JSON будет перенаправлен в DLQ («scrapper-dlq»)")
-            .isTrue();
+                .as("Ожидали, что невалидный JSON будет перенаправлен в DLQ («scrapper-dlq»)")
+                .isTrue();
     }
 
     @Test
@@ -99,7 +101,7 @@ public class ScrapperDlqIntegrationTest {
         }
 
         assertThat(found)
-            .as("Ожидали, что сообщение с отсутствующим chatId попадёт в DLQ")
-            .isTrue();
+                .as("Ожидали, что сообщение с отсутствующим chatId попадёт в DLQ")
+                .isTrue();
     }
 }

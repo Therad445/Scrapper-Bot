@@ -44,17 +44,17 @@ public class SessionInputHandler implements CommandHandler {
         if (session.getState() == BotState.WAITING_FOR_TAGS) {
             session.setPendingTags(text.isBlank() ? null : text);
             session.setState(BotState.WAITING_FOR_FILTERS);
-            sessionService.saveSession(chatId, session);  // ← сохраняем в Redis
+            sessionService.saveSession(chatId, session); // ← сохраняем в Redis
             sender.send(chatId, "Введите фильтры (опционально):");
 
         } else if (session.getState() == BotState.WAITING_FOR_FILTERS) {
             session.setPendingFilters(text.isBlank() ? null : text);
 
             List<String> tags = session.getPendingTags() != null
-                ? Arrays.asList(session.getPendingTags().split("\\s+"))
-                : Collections.emptyList();
+                    ? Arrays.asList(session.getPendingTags().split("\\s+"))
+                    : Collections.emptyList();
             List<String> filters =
-                session.getPendingFilters() != null ? Arrays.asList(text.split("\\s+")) : Collections.emptyList();
+                    session.getPendingFilters() != null ? Arrays.asList(text.split("\\s+")) : Collections.emptyList();
 
             linkService.track(chatId, URI.create(session.getPendingUrl()), tags, filters);
 

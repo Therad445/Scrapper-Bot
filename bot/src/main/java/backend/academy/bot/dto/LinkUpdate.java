@@ -1,10 +1,9 @@
 package backend.academy.bot.dto;
 
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.validator.constraints.URL;
-
 import java.util.Collections;
 import java.util.Set;
+import org.hibernate.validator.constraints.URL;
 
 public class LinkUpdate {
     @NotNull
@@ -20,8 +19,7 @@ public class LinkUpdate {
     @NotNull
     private Set<Long> tgChatIds;
 
-    public LinkUpdate() {
-    }
+    public LinkUpdate() {}
 
     public LinkUpdate(Long id, String url, String description, Set<Long> tgChatIds) {
         this.id = id;

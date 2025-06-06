@@ -24,7 +24,6 @@ import org.springframework.test.web.servlet.MockMvc;
 @Import(ChatControllerTest.MockConfig.class)
 @AutoConfigureMockMvc
 @TestPropertySource(properties = "app.bot-url=http://localhost:8080")
-
 class ChatControllerTest {
 
     @Autowired

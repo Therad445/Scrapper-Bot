@@ -98,12 +98,12 @@ class SessionInputHandlerTest {
         handler.handle(update);
 
         verify(session).setPendingFilters("filter1 filter2");
-        verify(linkService).track(
-            eq(chatId),
-            eq(URI.create(pendingUrl)),
-            eq(List.of("tag1", "tag2")),
-            eq(List.of("filter1", "filter2"))
-        );
+        verify(linkService)
+                .track(
+                        eq(chatId),
+                        eq(URI.create(pendingUrl)),
+                        eq(List.of("tag1", "tag2")),
+                        eq(List.of("filter1", "filter2")));
         verify(sender).send(chatId, "Ссылка добавлена с тэгами и фильтрами ✅");
         verify(session).reset();
         verify(sessionService).deleteSession(chatId);
@@ -138,12 +138,7 @@ class SessionInputHandlerTest {
         handler.handle(update);
 
         verify(session).setPendingFilters(null);
-        verify(linkService).track(
-            eq(chatId),
-            eq(URI.create(pendingUrl)),
-            eq(List.of()),
-            eq(List.of())
-        );
+        verify(linkService).track(eq(chatId), eq(URI.create(pendingUrl)), eq(List.of()), eq(List.of()));
         verify(sender).send(chatId, "Ссылка добавлена с тэгами и фильтрами ✅");
         verify(session).reset();
         verify(sessionService).deleteSession(chatId);

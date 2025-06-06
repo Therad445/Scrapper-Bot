@@ -12,8 +12,7 @@ public class UserSession implements Serializable {
     private String pendingFilters;
     private BotState state = BotState.NONE;
 
-    public UserSession() {
-    }
+    public UserSession() {}
 
     public String getPendingUrl() {
         return pendingUrl;

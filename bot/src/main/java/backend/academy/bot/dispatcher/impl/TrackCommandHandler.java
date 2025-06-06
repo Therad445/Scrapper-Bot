@@ -1,5 +1,6 @@
 package backend.academy.bot.dispatcher.impl;
 
+import backend.academy.bot.config.BotProperties;
 import backend.academy.bot.dispatcher.BotCommand;
 import backend.academy.bot.dispatcher.CommandHandler;
 import backend.academy.bot.dto.LinkResponse;
@@ -8,14 +9,10 @@ import backend.academy.bot.service.MessageSenderService;
 import backend.academy.bot.service.SessionService;
 import backend.academy.bot.state.BotState;
 import backend.academy.bot.state.UserSession;
-import backend.academy.bot.config.BotProperties;
 import com.pengrad.telegrambot.model.Update;
+import java.util.List;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
-
-import java.net.URI;
-import java.util.Collections;
-import java.util.List;
 
 @Component
 @BotCommand
@@ -28,12 +25,11 @@ public class TrackCommandHandler implements CommandHandler {
     private final BotProperties botProps;
 
     public TrackCommandHandler(
-        LinkService linkService,
-        MessageSenderService sender,
-        SessionService sessionService,
-        RedisTemplate<String, List<LinkResponse>> redisTemplate,
-        BotProperties botProps
-    ) {
+            LinkService linkService,
+            MessageSenderService sender,
+            SessionService sessionService,
+            RedisTemplate<String, List<LinkResponse>> redisTemplate,
+            BotProperties botProps) {
         this.linkService = linkService;
         this.sender = sender;
         this.sessionService = sessionService;

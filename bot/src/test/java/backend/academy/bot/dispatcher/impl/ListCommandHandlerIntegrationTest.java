@@ -1,5 +1,8 @@
 package backend.academy.bot.dispatcher.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
+
 import backend.academy.bot.BotApplication;
 import backend.academy.bot.dto.LinkResponse;
 import backend.academy.bot.service.LinkService;
@@ -7,6 +10,10 @@ import backend.academy.bot.service.MessageSenderService;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
+import java.net.URI;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -21,28 +28,11 @@ import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.TestcontainersConfiguration;
 
-import java.net.URI;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
-
 @SpringBootTest(
-    classes = BotApplication.class,
-    webEnvironment = SpringBootTest.WebEnvironment.NONE,
-    properties = {
-        "app.scrapper-url=http://localhost",
-        "app.telegram-token=dummy-token",
-        "app.cache-ttl=1s"
-    }
-)
-@EnableAutoConfiguration(
-    exclude = {
-        KafkaAutoConfiguration.class
-    }
-)
+        classes = BotApplication.class,
+        webEnvironment = SpringBootTest.WebEnvironment.NONE,
+        properties = {"app.scrapper-url=http://localhost", "app.telegram-token=dummy-token", "app.cache-ttl=1s"})
+@EnableAutoConfiguration(exclude = {KafkaAutoConfiguration.class})
 @ActiveProfiles("test")
 @Testcontainers
 @Import(TestcontainersConfiguration.class)
@@ -75,8 +65,10 @@ class ListCommandHandlerIntegrationTest {
     @Test
     @Timeout(value = 20, unit = TimeUnit.SECONDS)
     void firstListRequest_shouldLoadFromService_andThenCacheReplay_untilInvalidation() {
-        LinkResponse lr1 = new LinkResponse(1L, URI.create("https://a.com"), Collections.emptyList(), Collections.emptyList());
-        LinkResponse lr2 = new LinkResponse(2L, URI.create("https://b.com"), Collections.emptyList(), Collections.emptyList());
+        LinkResponse lr1 =
+                new LinkResponse(1L, URI.create("https://a.com"), Collections.emptyList(), Collections.emptyList());
+        LinkResponse lr2 =
+                new LinkResponse(2L, URI.create("https://b.com"), Collections.emptyList(), Collections.emptyList());
         List<LinkResponse> freshList = List.of(lr1, lr2);
         when(linkService.list(CHAT_ID)).thenReturn(freshList);
 

@@ -5,8 +5,7 @@ import java.util.Objects;
 public class ListCommand {
     private Long chatId;
 
-    public ListCommand() {
-    }
+    public ListCommand() {}
 
     public ListCommand(Long chatId) {
         this.chatId = chatId;
@@ -22,9 +21,7 @@ public class ListCommand {
 
     @Override
     public String toString() {
-        return "ListCommand{" +
-            "chatId=" + chatId +
-            '}';
+        return "ListCommand{" + "chatId=" + chatId + '}';
     }
 
     @Override

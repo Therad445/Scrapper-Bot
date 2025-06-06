@@ -2,19 +2,18 @@ package backend.academy.bot.dispatcher.impl;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import backend.academy.bot.config.BotProperties;
 import backend.academy.bot.dto.LinkResponse;
 import backend.academy.bot.service.LinkService;
 import backend.academy.bot.service.MessageSenderService;
 import backend.academy.bot.service.SessionService;
 import backend.academy.bot.state.BotState;
 import backend.academy.bot.state.UserSession;
-import backend.academy.bot.config.BotProperties;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
@@ -43,13 +42,7 @@ class TrackCommandHandlerTest {
         sessionService = mock(SessionService.class);
         redisTemplate = mock(RedisTemplate.class);
         botProps = mock(BotProperties.class);
-        handler = new TrackCommandHandler(
-            linkService,
-            sender,
-            sessionService,
-            redisTemplate,
-            botProps
-        );
+        handler = new TrackCommandHandler(linkService, sender, sessionService, redisTemplate, botProps);
     }
 
     private Update mockUpdate(String text) {
@@ -81,7 +74,7 @@ class TrackCommandHandlerTest {
     void handle_ShouldSendAlreadyTrackedMessage_IfUrlIsTracked() {
         Update update = mockUpdate("/track " + url);
         LinkResponse existingLink =
-            new LinkResponse(chatId, URI.create(url), Collections.emptyList(), Collections.emptyList());
+                new LinkResponse(chatId, URI.create(url), Collections.emptyList(), Collections.emptyList());
 
         when(linkService.list(chatId)).thenReturn(List.of(existingLink));
 

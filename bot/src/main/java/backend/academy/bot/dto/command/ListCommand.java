@@ -2,12 +2,10 @@ package backend.academy.bot.dto.command;
 
 import java.util.Objects;
 
-
 public class ListCommand implements BotCommandMessage {
     private Long chatId;
 
-    public ListCommand() {
-    }
+    public ListCommand() {}
 
     public ListCommand(Long chatId) {
         this.chatId = chatId;
@@ -23,9 +21,7 @@ public class ListCommand implements BotCommandMessage {
 
     @Override
     public String toString() {
-        return "ListCommand{" +
-            "chatId=" + chatId +
-            '}';
+        return "ListCommand{" + "chatId=" + chatId + '}';
     }
 
     @Override

@@ -9,9 +9,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import backend.academy.bot.config.BotProperties;
 import backend.academy.bot.service.LinkService;
 import backend.academy.bot.service.MessageSenderService;
-import backend.academy.bot.config.BotProperties;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;

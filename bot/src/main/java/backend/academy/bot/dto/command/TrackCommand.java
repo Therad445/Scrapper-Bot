@@ -4,15 +4,13 @@ import java.net.URI;
 import java.util.List;
 import java.util.Objects;
 
-
 public class TrackCommand implements BotCommandMessage {
     private Long chatId;
     private URI link;
     private List<String> tags;
     private List<String> filters;
 
-    public TrackCommand() {
-    }
+    public TrackCommand() {}
 
     public TrackCommand(Long chatId, URI link, List<String> tags, List<String> filters) {
         this.chatId = chatId;
@@ -55,12 +53,11 @@ public class TrackCommand implements BotCommandMessage {
 
     @Override
     public String toString() {
-        return "TrackCommand{" +
-            "chatId=" + chatId +
-            ", link=" + link +
-            ", tags=" + tags +
-            ", filters=" + filters +
-            '}';
+        return "TrackCommand{" + "chatId="
+                + chatId + ", link="
+                + link + ", tags="
+                + tags + ", filters="
+                + filters + '}';
     }
 
     @Override
@@ -68,10 +65,10 @@ public class TrackCommand implements BotCommandMessage {
         if (this == o) return true;
         if (!(o instanceof TrackCommand)) return false;
         TrackCommand that = (TrackCommand) o;
-        return Objects.equals(chatId, that.chatId) &&
-            Objects.equals(link, that.link) &&
-            Objects.equals(tags, that.tags) &&
-            Objects.equals(filters, that.filters);
+        return Objects.equals(chatId, that.chatId)
+                && Objects.equals(link, that.link)
+                && Objects.equals(tags, that.tags)
+                && Objects.equals(filters, that.filters);
     }
 
     @Override

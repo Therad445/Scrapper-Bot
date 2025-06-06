@@ -1,15 +1,14 @@
 package backend.academy.bot.dispatcher.impl;
 
+import backend.academy.bot.config.BotProperties;
 import backend.academy.bot.dispatcher.BotCommand;
 import backend.academy.bot.dispatcher.CommandHandler;
 import backend.academy.bot.service.LinkService;
 import backend.academy.bot.service.MessageSenderService;
-import backend.academy.bot.config.BotProperties;
 import com.pengrad.telegrambot.model.Update;
+import java.net.URI;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
-
-import java.net.URI;
 
 @Component
 @BotCommand
@@ -21,11 +20,10 @@ public class UntrackCommandHandler implements CommandHandler {
     private final BotProperties botProps;
 
     public UntrackCommandHandler(
-        LinkService linkService,
-        MessageSenderService sender,
-        RedisTemplate<String, ?> redisTemplate,
-        BotProperties botProps
-    ) {
+            LinkService linkService,
+            MessageSenderService sender,
+            RedisTemplate<String, ?> redisTemplate,
+            BotProperties botProps) {
         this.linkService = linkService;
         this.sender = sender;
         this.redisTemplate = redisTemplate;

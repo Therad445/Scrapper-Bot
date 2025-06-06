@@ -54,8 +54,8 @@ public class LinkScraperSchedulerTest {
         ScrapperProperties scrapperProperties = mock(ScrapperProperties.class);
         when(scrapperProperties.scheduler()).thenReturn(schedulerProps);
 
-        scheduler =
-                new LinkScraperScheduler(scrapperProperties, linkRepository, chatRepository, checkers, notifier, executor);
+        scheduler = new LinkScraperScheduler(
+                scrapperProperties, linkRepository, chatRepository, checkers, notifier, executor);
     }
 
     @Test

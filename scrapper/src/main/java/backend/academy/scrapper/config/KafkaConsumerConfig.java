@@ -2,27 +2,23 @@ package backend.academy.scrapper.config;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
-
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
-import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
-import org.springframework.kafka.support.serializer.JsonDeserializer;
+import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
+import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.util.backoff.FixedBackOff;
-import org.apache.kafka.common.TopicPartition;
 
 @Configuration
 @ConditionalOnProperty(prefix = "app", name = "message-transport", havingValue = "kafka")
@@ -54,17 +50,13 @@ public class KafkaConsumerConfig {
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory(
-        ConsumerFactory<String, Object> consumerFactory,
-        KafkaTemplate<String, Object> deadLetterTemplate
-    ) {
+            ConsumerFactory<String, Object> consumerFactory, KafkaTemplate<String, Object> deadLetterTemplate) {
         ConcurrentKafkaListenerContainerFactory<String, Object> factory =
-            new ConcurrentKafkaListenerContainerFactory<>();
+                new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory);
 
         DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(
-            deadLetterTemplate,
-            (record, ex) -> new TopicPartition(dlqTopic, record.partition())
-        );
+                deadLetterTemplate, (record, ex) -> new TopicPartition(dlqTopic, record.partition()));
         DefaultErrorHandler errorHandler = new DefaultErrorHandler(recoverer, new FixedBackOff(0L, 0L));
         factory.setCommonErrorHandler(errorHandler);
         return factory;
@@ -72,7 +64,7 @@ public class KafkaConsumerConfig {
 
     @Bean
     public KafkaTemplate<String, Object> deadLetterKafkaTemplate(
-        ProducerFactory<String, Object> producerFactoryForDLQ) {
+            ProducerFactory<String, Object> producerFactoryForDLQ) {
         return new KafkaTemplate<>(producerFactoryForDLQ);
     }
 }

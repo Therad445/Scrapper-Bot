@@ -15,5 +15,4 @@ public class ScrapperConfig {
     public RestTemplate restTemplate() {
         return new RestTemplate();
     }
-
 }

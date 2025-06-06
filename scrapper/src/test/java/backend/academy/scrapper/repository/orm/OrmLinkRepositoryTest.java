@@ -35,8 +35,7 @@ class OrmLinkRepositoryTest {
 
     @ServiceConnection
     @Container
-    static final PostgreSQLContainer<?> postgres =
-        new PostgreSQLContainer<>("postgres:15")
+    static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15")
             .withDatabaseName("scrapper")
             .withUsername("postgres")
             .withPassword("postgres");
@@ -54,9 +53,10 @@ class OrmLinkRepositoryTest {
 
     @DynamicPropertySource
     static void properties(DynamicPropertyRegistry r) {
-        r.add("spring.liquibase.change-log", () ->
-            "file:" + Path.of("../migrations/master.xml").toAbsolutePath().normalize()
-        );
+        r.add(
+                "spring.liquibase.change-log",
+                () -> "file:"
+                        + Path.of("../migrations/master.xml").toAbsolutePath().normalize());
         r.add("spring.liquibase.enabled", () -> "true");
         r.add("spring.jpa.hibernate.ddl-auto", () -> "none");
         r.add("app.bot-url", () -> "http://localhost");
@@ -178,11 +178,10 @@ class OrmLinkRepositoryTest {
     static class Config {
         @Bean
         OrmLinkRepository ormLinkRepository(
-            LinkJpaRepository linkJpa,
-            ChatJpaRepository chatJpa,
-            TagJpaRepository tagJpa,
-            FilterJpaRepository filterJpa
-        ) {
+                LinkJpaRepository linkJpa,
+                ChatJpaRepository chatJpa,
+                TagJpaRepository tagJpa,
+                FilterJpaRepository filterJpa) {
             return new OrmLinkRepository(linkJpa, chatJpa, tagJpa, filterJpa);
         }
     }

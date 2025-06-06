@@ -1,7 +1,6 @@
 package backend.academy.bot.service;
 
 import backend.academy.bot.state.UserSession;
-import java.util.Optional;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 

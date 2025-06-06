@@ -7,8 +7,7 @@ public class UntrackCommand implements BotCommandMessage {
     private Long chatId;
     private URI link;
 
-    public UntrackCommand() {
-    }
+    public UntrackCommand() {}
 
     public UntrackCommand(Long chatId, URI link) {
         this.chatId = chatId;
@@ -33,10 +32,7 @@ public class UntrackCommand implements BotCommandMessage {
 
     @Override
     public String toString() {
-        return "UntrackCommand{" +
-            "chatId=" + chatId +
-            ", link=" + link +
-            '}';
+        return "UntrackCommand{" + "chatId=" + chatId + ", link=" + link + '}';
     }
 
     @Override
@@ -44,8 +40,7 @@ public class UntrackCommand implements BotCommandMessage {
         if (this == o) return true;
         if (!(o instanceof UntrackCommand)) return false;
         UntrackCommand that = (UntrackCommand) o;
-        return Objects.equals(chatId, that.chatId) &&
-            Objects.equals(link, that.link);
+        return Objects.equals(chatId, that.chatId) && Objects.equals(link, that.link);
     }
 
     @Override
