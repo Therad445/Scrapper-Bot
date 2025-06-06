@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@ConditionalOnProperty(prefix = "app", name = "message-transport", havingValue = "kafka")
+@ConditionalOnProperty(prefix = "app", name = "message-transport", havingValue = "KAFKA")
 public class KafkaNotificationService implements NotificationService {
 
     private final KafkaTemplate<String, LinkUpdate> kafkaTemplate;

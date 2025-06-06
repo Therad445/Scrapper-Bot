@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 
 @Component
-@ConditionalOnProperty(prefix = "app", name = "message-transport", havingValue = "kafka")
+@ConditionalOnProperty(prefix = "app", name = "message-transport", havingValue = "KAFKA")
 public class ScrapperCommandsListener {
 
     private static final Logger log = LoggerFactory.getLogger(ScrapperCommandsListener.class);

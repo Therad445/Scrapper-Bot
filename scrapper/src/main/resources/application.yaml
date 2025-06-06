@@ -11,7 +11,7 @@ app:
     batch-size:        ${SCHEDULER_BATCH_SIZE:100}
     thread-count:      ${SCHEDULER_THREAD_COUNT:4}
   access-type:        ${ACCESS_TYPE:ORM}
-  message-transport:  ${MESSAGE_TRANSPORT:kafka}
+  message-transport:  ${MESSAGE_TRANSPORT:KAFKA}
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
     topic:             ${KAFKA_TOPIC}
