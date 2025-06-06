@@ -72,7 +72,7 @@ class GitHubCheckerTest {
                 .andRespond(withSuccess(githubResponse, MediaType.APPLICATION_JSON));
 
         assertTrue(checker.hasUpdates(link));
-        assertEquals("GitHub: Test issue", checker.preview().split("\n")[0].strip()); // first line
+        assertEquals("GitHub: Test issue", checker.preview().split("\n")[0].strip());
         assertEquals(Instant.parse("2024-01-01T12:00:00Z"), checker.remoteUpdatedAt());
 
         mockServer.verify();

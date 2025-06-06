@@ -35,12 +35,11 @@ class OrmLinkRepositoryTest {
 
     @ServiceConnection
     @Container
-    static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15")
+    static final PostgreSQLContainer<?> postgres =
+        new PostgreSQLContainer<>("postgres:15")
             .withDatabaseName("scrapper")
             .withUsername("postgres")
             .withPassword("postgres");
-
-    private final long chatId = 1L;
 
     @Autowired
     OrmLinkRepository ormLinkRepository;
@@ -51,14 +50,16 @@ class OrmLinkRepositoryTest {
     @Autowired
     LinkJpaRepository linkJpa;
 
+    private final long chatId = 1L;
+
     @DynamicPropertySource
     static void properties(DynamicPropertyRegistry r) {
-        r.add(
-                "spring.liquibase.change-log",
-                () -> "file:"
-                        + Path.of("../migrations/master.xml").toAbsolutePath().normalize());
+        r.add("spring.liquibase.change-log", () ->
+            "file:" + Path.of("../migrations/master.xml").toAbsolutePath().normalize()
+        );
         r.add("spring.liquibase.enabled", () -> "true");
         r.add("spring.jpa.hibernate.ddl-auto", () -> "none");
+        r.add("app.bot-url", () -> "http://localhost");
     }
 
     @BeforeEach
@@ -78,7 +79,7 @@ class OrmLinkRepositoryTest {
 
         List<LinkInfo> links = ormLinkRepository.findAllByChat(chatId);
         assertEquals(1, links.size());
-        LinkInfo li = links.getFirst();
+        LinkInfo li = links.get(0);
         assertEquals(url, li.url());
         assertEquals(Set.of("dev"), li.tags());
         assertEquals(Set.of("user:bob"), li.filters());
@@ -177,10 +178,11 @@ class OrmLinkRepositoryTest {
     static class Config {
         @Bean
         OrmLinkRepository ormLinkRepository(
-                LinkJpaRepository linkJpa,
-                ChatJpaRepository chatJpa,
-                TagJpaRepository tagJpa,
-                FilterJpaRepository filterJpa) {
+            LinkJpaRepository linkJpa,
+            ChatJpaRepository chatJpa,
+            TagJpaRepository tagJpa,
+            FilterJpaRepository filterJpa
+        ) {
             return new OrmLinkRepository(linkJpa, chatJpa, tagJpa, filterJpa);
         }
     }

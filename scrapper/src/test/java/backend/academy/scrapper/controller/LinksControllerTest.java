@@ -27,6 +27,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
@@ -35,6 +36,7 @@ import org.springframework.transaction.support.DefaultTransactionStatus;
 
 @WebMvcTest(LinksController.class)
 @Import(LinksControllerTest.MockConfig.class)
+@TestPropertySource(properties = "app.bot-url=http://localhost")
 class LinksControllerTest {
 
     @Autowired
@@ -54,7 +56,8 @@ class LinksControllerTest {
     @Test
     @DisplayName("GET /links - valid")
     void getLinks_shouldReturnList() throws Exception {
-        List<LinkResponse> links = List.of(new LinkResponse(1L, "https://example.com", Set.of("a"), Set.of("f")));
+        List<LinkResponse> links =
+            List.of(new LinkResponse(1L, "https://example.com", Set.of("a"), Set.of("f")));
         when(linkService.getLinks(123L)).thenReturn(new ListLinksResponse(links, links.size()));
 
         mockMvc.perform(get("/links").header("Tg-chat-id", 123))
@@ -99,7 +102,9 @@ class LinksControllerTest {
     @Test
     @DisplayName("POST /links/{id}/tags - add tag")
     void addTag_shouldCallService() throws Exception {
-        mockMvc.perform(post("/links/10/tags").header("Tg-chat-id", 321).param("tag", "java"))
+        mockMvc.perform(post("/links/10/tags")
+                .header("Tg-chat-id", 321)
+                .param("tag", "java"))
                 .andExpect(status().isOk());
 
         verify(linkService).addTag(321L, 10L, "java");
@@ -117,7 +122,9 @@ class LinksControllerTest {
     @Test
     @DisplayName("POST /links/{id}/filters - add filter")
     void addFilter_shouldCallService() throws Exception {
-        mockMvc.perform(post("/links/5/filters").header("Tg-chat-id", 777).param("filter", "user:foo"))
+        mockMvc.perform(post("/links/5/filters")
+                .header("Tg-chat-id", 777)
+                .param("filter", "user:foo"))
                 .andExpect(status().isOk());
 
         verify(linkService).addFilter(777L, 5L, "user:foo");
