@@ -24,7 +24,6 @@ import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.util.backoff.FixedBackOff;
 import org.apache.kafka.common.TopicPartition;
 
-
 @Configuration
 @ConditionalOnProperty(prefix = "app", name = "message-transport", havingValue = "KAFKA")
 public class KafkaConsumerConfig {
@@ -32,12 +31,8 @@ public class KafkaConsumerConfig {
     @Value("${app.kafka.bootstrap-servers}")
     private String bootstrapServers;
 
-    @Value("${app.kafka.bot-to-scrapper-topic}")
-    private String commandsTopic;
-
     @Value("${app.kafka.dlq-topic}")
     private String dlqTopic;
-
 
     @Bean
     public ConsumerFactory<String, Object> consumerFactory() {
@@ -60,7 +55,7 @@ public class KafkaConsumerConfig {
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory(
         ConsumerFactory<String, Object> consumerFactory,
-        KafkaTemplate<String, Object> deadLetterTemplate  // <- вот этот бин будет взят из ProducerConfig
+        KafkaTemplate<String, Object> deadLetterTemplate
     ) {
         ConcurrentKafkaListenerContainerFactory<String, Object> factory =
             new ConcurrentKafkaListenerContainerFactory<>();
@@ -74,7 +69,6 @@ public class KafkaConsumerConfig {
         factory.setCommonErrorHandler(errorHandler);
         return factory;
     }
-
 
     @Bean
     public KafkaTemplate<String, Object> deadLetterKafkaTemplate(
