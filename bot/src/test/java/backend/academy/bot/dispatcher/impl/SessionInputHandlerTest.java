@@ -51,7 +51,7 @@ class SessionInputHandlerTest {
     @Test
     void supports_ShouldReturnTrue_IfStateIsNotNone() {
         UserSession session = mock(UserSession.class);
-        when(session.state()).thenReturn(BotState.WAITING_FOR_TAGS);
+        when(session.getState()).thenReturn(BotState.WAITING_FOR_TAGS);
         when(sessionService.getSession(chatId)).thenReturn(session);
 
         Update update = mockUpdate("some text");
@@ -61,7 +61,7 @@ class SessionInputHandlerTest {
     @Test
     void supports_ShouldReturnFalse_IfStateIsNone() {
         UserSession session = mock(UserSession.class);
-        when(session.state()).thenReturn(BotState.NONE);
+        when(session.getState()).thenReturn(BotState.NONE);
         when(sessionService.getSession(chatId)).thenReturn(session);
 
         Update update = mockUpdate("any");
@@ -69,74 +69,83 @@ class SessionInputHandlerTest {
     }
 
     @Test
-    void handle_ShouldSetTagsAndAskForFilters_WhenWaitingForTags() {
+    void handle_ShouldSetTags_SaveSession_AndAskForFilters_WhenWaitingForTags() {
         UserSession session = mock(UserSession.class);
-        when(session.state()).thenReturn(BotState.WAITING_FOR_TAGS);
+        when(session.getState()).thenReturn(BotState.WAITING_FOR_TAGS);
         when(sessionService.getSession(chatId)).thenReturn(session);
 
         Update update = mockUpdate("tag1 tag2");
 
         handler.handle(update);
 
-        verify(session).pendingTags("tag1 tag2");
-        verify(session).state(BotState.WAITING_FOR_FILTERS);
+        verify(session).setPendingTags("tag1 tag2");
+        verify(session).setState(BotState.WAITING_FOR_FILTERS);
+        verify(sessionService).saveSession(chatId, session);
         verify(sender).send(chatId, "Введите фильтры (опционально):");
     }
 
     @Test
-    void handle_ShouldTrackLinkAndReset_WhenWaitingForFilters() {
+    void handle_ShouldTrackLink_DeleteSession_WhenWaitingForFilters() {
         UserSession session = mock(UserSession.class);
-        when(session.state()).thenReturn(BotState.WAITING_FOR_FILTERS);
-        when(session.pendingTags()).thenReturn("tag1 tag2");
-        when(session.pendingFilters()).thenReturn("filter1 filter2");
-        when(session.pendingUrl()).thenReturn(pendingUrl);
+        when(session.getState()).thenReturn(BotState.WAITING_FOR_FILTERS);
+        when(session.getPendingTags()).thenReturn("tag1 tag2");
+        when(session.getPendingUrl()).thenReturn(pendingUrl);
+        when(session.getPendingFilters()).thenReturn("filter1 filter2");
         when(sessionService.getSession(chatId)).thenReturn(session);
 
         Update update = mockUpdate("filter1 filter2");
 
         handler.handle(update);
 
-        verify(session).pendingFilters("filter1 filter2");
-        verify(linkService)
-                .track(
-                        eq(chatId),
-                        eq(URI.create(pendingUrl)),
-                        eq(List.of("tag1", "tag2")),
-                        eq(List.of("filter1", "filter2")));
+        verify(session).setPendingFilters("filter1 filter2");
+        verify(linkService).track(
+            eq(chatId),
+            eq(URI.create(pendingUrl)),
+            eq(List.of("tag1", "tag2")),
+            eq(List.of("filter1", "filter2"))
+        );
         verify(sender).send(chatId, "Ссылка добавлена с тэгами и фильтрами ✅");
         verify(session).reset();
+        verify(sessionService).deleteSession(chatId);
     }
 
     @Test
-    void handle_ShouldHandleBlankTags() {
+    void handle_ShouldHandleBlankTags_AsNull_SaveSession() {
         UserSession session = mock(UserSession.class);
-        when(session.state()).thenReturn(BotState.WAITING_FOR_TAGS);
+        when(session.getState()).thenReturn(BotState.WAITING_FOR_TAGS);
         when(sessionService.getSession(chatId)).thenReturn(session);
 
         Update update = mockUpdate("   ");
 
         handler.handle(update);
 
-        verify(session).pendingTags(null);
-        verify(session).state(BotState.WAITING_FOR_FILTERS);
+        verify(session).setPendingTags(null);
+        verify(session).setState(BotState.WAITING_FOR_FILTERS);
+        verify(sessionService).saveSession(chatId, session);
         verify(sender).send(chatId, "Введите фильтры (опционально):");
     }
 
     @Test
-    void handle_ShouldHandleBlankFilters() {
+    void handle_ShouldHandleBlankFilters_AsEmptyList_AndDeleteSession() {
         UserSession session = mock(UserSession.class);
-        when(session.state()).thenReturn(BotState.WAITING_FOR_FILTERS);
-        when(session.pendingTags()).thenReturn(null);
-        when(session.pendingUrl()).thenReturn(pendingUrl);
+        when(session.getState()).thenReturn(BotState.WAITING_FOR_FILTERS);
+        when(session.getPendingTags()).thenReturn(null);
+        when(session.getPendingUrl()).thenReturn(pendingUrl);
         when(sessionService.getSession(chatId)).thenReturn(session);
 
         Update update = mockUpdate("   ");
 
         handler.handle(update);
 
-        verify(session).pendingFilters(null);
-        verify(linkService).track(eq(chatId), eq(URI.create(pendingUrl)), eq(List.of()), eq(List.of()));
+        verify(session).setPendingFilters(null);
+        verify(linkService).track(
+            eq(chatId),
+            eq(URI.create(pendingUrl)),
+            eq(List.of()),
+            eq(List.of())
+        );
         verify(sender).send(chatId, "Ссылка добавлена с тэгами и фильтрами ✅");
         verify(session).reset();
+        verify(sessionService).deleteSession(chatId);
     }
 }

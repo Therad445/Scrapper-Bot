@@ -10,7 +10,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import backend.academy.bot.BotConfig;
+import backend.academy.bot.config.BotProperties;
 import backend.academy.bot.dto.LinkResponse;
 import backend.academy.bot.dto.ListLinksResponse;
 import java.net.URI;
@@ -31,12 +31,15 @@ class ScrapperClientTest {
     @Mock
     private RestTemplate restTemplate;
 
+    @Mock
+    private BotProperties botProperties;
+
     private ScrapperClient client;
 
     @BeforeEach
     void setUp() {
-        BotConfig mockConfig = new BotConfig("dummyToken", "http://scrapper:8081/");
-        client = new ScrapperClient(restTemplate, mockConfig);
+        when(botProperties.getScrapperUrl()).thenReturn("http://scrapper:8081/");
+        client = new ScrapperClient(restTemplate, botProperties);
     }
 
     @Test
@@ -44,7 +47,7 @@ class ScrapperClientTest {
         Long chatId = 123L;
         URI uri = URI.create("http://scrapper:8081/tg-chat/" + chatId);
         when(restTemplate.postForEntity(eq(uri), isNull(), eq(Void.class)))
-                .thenReturn(ResponseEntity.ok().build());
+            .thenReturn(ResponseEntity.ok().build());
 
         client.registerUser(chatId);
 
@@ -56,8 +59,8 @@ class ScrapperClientTest {
         Long chatId = 123L;
         ListLinksResponse expected = new ListLinksResponse();
         when(restTemplate.exchange(
-                        any(URI.class), eq(HttpMethod.GET), any(HttpEntity.class), eq(ListLinksResponse.class)))
-                .thenReturn(ResponseEntity.ok(expected));
+            any(URI.class), eq(HttpMethod.GET), any(HttpEntity.class), eq(ListLinksResponse.class)))
+            .thenReturn(ResponseEntity.ok(expected));
 
         ListLinksResponse result = client.getLinks(chatId);
 
@@ -72,7 +75,7 @@ class ScrapperClientTest {
         LinkResponse expected = new LinkResponse(chatId, url, Collections.emptyList(), Collections.emptyList());
 
         when(restTemplate.postForEntity(any(), any(HttpEntity.class), eq(LinkResponse.class)))
-                .thenReturn(ResponseEntity.ok(expected));
+            .thenReturn(ResponseEntity.ok(expected));
 
         LinkResponse result = client.trackLink(chatId, url);
 
@@ -87,7 +90,7 @@ class ScrapperClientTest {
         LinkResponse expected = new LinkResponse(chatId, url, Collections.emptyList(), Collections.emptyList());
 
         when(restTemplate.exchange(any(), eq(HttpMethod.DELETE), any(HttpEntity.class), eq(LinkResponse.class)))
-                .thenReturn(ResponseEntity.ok(expected));
+            .thenReturn(ResponseEntity.ok(expected));
 
         LinkResponse result = client.untrackLink(chatId, url);
 
@@ -98,7 +101,7 @@ class ScrapperClientTest {
     @Test
     void getLinks_shouldThrow_whenScrapperReturnsNull() {
         when(restTemplate.exchange(any(), eq(HttpMethod.GET), any(HttpEntity.class), eq(ListLinksResponse.class)))
-                .thenReturn(ResponseEntity.ok(null));
+            .thenReturn(ResponseEntity.ok(null));
 
         assertThrows(IllegalStateException.class, () -> client.getLinks(1L));
     }
@@ -107,7 +110,7 @@ class ScrapperClientTest {
     void trackLink_shouldThrow_whenScrapperReturnsNull() {
         URI url = URI.create("https://example.com");
         when(restTemplate.postForEntity(any(), any(HttpEntity.class), eq(LinkResponse.class)))
-                .thenReturn(ResponseEntity.ok(null));
+            .thenReturn(ResponseEntity.ok(null));
 
         assertThrows(IllegalStateException.class, () -> client.trackLink(1L, url));
     }
@@ -116,7 +119,7 @@ class ScrapperClientTest {
     void untrackLink_shouldThrow_whenScrapperReturnsNull() {
         URI url = URI.create("https://example.com");
         when(restTemplate.exchange(any(), eq(HttpMethod.DELETE), any(HttpEntity.class), eq(LinkResponse.class)))
-                .thenReturn(ResponseEntity.ok(null));
+            .thenReturn(ResponseEntity.ok(null));
 
         assertThrows(IllegalStateException.class, () -> client.untrackLink(1L, url));
     }

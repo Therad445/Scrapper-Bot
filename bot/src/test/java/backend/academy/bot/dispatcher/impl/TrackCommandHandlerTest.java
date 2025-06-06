@@ -2,6 +2,7 @@ package backend.academy.bot.dispatcher.impl;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -13,6 +14,7 @@ import backend.academy.bot.service.MessageSenderService;
 import backend.academy.bot.service.SessionService;
 import backend.academy.bot.state.BotState;
 import backend.academy.bot.state.UserSession;
+import backend.academy.bot.config.BotProperties;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
@@ -21,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.redis.core.RedisTemplate;
 
 class TrackCommandHandlerTest {
 
@@ -29,6 +32,8 @@ class TrackCommandHandlerTest {
     private LinkService linkService;
     private MessageSenderService sender;
     private SessionService sessionService;
+    private RedisTemplate<String, List<LinkResponse>> redisTemplate;
+    private BotProperties botProps;
     private TrackCommandHandler handler;
 
     @BeforeEach
@@ -36,7 +41,15 @@ class TrackCommandHandlerTest {
         linkService = mock(LinkService.class);
         sender = mock(MessageSenderService.class);
         sessionService = mock(SessionService.class);
-        handler = new TrackCommandHandler(linkService, sender, sessionService);
+        redisTemplate = mock(RedisTemplate.class);
+        botProps = mock(BotProperties.class);
+        handler = new TrackCommandHandler(
+            linkService,
+            sender,
+            sessionService,
+            redisTemplate,
+            botProps
+        );
     }
 
     private Update mockUpdate(String text) {
@@ -68,7 +81,7 @@ class TrackCommandHandlerTest {
     void handle_ShouldSendAlreadyTrackedMessage_IfUrlIsTracked() {
         Update update = mockUpdate("/track " + url);
         LinkResponse existingLink =
-                new LinkResponse(chatId, URI.create(url), Collections.emptyList(), Collections.emptyList());
+            new LinkResponse(chatId, URI.create(url), Collections.emptyList(), Collections.emptyList());
 
         when(linkService.list(chatId)).thenReturn(List.of(existingLink));
 
@@ -76,6 +89,7 @@ class TrackCommandHandlerTest {
 
         verify(sender).send(chatId, "Ссылка уже отслеживается ✅");
         verifyNoInteractions(sessionService);
+        verifyNoInteractions(redisTemplate);
     }
 
     @Test
@@ -88,8 +102,10 @@ class TrackCommandHandlerTest {
 
         handler.handle(update);
 
-        verify(session).pendingUrl(url);
-        verify(session).state(BotState.WAITING_FOR_TAGS);
+        verify(session).setPendingUrl(url);
+        verify(session).setState(BotState.WAITING_FOR_TAGS);
+        verify(sessionService).saveSession(chatId, session);
+        verify(redisTemplate).delete("bot:list:" + chatId);
         verify(sender).send(chatId, "Введите тэги (опционально):");
     }
 }
