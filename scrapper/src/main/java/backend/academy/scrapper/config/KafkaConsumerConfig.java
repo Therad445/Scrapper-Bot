@@ -16,6 +16,7 @@ import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
@@ -59,7 +60,7 @@ public class KafkaConsumerConfig {
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory(
         ConsumerFactory<String, Object> consumerFactory,
-        KafkaTemplate<String, Object> deadLetterTemplate
+        KafkaTemplate<String, Object> deadLetterTemplate  // <- вот этот бин будет взят из ProducerConfig
     ) {
         ConcurrentKafkaListenerContainerFactory<String, Object> factory =
             new ConcurrentKafkaListenerContainerFactory<>();
@@ -67,20 +68,17 @@ public class KafkaConsumerConfig {
 
         DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(
             deadLetterTemplate,
-            (record, ex) -> {
-                return new TopicPartition(dlqTopic, record.partition());
-            }
+            (record, ex) -> new TopicPartition(dlqTopic, record.partition())
         );
-
         DefaultErrorHandler errorHandler = new DefaultErrorHandler(recoverer, new FixedBackOff(0L, 0L));
         factory.setCommonErrorHandler(errorHandler);
-
         return factory;
     }
 
+
     @Bean
     public KafkaTemplate<String, Object> deadLetterKafkaTemplate(
-        org.springframework.kafka.core.ProducerFactory<String, Object> producerFactory) {
-        return new KafkaTemplate<>(producerFactory);
+        ProducerFactory<String, Object> producerFactoryForDLQ) {
+        return new KafkaTemplate<>(producerFactoryForDLQ);
     }
 }

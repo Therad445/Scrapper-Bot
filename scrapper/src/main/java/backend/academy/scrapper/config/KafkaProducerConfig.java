@@ -30,18 +30,21 @@ public class KafkaProducerConfig {
     }
 
     @Bean
-    public ProducerFactory<String, LinkUpdate> producerFactory() {
-        Map<String, Object> configs = producerConfigs();
-        if (configs == null) {
-            throw new IllegalStateException("producerConfigs() вернула null. Проверьте, что app.kafka.bootstrap-servers задан.");
-        }
-        return new DefaultKafkaProducerFactory<>(configs);
+    public ProducerFactory<String, LinkUpdate> producerFactoryForLinkUpdate() {
+        return new DefaultKafkaProducerFactory<>(producerConfigs());
     }
 
     @Bean
     public KafkaTemplate<String, LinkUpdate> kafkaTemplate(
-        ProducerFactory<String, LinkUpdate> producerFactory
+        ProducerFactory<String, LinkUpdate> pf
     ) {
-        return new KafkaTemplate<>(producerFactory);
+        return new KafkaTemplate<>(pf);
+    }
+
+    @Bean
+    public ProducerFactory<String, Object> producerFactoryForDLQ() {
+        return new DefaultKafkaProducerFactory<>(producerConfigs());
     }
 }
+
+
