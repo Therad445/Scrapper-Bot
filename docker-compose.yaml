@@ -31,7 +31,6 @@ services:
       - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
       - KAFKA_CFG_LISTENERS=PLAINTEXT://0.0.0.0:9092
       - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
-      - KAFKA_CFG_AUTHORIZER_CLASS_NAME=
     ports:
       - "9092:9092"
     networks:
@@ -64,6 +63,8 @@ services:
       - BOT_URL=${BOT_URL}
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - KAFKA_TOPIC=test-topic
+      - KAFKA_BOT_TO_SCRAPPER_TOPIC=bot-to-scrapper
+      - KAFKA_BOT_TO_SCRAPPER_DLQ=bot-to-scrapper-dlq
       - MESSAGE_TRANSPORT=${MESSAGE_TRANSPORT}
     ports:
       - "8081:8081"
@@ -84,6 +85,8 @@ services:
       - SCRAPPER_URL=${SCRAPPER_URL}
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - KAFKA_TOPIC=link-updates
+      - KAFKA_DLQ_TOPIC=link-updates-dlq
+      - KAFKA_BOT_TO_SCRAPPER=bot-to-scrapper
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     ports:

@@ -1,30 +1,30 @@
 app:
-  github-token: ${GITHUB_TOKEN} # env variable
+  github-token:       ${GITHUB_TOKEN}
   stackoverflow:
-    key: ${SO_TOKEN_KEY}
-    access-token: ${SO_ACCESS_TOKEN}
-  bot-url: ${BOT_URL:http://localhost:8080}
+    key:              ${SO_TOKEN_KEY}
+    access-token:     ${SO_ACCESS_TOKEN}
+  bot-url:            ${BOT_URL}
   scheduler:
-    enable: true
-    interval: 30s
-    force-check-delay: 15m
-    batch-size: 100
-    thread-count: 4
-  access-type: ORM
-  message-transport: kafka
+    enable:            ${SCHEDULER_ENABLE:true}
+    interval:          ${SCHEDULER_INTERVAL:30s}
+    force-check-delay: ${SCHEDULER_FORCE_CHECK_DELAY:15m}
+    batch-size:        ${SCHEDULER_BATCH_SIZE:100}
+    thread-count:      ${SCHEDULER_THREAD_COUNT:4}
+  access-type:        ${ACCESS_TYPE:ORM}
+  message-transport:  ${MESSAGE_TRANSPORT:kafka}
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
-    topic: ${KAFKA_TOPIC:test-topic}
-    dlq-topic: ${KAFKA_BOT_TO_SCRAPPER_DLQ:bot-to-scrapper-dlq}
-    bot-to-scrapper-topic: ${KAFKA_BOT_TO_SCRAPPER_TOPIC:bot-to-scrapper}
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+    topic:             ${KAFKA_TOPIC}
+    dlq-topic:         ${KAFKA_BOT_TO_SCRAPPER_DLQ}
+    bot-to-scrapper-topic: ${KAFKA_BOT_TO_SCRAPPER_TOPIC}
 
 spring:
   application:
     name: Scrapper
   datasource:
-    url: jdbc:postgresql://postgres:5432/scrapper
-    username: postgres
-    password: postgres
+    url:      ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
   liquibase:
     enabled: false
   jpa:
