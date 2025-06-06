@@ -39,6 +39,7 @@ public record ScrapperProperties(
     public record KafkaProperties(
         @NotEmpty String topic,
         @NotEmpty String dlqTopic,
-        @NotEmpty String bootstrapServers
+        @NotEmpty String bootstrapServers,
+        @NotEmpty String botToScrapperTopic
     ) {}
 }
