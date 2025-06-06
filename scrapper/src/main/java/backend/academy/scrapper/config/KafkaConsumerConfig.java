@@ -25,7 +25,7 @@ import org.springframework.util.backoff.FixedBackOff;
 import org.apache.kafka.common.TopicPartition;
 
 @Configuration
-@ConditionalOnProperty(prefix = "app", name = "message-transport", havingValue = "KAFKA")
+@ConditionalOnProperty(prefix = "app", name = "message-transport", havingValue = "kafka")
 public class KafkaConsumerConfig {
 
     @Value("${app.kafka.bootstrap-servers}")
@@ -46,7 +46,7 @@ public class KafkaConsumerConfig {
         props.put(ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS, StringDeserializer.class);
         props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, JsonDeserializer.class);
 
-        props.put(JsonDeserializer.TRUSTED_PACKAGES, "backend.academy.scrapper.kafka.command");
+        props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
         props.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, true);
 
         return new DefaultKafkaConsumerFactory<>(props);
