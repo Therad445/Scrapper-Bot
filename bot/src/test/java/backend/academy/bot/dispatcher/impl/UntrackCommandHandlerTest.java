@@ -1,21 +1,21 @@
 package backend.academy.bot.dispatcher.impl;
 
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.contains;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import backend.academy.bot.config.BotProperties;
+import backend.academy.bot.dto.LinkResponse;
 import backend.academy.bot.service.LinkService;
 import backend.academy.bot.service.MessageSenderService;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import java.net.URI;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -37,6 +37,12 @@ class UntrackCommandHandlerTest {
         redisTemplate = mock(RedisTemplate.class);
         botProps = mock(BotProperties.class);
         handler = new UntrackCommandHandler(linkService, sender, redisTemplate);
+    }
+
+    private void markLinkAsTracked() {
+        LinkResponse lr = mock(LinkResponse.class);
+        when(lr.getLink()).thenReturn(URI.create(url));
+        when(linkService.list(chatId)).thenReturn(List.of(lr));
     }
 
     private Update mockUpdate(String text) {
@@ -67,6 +73,7 @@ class UntrackCommandHandlerTest {
     @Test
     void handle_ShouldCallUntrack_SendSuccessMessage_AndDeleteCache() {
         Update update = mockUpdate("/untrack " + url);
+        markLinkAsTracked();
 
         handler.handle(update);
 
@@ -78,11 +85,12 @@ class UntrackCommandHandlerTest {
     @Test
     void handle_ShouldSendErrorMessage_WhenUntrackThrowsException() {
         Update update = mockUpdate("/untrack " + url);
+        markLinkAsTracked();
         doThrow(new RuntimeException("Ошибка")).when(linkService).untrack(any(), any());
 
         handler.handle(update);
 
-        verify(sender).send(eq(chatId), contains("Не удалось удалить ссылку: Ошибка"));
+        verify(sender).send(chatId, "Не удалось удалить ссылку: попробуйте позже");
         verifyNoInteractions(redisTemplate);
     }
 }

@@ -80,7 +80,7 @@ class TrackCommandHandlerTest {
 
         handler.handle(update);
 
-        verify(sender).send(chatId, "Ссылка уже отслеживается ✅");
+        verify(sender).send(chatId, "Ссылка уже отслеживается");
         verifyNoInteractions(sessionService);
         verifyNoInteractions(redisTemplate);
     }

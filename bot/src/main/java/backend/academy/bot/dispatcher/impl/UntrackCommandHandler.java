@@ -11,6 +11,7 @@ import java.net.URL;
 import java.util.regex.Pattern;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 
 @Component
 @BotCommand
@@ -58,12 +59,24 @@ public class UntrackCommandHandler implements CommandHandler {
 
         String url = URI.create(raw).normalize().toString();
 
+        boolean tracked = linkService.list(chatId).stream()
+                .anyMatch(lr -> lr.getLink().toString().equals(url));
+
+        if (!tracked) {
+            sender.send(chatId, "Вы не отслеживаете эту ссылку ️");
+            return;
+        }
+
         try {
             linkService.untrack(chatId, URI.create(url));
             sender.send(chatId, "Ссылка больше не отслеживается");
             redisTemplate.delete("bot:list:" + chatId);
+        } catch (HttpClientErrorException.NotFound nf) {
+            sender.send(chatId, "Ссылка не найдена в базе Scrapper’а");
+        } catch (HttpClientErrorException.BadRequest br) {
+            sender.send(chatId, "Некорректный URL");
         } catch (Exception ex) {
-            sender.send(chatId, "Не удалось удалить ссылку: " + ex.getMessage());
+            sender.send(chatId, "Не удалось удалить ссылку: попробуйте позже");
         }
     }
 }
