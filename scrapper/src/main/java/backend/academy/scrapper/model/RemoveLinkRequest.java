@@ -1,3 +1,6 @@
 package backend.academy.scrapper.model;
 
-public record RemoveLinkRequest(String link) {}
+import jakarta.validation.constraints.NotBlank;
+import org.hibernate.validator.constraints.URL;
+
+public record RemoveLinkRequest(@URL @NotBlank String link) {}
