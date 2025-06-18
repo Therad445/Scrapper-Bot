@@ -11,6 +11,7 @@ import backend.academy.bot.state.BotState;
 import backend.academy.bot.state.UserSession;
 import com.pengrad.telegrambot.model.Update;
 import java.util.List;
+import java.util.regex.Pattern;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +24,7 @@ public class TrackCommandHandler implements CommandHandler {
     private final SessionService sessionService;
     private final RedisTemplate<String, List<LinkResponse>> redisTemplate;
     private final BotProperties botProps;
+    private static final Pattern trackPattern = Pattern.compile("^/track(\\s+|$).*");
 
     public TrackCommandHandler(
             LinkService linkService,
@@ -39,13 +41,23 @@ public class TrackCommandHandler implements CommandHandler {
 
     @Override
     public boolean supports(Update u) {
-        return u.message() != null && u.message().text().startsWith("/track ");
+        return u.message() != null && trackPattern.matcher(u.message().text()).matches();
     }
 
     @Override
     public void handle(Update u) {
+
         Long chatId = u.message().chat().id();
-        String url = u.message().text().substring(7).trim();
+        String[] parts = u.message().text().split("\\s+", 2);
+
+        if (parts.length < 2 || parts[1].isBlank()) {
+            sender.send(chatId,
+                "❗️ Вы забыли указать ссылку.\n" +
+                    "Использование: /track <url>");
+            return;
+        }
+
+        String url = parts[1].trim();
 
         List<LinkResponse> existing = linkService.list(chatId);
         if (existing.stream().anyMatch(lr -> lr.getLink().toString().equals(url))) {
