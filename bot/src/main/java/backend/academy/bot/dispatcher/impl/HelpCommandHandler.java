@@ -5,11 +5,12 @@ import backend.academy.bot.dispatcher.CommandHandler;
 import backend.academy.bot.service.MessageSenderService;
 import com.pengrad.telegrambot.model.Update;
 import lombok.RequiredArgsConstructor;
+import java.util.regex.Pattern;
 
 @RequiredArgsConstructor
 @BotCommand
 public class HelpCommandHandler implements CommandHandler {
-
+    private static final Pattern HELP_CMD = Pattern.compile("^/help$");
     private static final String HELP_TEXT =
             """
             Доступные команды:
@@ -23,7 +24,7 @@ public class HelpCommandHandler implements CommandHandler {
 
     @Override
     public boolean supports(Update u) {
-        return u.message() != null && "/help".equals(u.message().text().trim());
+        return CommandHandler.textMatches(u, HELP_CMD);
     }
 
     @Override

@@ -36,7 +36,7 @@ class UntrackCommandHandlerTest {
         sender = mock(MessageSenderService.class);
         redisTemplate = mock(RedisTemplate.class);
         botProps = mock(BotProperties.class);
-        handler = new UntrackCommandHandler(linkService, sender, redisTemplate, botProps);
+        handler = new UntrackCommandHandler(linkService, sender, redisTemplate);
     }
 
     private Update mockUpdate(String text) {

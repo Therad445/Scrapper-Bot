@@ -6,6 +6,7 @@ import backend.academy.bot.service.ChatService;
 import backend.academy.bot.service.MessageSenderService;
 import com.pengrad.telegrambot.model.Update;
 import lombok.RequiredArgsConstructor;
+import java.util.regex.Pattern;
 
 @RequiredArgsConstructor
 @BotCommand
@@ -13,10 +14,12 @@ public class StartCommandHandler implements CommandHandler {
 
     private final ChatService chatService;
     private final MessageSenderService sender;
+    private static final Pattern START_CMD = Pattern.compile("^/start$");
+
 
     @Override
     public boolean supports(Update u) {
-        return u.message() != null && "/start".equals(u.message().text());
+        return CommandHandler.textMatches(u, START_CMD);
     }
 
     @Override

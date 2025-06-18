@@ -42,7 +42,7 @@ class TrackCommandHandlerTest {
         sessionService = mock(SessionService.class);
         redisTemplate = mock(RedisTemplate.class);
         botProps = mock(BotProperties.class);
-        handler = new TrackCommandHandler(linkService, sender, sessionService, redisTemplate, botProps);
+        handler = new TrackCommandHandler(linkService, sender, sessionService, redisTemplate);
     }
 
     private Update mockUpdate(String text) {

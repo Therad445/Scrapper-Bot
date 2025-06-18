@@ -41,7 +41,8 @@ public class RedisConfig {
         ObjectMapper mapper = new ObjectMapper();
         mapper.activateDefaultTyping(
                 BasicPolymorphicTypeValidator.builder()
-                        .allowIfSubType(LinkResponse.class)
+                    .allowIfSubType("java.util")
+                    .allowIfSubType(LinkResponse.class)
                         .build(),
                 ObjectMapper.DefaultTyping.NON_FINAL);
 

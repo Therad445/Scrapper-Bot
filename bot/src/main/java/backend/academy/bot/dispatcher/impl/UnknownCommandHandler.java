@@ -17,12 +17,15 @@ public class UnknownCommandHandler implements CommandHandler {
 
     @Override
     public boolean supports(Update u) {
-        return u.message() != null;
+        return CommandHandler.chatId(u).isPresent();
     }
 
     @Override
     public void handle(Update u) {
-        sender.send(
-                u.message().chat().id(), "Неизвестная команда. Введите /help, чтобы увидеть список доступных команд.");
+        CommandHandler.chatId(u).ifPresent(cid ->
+            sender.send(
+                cid,
+                "Неизвестная команда. Введите /help, чтобы увидеть список доступных команд.")
+        );
     }
 }

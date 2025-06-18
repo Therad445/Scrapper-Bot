@@ -9,6 +9,7 @@ import backend.academy.bot.service.MessageSenderService;
 import com.pengrad.telegrambot.model.Update;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -23,6 +24,8 @@ public class ListCommandHandler implements CommandHandler {
     private final KafkaTemplate<String, Object> kafkaTemplate;
     private final BotProperties botProps;
     private final RedisTemplate<String, List<LinkResponse>> redisTemplate;
+    private static final Pattern LIST_CMD = Pattern.compile("^/list$");
+
 
     public ListCommandHandler(
             LinkService linkService,
@@ -39,7 +42,7 @@ public class ListCommandHandler implements CommandHandler {
 
     @Override
     public boolean supports(Update u) {
-        return u.message() != null && "/list".equals(u.message().text().trim());
+        return CommandHandler.textMatches(u, LIST_CMD);
     }
 
     @Override
