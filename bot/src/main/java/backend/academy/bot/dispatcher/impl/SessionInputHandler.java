@@ -7,7 +7,6 @@ import backend.academy.bot.service.SessionService;
 import backend.academy.bot.state.BotState;
 import backend.academy.bot.state.UserSession;
 import com.pengrad.telegrambot.model.Update;
-import backend.academy.bot.dispatcher.CommandHandler;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
@@ -47,7 +46,7 @@ public class SessionInputHandler implements CommandHandler {
         OptionalLong cidOpt = CommandHandler.chatId(u);
         if (cidOpt.isEmpty()) return;
         long chatId = cidOpt.getAsLong();
-        String text  = u.message().text().trim();
+        String text = u.message().text().trim();
         UserSession session = sessionService.getSession(chatId);
 
         if (session.getState() == BotState.WAITING_FOR_TAGS) {

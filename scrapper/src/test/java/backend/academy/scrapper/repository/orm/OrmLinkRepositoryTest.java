@@ -40,6 +40,8 @@ class OrmLinkRepositoryTest {
             .withUsername("postgres")
             .withPassword("postgres");
 
+    private final long chatId = 1L;
+
     @Autowired
     OrmLinkRepository ormLinkRepository;
 
@@ -48,8 +50,6 @@ class OrmLinkRepositoryTest {
 
     @Autowired
     LinkJpaRepository linkJpa;
-
-    private final long chatId = 1L;
 
     @DynamicPropertySource
     static void properties(DynamicPropertyRegistry r) {

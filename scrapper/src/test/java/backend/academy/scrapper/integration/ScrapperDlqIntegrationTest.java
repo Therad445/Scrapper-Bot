@@ -30,10 +30,10 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @ActiveProfiles("test")
 public class ScrapperDlqIntegrationTest {
 
+    private static KafkaConsumer<String, String> consumer;
+
     @Autowired
     private KafkaTemplate<String, String> kafkaTemplate;
-
-    private static KafkaConsumer<String, String> consumer;
 
     @BeforeAll
     static void setupConsumer() {

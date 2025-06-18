@@ -1,6 +1,5 @@
 package backend.academy.bot.dispatcher.impl;
 
-import backend.academy.bot.config.BotProperties;
 import backend.academy.bot.dispatcher.BotCommand;
 import backend.academy.bot.dispatcher.CommandHandler;
 import backend.academy.bot.dto.LinkResponse;
@@ -22,18 +21,17 @@ import org.springframework.stereotype.Component;
 @BotCommand
 public class TrackCommandHandler implements CommandHandler {
 
+    private static final Pattern TRACK_CMD = Pattern.compile("^/track(\\s+|$).*");
     private final LinkService linkService;
     private final MessageSenderService sender;
     private final SessionService sessionService;
     private final RedisTemplate<String, List<LinkResponse>> redisTemplate;
 
-    private static final Pattern TRACK_CMD = Pattern.compile("^/track(\\s+|$).*");
-
     public TrackCommandHandler(
-        LinkService linkService,
-        MessageSenderService sender,
-        SessionService sessionService,
-        RedisTemplate<String, List<LinkResponse>> redisTemplate) {
+            LinkService linkService,
+            MessageSenderService sender,
+            SessionService sessionService,
+            RedisTemplate<String, List<LinkResponse>> redisTemplate) {
         this.linkService = linkService;
         this.sender = sender;
         this.sessionService = sessionService;
@@ -51,8 +49,7 @@ public class TrackCommandHandler implements CommandHandler {
         String[] parts = u.message().text().split("\\s+", 2);
 
         if (parts.length < 2 || parts[1].isBlank()) {
-            sender.send(chatId,
-                "Вы забыли указать ссылку.\nИспользование: /track <url>");
+            sender.send(chatId, "Вы забыли указать ссылку.\nИспользование: /track <url>");
             return;
         }
 
@@ -60,8 +57,7 @@ public class TrackCommandHandler implements CommandHandler {
 
         try {
             URL test = new URL(raw);
-            if (!"http".equalsIgnoreCase(test.getProtocol())
-                && !"https".equalsIgnoreCase(test.getProtocol())) {
+            if (!"http".equalsIgnoreCase(test.getProtocol()) && !"https".equalsIgnoreCase(test.getProtocol())) {
                 throw new MalformedURLException();
             }
         } catch (MalformedURLException ex) {
@@ -79,7 +75,7 @@ public class TrackCommandHandler implements CommandHandler {
 
         String finalUrl = url;
         if (linkService.list(chatId).stream()
-            .anyMatch(lr -> lr.getLink().toString().equals(finalUrl))) {
+                .anyMatch(lr -> lr.getLink().toString().equals(finalUrl))) {
             sender.send(chatId, "Ссылка уже отслеживается");
             return;
         }

@@ -1,28 +1,28 @@
 app:
-  github-token:       ${GITHUB_TOKEN}
+  github-token: ${GITHUB_TOKEN}
   stackoverflow:
-    key:              ${SO_TOKEN_KEY}
-    access-token:     ${SO_ACCESS_TOKEN}
-  bot-url:            ${BOT_URL}
+    key: ${SO_TOKEN_KEY}
+    access-token: ${SO_ACCESS_TOKEN}
+  bot-url: ${BOT_URL}
   scheduler:
-    enable:            ${SCHEDULER_ENABLE:true}
-    interval:          ${SCHEDULER_INTERVAL:30s}
+    enable: ${SCHEDULER_ENABLE:true}
+    interval: ${SCHEDULER_INTERVAL:30s}
     force-check-delay: ${SCHEDULER_FORCE_CHECK_DELAY:15m}
-    batch-size:        ${SCHEDULER_BATCH_SIZE:100}
-    thread-count:      ${SCHEDULER_THREAD_COUNT:4}
-  access-type:        ${ACCESS_TYPE:ORM}
-  message-transport:  ${MESSAGE_TRANSPORT:KAFKA}
+    batch-size: ${SCHEDULER_BATCH_SIZE:100}
+    thread-count: ${SCHEDULER_THREAD_COUNT:4}
+  access-type: ${ACCESS_TYPE:ORM}
+  message-transport: ${MESSAGE_TRANSPORT:KAFKA}
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
-    topic:             ${KAFKA_TOPIC}
-    dlq-topic:         ${KAFKA_BOT_TO_SCRAPPER_DLQ}
+    topic: ${KAFKA_TOPIC}
+    dlq-topic: ${KAFKA_BOT_TO_SCRAPPER_DLQ}
     bot-to-scrapper-topic: ${KAFKA_BOT_TO_SCRAPPER_TOPIC}
 
 spring:
   application:
     name: Scrapper
   datasource:
-    url:      ${SPRING_DATASOURCE_URL}
+    url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
   liquibase:

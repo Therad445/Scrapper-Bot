@@ -1,6 +1,5 @@
 package backend.academy.bot.dispatcher.impl;
 
-import backend.academy.bot.config.BotProperties;
 import backend.academy.bot.dispatcher.BotCommand;
 import backend.academy.bot.dispatcher.CommandHandler;
 import backend.academy.bot.service.LinkService;
@@ -23,9 +22,8 @@ public class UntrackCommandHandler implements CommandHandler {
     private final MessageSenderService sender;
     private final RedisTemplate<String, ?> redisTemplate;
 
-    public UntrackCommandHandler(LinkService linkService,
-                                 MessageSenderService sender,
-                                 RedisTemplate<String, ?> redisTemplate) {
+    public UntrackCommandHandler(
+            LinkService linkService, MessageSenderService sender, RedisTemplate<String, ?> redisTemplate) {
         this.linkService = linkService;
         this.sender = sender;
         this.redisTemplate = redisTemplate;
@@ -48,18 +46,17 @@ public class UntrackCommandHandler implements CommandHandler {
 
         String raw = parts[1].trim();
 
-                        try {
-                        URL test = new URL(raw);
-                        if (!"http".equalsIgnoreCase(test.getProtocol())
-                                && !"https".equalsIgnoreCase(test.getProtocol())) {
-                                throw new MalformedURLException();
-                            }
-                    } catch (MalformedURLException ex) {
-                        sender.send(chatId, "Некорректный URL. Убедитесь, что он начинается с http:// или https://");
-                        return;
-                    }
+        try {
+            URL test = new URL(raw);
+            if (!"http".equalsIgnoreCase(test.getProtocol()) && !"https".equalsIgnoreCase(test.getProtocol())) {
+                throw new MalformedURLException();
+            }
+        } catch (MalformedURLException ex) {
+            sender.send(chatId, "Некорректный URL. Убедитесь, что он начинается с http:// или https://");
+            return;
+        }
 
-                    String url = URI.create(raw).normalize().toString();
+        String url = URI.create(raw).normalize().toString();
 
         try {
             linkService.untrack(chatId, URI.create(url));

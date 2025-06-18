@@ -5,17 +5,16 @@ import backend.academy.bot.dispatcher.CommandHandler;
 import backend.academy.bot.service.ChatService;
 import backend.academy.bot.service.MessageSenderService;
 import com.pengrad.telegrambot.model.Update;
-import lombok.RequiredArgsConstructor;
 import java.util.regex.Pattern;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @BotCommand
 public class StartCommandHandler implements CommandHandler {
 
+    private static final Pattern START_CMD = Pattern.compile("^/start$");
     private final ChatService chatService;
     private final MessageSenderService sender;
-    private static final Pattern START_CMD = Pattern.compile("^/start$");
-
 
     @Override
     public boolean supports(Update u) {

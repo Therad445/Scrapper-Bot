@@ -56,37 +56,30 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ApiErrorResponse> unreadable(HttpMessageNotReadableException ex) {
 
-                    ApiErrorResponse body = new ApiErrorResponse(
-                            "Некорректный URL",
-                            "400",
-                            ex.getClass().getSimpleName(),
-                            ex.getMostSpecificCause().getMessage(),
-                            getStackTraceAsList(ex));
+        ApiErrorResponse body = new ApiErrorResponse(
+                "Некорректный URL",
+                "400",
+                ex.getClass().getSimpleName(),
+                ex.getMostSpecificCause().getMessage(),
+                getStackTraceAsList(ex));
 
-                    log.error("Ошибка 400: {}", body);
-                return ResponseEntity.badRequest().body(body);
-            }
+        log.error("Ошибка 400: {}", body);
+        return ResponseEntity.badRequest().body(body);
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ApiErrorResponse> error400(MethodArgumentNotValidException ex) {
 
-        String errMsg = ex.getBindingResult()
-            .getAllErrors()
-            .stream()
-            .map(ObjectError::getDefaultMessage)
-            .findFirst()
-            .orElse("Некорректные параметры запроса");
+        String errMsg = ex.getBindingResult().getAllErrors().stream()
+                .map(ObjectError::getDefaultMessage)
+                .findFirst()
+                .orElse("Некорректные параметры запроса");
 
         ApiErrorResponse body = new ApiErrorResponse(
-            "Некорректный URL",
-            "400",
-            ex.getClass().getSimpleName(),
-            errMsg,
-            getStackTraceAsList(ex));
+                "Некорректный URL", "400", ex.getClass().getSimpleName(), errMsg, getStackTraceAsList(ex));
 
         log.error("Ошибка 400: {}", body);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 }
-

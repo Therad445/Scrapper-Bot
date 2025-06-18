@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class SessionService {
 
-    private final RedisTemplate<String, UserSession> redisTemplate;
     private static final String KEY_PREFIX = "session:";
+    private final RedisTemplate<String, UserSession> redisTemplate;
 
     public SessionService(RedisTemplate<String, UserSession> redisTemplate) {
         this.redisTemplate = redisTemplate;

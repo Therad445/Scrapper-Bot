@@ -19,13 +19,12 @@ import org.springframework.stereotype.Component;
 @BotCommand
 public class ListCommandHandler implements CommandHandler {
 
+    private static final Pattern LIST_CMD = Pattern.compile("^/list$");
     private final LinkService linkService;
     private final MessageSenderService sender;
     private final KafkaTemplate<String, Object> kafkaTemplate;
     private final BotProperties botProps;
     private final RedisTemplate<String, List<LinkResponse>> redisTemplate;
-    private static final Pattern LIST_CMD = Pattern.compile("^/list$");
-
 
     public ListCommandHandler(
             LinkService linkService,

@@ -4,8 +4,8 @@ import backend.academy.bot.dispatcher.BotCommand;
 import backend.academy.bot.dispatcher.CommandHandler;
 import backend.academy.bot.service.MessageSenderService;
 import com.pengrad.telegrambot.model.Update;
-import lombok.RequiredArgsConstructor;
 import java.util.regex.Pattern;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @BotCommand

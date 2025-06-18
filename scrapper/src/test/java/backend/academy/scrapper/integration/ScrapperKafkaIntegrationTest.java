@@ -33,11 +33,6 @@ public class ScrapperKafkaIntegrationTest {
     private static final KafkaContainer kafkaContainer =
             new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:8.1.3"));
 
-    @DynamicPropertySource
-    static void overrideKafkaBootstrapServers(DynamicPropertyRegistry registry) {
-        registry.add("spring.kafka.bootstrap-servers", kafkaContainer::getBootstrapServers);
-    }
-
     @Autowired
     private KafkaTemplate<String, Object> kafkaTemplate;
 
@@ -46,6 +41,11 @@ public class ScrapperKafkaIntegrationTest {
 
     @Autowired
     private LinkJpaRepository linkJpaRepository;
+
+    @DynamicPropertySource
+    static void overrideKafkaBootstrapServers(DynamicPropertyRegistry registry) {
+        registry.add("spring.kafka.bootstrap-servers", kafkaContainer::getBootstrapServers);
+    }
 
     @BeforeEach
     void cleanupDatabase() {
